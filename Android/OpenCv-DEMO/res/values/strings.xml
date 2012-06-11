@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Naamakahvi OpenCV DEMO</string>
+    <string name="app_name">NAAMAKAHVI OpenCV Demo</string>
+    <string name="Train">Detect Faces</string>
+    <string name="Reco">Recognition test</string>
+
+</resources>
