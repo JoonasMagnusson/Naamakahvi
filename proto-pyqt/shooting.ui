@@ -44,5 +44,25 @@
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>continueBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>backToStart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>388</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>backToStart()</slot>
+ </slots>
 </ui>
