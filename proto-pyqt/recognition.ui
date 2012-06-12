@@ -83,5 +83,42 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cancelBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>backToStart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>355</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>235</x>
+     <y>307</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>continueBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>showBalance()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>359</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>backToStart()</slot>
+  <slot>showBalance()</slot>
+ </slots>
 </ui>
