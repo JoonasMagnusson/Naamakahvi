@@ -1,6 +1,8 @@
 from PyQt4 import uic
 
+
 FormClass, BaseClass = uic.loadUiType("authentication.ui")
+
 
 class AuthenticationWindow(BaseClass, FormClass):
     def __init__(self, parent=None):
@@ -8,3 +10,6 @@ class AuthenticationWindow(BaseClass, FormClass):
          
         self.setupUi(self)
         self.show()
+
+    def backToStart(self):
+    	self.close()
