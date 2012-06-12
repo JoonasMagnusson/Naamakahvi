@@ -142,9 +142,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>newUserBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>newUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>261</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>slot1()</slot>
   <slot>authenticateUser()</slot>
+  <slot>newUser()</slot>
  </slots>
 </ui>

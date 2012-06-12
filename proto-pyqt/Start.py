@@ -1,7 +1,10 @@
 from PyQt4 import uic
 from Authentication import AuthenticationWindow
+from Registration import RegistrationWindow
+
 
 FormClass, BaseClass = uic.loadUiType("start.ui")
+
 
 class StartingWindow(BaseClass, FormClass):
     def __init__(self, parent=None):
@@ -12,4 +15,8 @@ class StartingWindow(BaseClass, FormClass):
 
     def authenticateUser(self):
         self.auth = AuthenticationWindow()
+        self.hide()
+
+    def newUser(self):
+        self.registration = RegistrationWindow()
         self.hide()
