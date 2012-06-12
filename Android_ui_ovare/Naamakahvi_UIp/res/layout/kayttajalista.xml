@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:entries="@array/list_dummies" android:fastScrollEnabled="true" android:fastScrollAlwaysVisible="true" android:filterTouchesWhenObscured="false" android:focusableInTouchMode="false">
+
+    <!-- Preview: listitem=@android:layout/simple_list_item_1 -->
+    
+
+</ListView>
