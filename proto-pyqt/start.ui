@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>469</width>
+    <height>402</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="coffeeBtn">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>60</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Kahvi</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="espressoBtn">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>170</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Espresso</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="dblEspressoBtn">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>280</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Tuplaespresso</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="bringCoffeeBtn">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>60</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Tuon kahvia</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="bringFiltersBtn">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>170</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Tuon suodattimia</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="newUserBtn">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>280</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Uusi käyttäjä</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>coffeeBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>authenticateUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>109</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>247</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>espressoBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>authenticateUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dblEspressoBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>authenticateUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>303</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>238</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>newUserBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>newUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>261</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>slot1()</slot>
+  <slot>authenticateUser()</slot>
+  <slot>newUser()</slot>
+ </slots>
+</ui>
