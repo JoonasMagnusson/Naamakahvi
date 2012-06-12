@@ -15,8 +15,6 @@ class StartingWindow(BaseClass, FormClass):
 
     def authenticateUser(self):
         self.auth = AuthenticationWindow()
-        self.hide()
 
     def newUser(self):
         self.registration = RegistrationWindow()
-        self.hide()
