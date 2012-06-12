@@ -1,5 +1,5 @@
 from PyQt4 import uic
-from Balance import BalanceWindow
+from Recognition import RecognitionWindow
 
 
 FormClass, BaseClass = uic.loadUiType("authentication.ui")
@@ -15,6 +15,6 @@ class AuthenticationWindow(BaseClass, FormClass):
     def backToStart(self):
         self.close()
 
-    def showBalance(self):
-        self.balance = BalanceWindow()
+    def recognizeUser(self):
+        self.balance = RecognitionWindow()
         self.close()

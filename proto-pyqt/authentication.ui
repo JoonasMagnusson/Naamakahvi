@@ -86,7 +86,7 @@
    <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>placeForCamOutput</receiver>
-   <slot>showBalance()</slot>
+   <slot>recognizeUser()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>192</x>
@@ -101,6 +101,6 @@
  </connections>
  <slots>
   <slot>backToStart()</slot>
-  <slot>showBalance()</slot>
+  <slot>recognizeUser()</slot>
  </slots>
 </ui>
