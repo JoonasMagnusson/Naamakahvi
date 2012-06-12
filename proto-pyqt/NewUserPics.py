@@ -13,3 +13,4 @@ class NewUserPicsWindow(BaseClass, FormClass):
 
     def backToStart(self):
         self.close()
+        

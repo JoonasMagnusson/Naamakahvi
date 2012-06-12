@@ -73,5 +73,26 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>submitBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>submitName()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>172</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>newUserPics()</slot>
+  <slot>submitName()</slot>
+ </slots>
 </ui>
