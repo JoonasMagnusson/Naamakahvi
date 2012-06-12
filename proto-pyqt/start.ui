@@ -93,8 +93,58 @@
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>coffeeBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>authenticateUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>109</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>247</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>espressoBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>authenticateUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dblEspressoBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>authenticateUser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>303</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>238</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>slot1()</slot>
+  <slot>authenticateUser()</slot>
  </slots>
 </ui>
