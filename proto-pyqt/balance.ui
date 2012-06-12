@@ -200,5 +200,41 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>continueBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>backToStart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>245</x>
+     <y>215</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>backToStart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>359</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>235</x>
+     <y>308</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>backToStart()</slot>
+ </slots>
 </ui>
