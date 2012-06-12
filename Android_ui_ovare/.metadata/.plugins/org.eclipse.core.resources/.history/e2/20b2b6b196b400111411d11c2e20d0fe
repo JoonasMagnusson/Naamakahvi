@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="list_dummies">
+        <item >Dummy, Test</item>
+        <item >Item, List</item>
+        <item >Asdf, Asdf</item>
+        <item >Sukunimi, Etunimi</item>
+        <item >Nimi1</item>
+        <item >Nimi2</item>
+        <item >Nimi3</item>
+        <item />
+    </string-array>
+    
+</resources>
