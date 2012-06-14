@@ -1,0 +1,42 @@
+
+CREATE SEQUENCE GROUPDATA_gd_groupdataid_seq;
+
+CREATE TABLE GROUPDATA(gd_groupdataid int NOT NULL default nextval('GROUPDATA_gd_groupdataid_seq'), gd_balance double precision NOT NULL,  gd_deacttime timestamp ,  gd_finname varchar(50) NOT NULL,gd_engname varchar(50) NOT NULL, gd_swename varchar(50)  NOT NULL, PRIMARY KEY(gd_groupdataid));
+
+CREATE SEQUENCE FINGERPRINT_fp_id_seq;
+
+CREATE TABLE FINGERPRINT(fp_id  int NOT NULL default nextval('FINGERPRINT_fp_id_seq'), fp_template varchar(4000) NOT NULL,  fp_quality int NOT NULL, PRIMARY KEY (fp_id));
+
+CREATE sequence FINALPRODUCT_final_finalproductid_seq;
+
+CREATE TABLE FINALPRODUCT(final_finalproductid int  default nextval('FINALPRODUCT_final_finalproductid_seq'),final_groupid int NOT NULL,  final_value double precision NOT NULL,final_picture bytea ,final_finname varchar(50) NOT NULL, final_engname varchar(50) NOT NULL,final_swename varchar(50)  NOT NULL,final_deacttime timestamp ,PRIMARY KEY(final_finalproductid),FOREIGN KEY(final_groupid) REFERENCES groupdata(gd_groupdataid) on delete cascade);
+
+
+
+CREATE TABLE USERDATA (ud_username varchar(8) NOT NULL,ud_givenname varchar(32) NOT NULL,ud_familyname varchar(64)  NOT NULL,ud_regularportion int NOT NULL,ud_language varchar(3) NOT NULL,ud_admin boolean, PRIMARY KEY (ud_username),FOREIGN KEY(ud_regularportion) REFERENCES finalproduct(final_finalproductid)) ;
+
+CREATE TABLE USERBALANCE(ub_username varchar(8) NOT NULL,  ub_groupid int NOT NULL,  ub_balance double precision NOT NULL,  FOREIGN KEY(ub_username) REFERENCES userdata(ud_username) on delete cascade,FOREIGN KEY(ub_groupid) REFERENCES groupdata(gd_groupdataid) on delete cascade);
+
+CREATE SEQUENCE RAWPRODUCT_raw_rawproductid_seq;
+
+CREATE TABLE RAWPRODUCT(raw_rawproductid int NOT NULL DEFAULT nextval('RAWPRODUCT_raw_rawproductid_seq'), raw_groupid int  NOT NULL,  raw_picture bytea ,  raw_value double precision NOT NULL,  raw_alert boolean,   raw_sizeunit varchar(4) NOT NULL,  raw_finname varchar(50) NOT NULL,  raw_engname varchar(50) NOT NULL,  raw_swename varchar(50) NOT NULL,  raw_deacttime timestamp ,  PRIMARY KEY(raw_rawproductid),FOREIGN KEY(raw_groupid) REFERENCES groupdata(gd_groupdataid) on delete cascade);
+
+CREATE SEQUENCE PRODUCTSIZE_ps_productsizeid_seq;
+
+CREATE TABLE PRODUCTSIZE(ps_productsizeid int NOT NULL DEFAULT nextval('PRODUCTSIZE_ps_productsizeid_seq'),ps_value double precision NOT NULL,ps_size  double precision NOT NULL,ps_rawproductid int NOT NULL,ps_deacttime timestamp , PRIMARY KEY(ps_productsizeid),FOREIGN KEY(ps_rawproductid) REFERENCES rawproduct(raw_rawproductid) on delete cascade);
+
+CREATE SEQUENCE LOG_log_id_seq;
+
+CREATE TABLE LOG(log_id  int NOT NULL DEFAULT nextval('LOG_log_id_seq'), log_type varchar(5) NOT NULL,  log_tableid int NOT NULL,log_oldvalue double precision NOT NULL, log_newvalue double precision NOT NULL, log_acttime timestamp NOT NULL, log_username varchar(8) NOT NULL, PRIMARY KEY(log_id));
+
+CREATE TABLE FINGER(f_finger  int NOT NULL,  f_fpid int NOT NULL, f_username varchar(8) NOT NULL, FOREIGN KEY(f_fpid) REFERENCES fingerprint(fp_id),FOREIGN KEY(f_username) REFERENCES userdata(ud_username) on delete cascade);
+
+CREATE SEQUENCE PRODUCTIN_in_productinid_seq;
+
+CREATE TABLE PRODUCTIN(in_productinid int NOT NULL DEFAULT nextval('PRODUCTIN_in_productinid_seq'), in_username varchar(8) NOT NULL,in_productsizeid int NOT NULL, in_rawproductid int NOT NULL,in_acttime timestamp NOT NULL, in_value double precision NOT NULL, in_cancelevent int , PRIMARY KEY(in_productinid),FOREIGN KEY(in_rawproductid) REFERENCES rawproduct(raw_rawproductid),FOREIGN KEY(in_productsizeid) REFERENCES productsize(ps_productsizeid),FOREIGN KEY(in_cancelevent) REFERENCES productin(in_productinid));
+
+CREATE SEQUENCE PRODUCTOUT_out_productoutid_seq;
+
+CREATE TABLE PRODUCTOUT(out_productoutid int NOT NULL DEFAULT nextval('PRODUCTOUT_out_productoutid_seq'),out_username varchar(8) NOT NULL,out_finalproductid int NOT NULL,out_acttime timestamp NOT NULL,out_value double precision NOT NULL,out_cancelevent int , PRIMARY KEY(out_productoutid),FOREIGN KEY(out_finalproductid) REFERENCES finalproduct(final_finalproductid), FOREIGN KEY(out_cancelevent) REFERENCES productout(out_productoutid));
+
+CREATE TABLE PRODUCTMIX(mix_rawproductid int NOT NULL,mix_finalproductid int NOT NULL, FOREIGN KEY(mix_rawproductid) REFERENCES rawproduct(raw_rawproductid) on delete cascade, FOREIGN KEY(mix_finalproductid) REFERENCES finalproduct(final_finalproductid) on delete cascade);
