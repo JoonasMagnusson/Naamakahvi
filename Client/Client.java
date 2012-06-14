@@ -2,6 +2,9 @@
   Tämä on vasta todella karkea luonnos siitä millainen clientistä ehkä mahdollisesti saattaisi tulla,
   ehdotuksia otetaan vastaan.
 
+  Tämän kikkareen on siis tarkoitus keskustella serverin kanssa ja tarjota eri käyttöliittymille
+  API jotta käyttöliittymien ei tarvitse välittää siitä miten serverin kanssa kommunikointi tapahtuu.
+
   t. Janne
 */
 
@@ -20,13 +23,36 @@ class ImageData {}
 
 public class Client 
 {
+    // Tämä User-luokka on Clientin-luokan "sisällä" jotta Client voi kutsua sen privaatti-konstruktoria.
     class User {
         /*
           Koska serveri "luo" uudet käyttäjät, tämän konstruktori on privaatti
           ja käyttäjiin on tarkoitus päästä käsiksi Clientin registerUser() ja authenticateUser() metodien kautta.
         */
         private User(String username, ImageData) {}
-        public String getUserName() {}
+
+        public String getUserName()
+        {
+            // TODO
+        }
+
+        public ImageData getImageData()
+        {
+            // TODO
+        }
+
+        /* Varsinainen osto ja tuonti tapahtuvat näillä metodeilla */
+        public void osta(tuote, määrä) throws JokuException
+        {
+            
+        }
+
+        public void tuo(tuote, määrä) throws JokuException
+        {
+            
+        }
+        
+        
     }
 
     /*
