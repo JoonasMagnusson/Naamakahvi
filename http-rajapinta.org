@@ -1,0 +1,26 @@
+Naamakahvi-serverin HTTP-rajapinta (luonnos)
+
+- rekistöröinti
+  - url: /register
+    - POST-parametrit
+      - username: merkkijono
+      - imagedata: muoto määritellään myöhemmin
+  - palautusarvo
+    - jos onnistui, palauta HTTP-koodi 200
+    - jos epäonnistui, palauta joku muu (ei 200-299)
+    
+- kirjautuminen
+  - url: /authenticate-image
+    - POST-parametrit
+      - imagedata: myöhemmin määritelty muoto
+  - palautusarvo
+    - jos tunnistus epävarma: palauta lista mahdollisista käyttäjänimistä ja HTTP-koodi joka "epäonnistunut" (oisko 300?)
+    - jos tunnistus varma: palauta yksi nimi ja HTTP-koodi joka "onnistunut"
+  - url: /authenticate-text
+    - POST-parametrit
+      - username: merkkijono
+    - palautusarvo
+      - jos onnistui, palauta HTTP-koodi 200
+      - jos epäonnistui, jotain muuta (404?)
+
+  

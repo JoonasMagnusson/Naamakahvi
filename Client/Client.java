@@ -8,7 +8,7 @@
   t. Janne
 */
 
-package naamakahvi; /* Sovitaanko joku paketin nimi tai jotain? */
+package naamakahvi.client; 
 
 /*
   Tämän ImageData-luokan olis tarkoitus olla se data mitä liikkuu
@@ -36,11 +36,7 @@ public class Client
             // TODO
         }
 
-        public ImageData getImageData()
-        {
-            // TODO
-        }
-
+      
         /* Varsinainen osto ja tuonti tapahtuvat näillä metodeilla */
         public void osta(tuote, määrä) throws JokuException
         {
