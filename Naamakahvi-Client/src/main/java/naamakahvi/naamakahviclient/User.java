@@ -1,11 +1,6 @@
 package naamakahvi.naamakahviclient;
 
-public class User {
-    /*
-     * Koska serveri "luo" uudet käyttäjät, tämän konstruktori on privaatti ja
-     * käyttäjiin on tarkoitus päästä käsiksi Clientin registerUser() ja
-     * authenticateUser() metodien kautta.
-     */
+class User implements IUser {
 
     User(String username, ImageData imagedata) {
     }
