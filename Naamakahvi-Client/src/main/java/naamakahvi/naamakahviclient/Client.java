@@ -21,44 +21,6 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class Client {
-    /*
-     * Tämän ImageData-luokan olis tarkoitus olla se data mitä liikkuu
-     * clientistä serverille päin ja jonka serveri sitten tallentaa jotta se voi
-     * myöhemmin käyttää sitä tunnistamiseen.
-     *
-     * Tämän luokan toteutus riippuu aika paljon siitä mitä OpenCV:ltä päin on
-     * tulossa.
-     */
-
- 
-
-    // Tämä User-luokka on Clientin-luokan "sisällä" jotta Client voi kutsua sen privaatti-konstruktoria.
-    class User {
-        /*
-         * Koska serveri "luo" uudet käyttäjät, tämän konstruktori on privaatti
-         * ja käyttäjiin on tarkoitus päästä käsiksi Clientin registerUser() ja
-         * authenticateUser() metodien kautta.
-         */
-
-        private User(String username, ImageData imagedata) {
-        }
-
-        public String getUserName() {
-            // TODO
-            throw new RuntimeException();
-        }
-
-        /*
-         * // Varsinainen osto ja tuonti tapahtuvat näillä metodeilla public
-         * void osta(tuote, määrä) throws JokuException {
-         *
-         * }
-         *
-         * public void tuo(tuote, määrä) throws JokuException {
-         *
-         * }
-         */
-    }
     private String host;
     private int port;
 
