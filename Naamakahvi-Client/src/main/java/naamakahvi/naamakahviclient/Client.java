@@ -40,13 +40,17 @@ public class Client {
     public IUser registerUser(String username, ImageData imagedata) throws Exception {
         HttpClient hc = new DefaultHttpClient();
         URIBuilder ub = new URIBuilder();
-        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/register").setParameter("username", username).setParameter("imagedata", imagedata.toString());
+        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/register/").setParameter("username", username).setParameter("imagedata", "asdf");
         URI uri = ub.build();
         HttpGet get = new HttpGet(uri);
         HttpResponse hr = hc.execute(get);
         byte[] buf = new byte[128];
-        hr.getEntity().getContent().read(buf);
-        String name = new String(buf);
+        int r = hr.getEntity().getContent().read(buf);
+        System.out.println("read " + r + " bytes");
+        byte[] buf2 = new byte[r];
+        System.arraycopy(buf, 0, buf2, 0, r);
+        String name = new String(buf2);
+        System.out.println("name: " + name + ", name.length: " + name.length() + ", username: " + username + ", username.length" + username.length());
         
         if (!name.equals(username)) {
             throw new RuntimeException();
