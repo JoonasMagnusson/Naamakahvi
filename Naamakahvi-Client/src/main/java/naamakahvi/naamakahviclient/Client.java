@@ -22,6 +22,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class Client {
+
     private String host;
     private int port;
     private static HashMap<String, IUser> users;
@@ -39,24 +40,49 @@ public class Client {
     public IUser registerUser(String username, ImageData imagedata) throws Exception {
         HttpClient hc = new DefaultHttpClient();
         URIBuilder ub = new URIBuilder();
-        ub.setScheme("http").setHost(this.host).setPath("/register").setParameter("username", username).setParameter("imagedata", imagedata.toString());
+        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/register").setParameter("username", username).setParameter("imagedata", imagedata.toString());
         URI uri = ub.build();
         HttpGet get = new HttpGet(uri);
         HttpResponse hr = hc.execute(get);
-        System.out.println(hr);
-        return null;
-    }
-    
-    class UserExistsException extends Throwable {}
-    
-    public IUser registerUser(String username) throws UserExistsException {        
-        if (null != users.get(username))  {
-            throw new UserExistsException();
+        byte[] buf = new byte[128];
+        hr.getEntity().getContent().read(buf);
+        String name = new String(buf);
+        
+        if (!name.equals(username)) {
+            throw new RuntimeException();
         }
         
+        return new User(name, null);
+    }
+
+    class UserExistsException extends Throwable {
+    }
+
+    class UserDoesNotExistException extends Throwable {
+    }
+
+    /*
+     * Feikkirekisteröityminen kälin testaukseen
+     */
+    public IUser registerUser(String username) throws UserExistsException {
+        if (null != users.get(username)) {
+            throw new UserExistsException();
+        }
+
         IUser u = new User(username, null);
         users.put(username, u);
         return u;
+    }
+
+    /*
+     * Feikkikirjautuminen kälin testaukseen
+     */
+    public IUser authenticateText(String username) throws UserDoesNotExistException {
+        if (null == users.get(username)) {
+            throw new UserDoesNotExistException();
+        }
+
+        return users.get(username);
     }
 
     /*
@@ -65,11 +91,6 @@ public class Client {
      * vastaa.
      */
     public List<IUser> authenticateImage(ImageData imagedata) {
-        // TODO 
-        throw new RuntimeException();
-    }
-    
-    public IUser authenticateText(String username) {
         // TODO 
         throw new RuntimeException();
     }
