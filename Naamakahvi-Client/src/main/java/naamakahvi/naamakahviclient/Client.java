@@ -11,6 +11,7 @@ package naamakahvi.naamakahviclient;
 
 import java.util.List;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import org.apache.http.HttpResponse;
 
@@ -18,6 +19,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -25,7 +27,7 @@ public class Client {
 
     private String host;
     private int port;
-    private static HashMap<String, IUser> users;
+
 
     /*
      * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
@@ -42,21 +44,24 @@ public class Client {
         URIBuilder ub = new URIBuilder();
         ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/register/").setParameter("username", username).setParameter("imagedata", "asdf");
         URI uri = ub.build();
-        HttpGet get = new HttpGet(uri);
-        HttpResponse hr = hc.execute(get);
-        byte[] buf = new byte[128];
-        int r = hr.getEntity().getContent().read(buf);
-        System.out.println("read " + r + " bytes");
-        byte[] buf2 = new byte[r];
-        System.arraycopy(buf, 0, buf2, 0, r);
-        String name = new String(buf2);
-        System.out.println("name: " + name + ", name.length: " + name.length() + ", username: " + username + ", username.length" + username.length());
-        
-        if (!name.equals(username)) {
+        HttpPost post = new HttpPost(uri);
+        HttpResponse hr = hc.execute(post);
+        int status = hr.getStatusLine().getStatusCode();
+        if (200 == status) {
+            byte[] buf = new byte[128];
+            int r = hr.getEntity().getContent().read(buf);
+            byte[] buf2 = new byte[r];
+            System.arraycopy(buf, 0, buf2, 0, r);
+            String name = new String(buf2);
+
+            if (!name.equals(username)) {
+                throw new RuntimeException();
+            }
+
+            return new User(name, null);
+        } else {
             throw new RuntimeException();
         }
-        
-        return new User(name, null);
     }
 
     class UserExistsException extends Throwable {
@@ -66,27 +71,31 @@ public class Client {
     }
 
     /*
-     * Feikkirekisteröityminen kälin testaukseen
-     */
-    public IUser registerUser(String username) throws UserExistsException {
-        if (null != users.get(username)) {
-            throw new UserExistsException();
-        }
-
-        IUser u = new User(username, null);
-        users.put(username, u);
-        return u;
-    }
-
-    /*
      * Feikkikirjautuminen kälin testaukseen
      */
-    public IUser authenticateText(String username) throws UserDoesNotExistException {
-        if (null == users.get(username)) {
-            throw new UserDoesNotExistException();
-        }
+    public IUser authenticateText(String username) throws Exception {
+        HttpClient hc = new DefaultHttpClient();
+        URIBuilder ub = new URIBuilder();
+        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/authenticate_text/").setParameter("username", username);
+        URI uri = ub.build();
+        HttpPost post = new HttpPost(uri);
+        HttpResponse hr = hc.execute(post);
+        int status = hr.getStatusLine().getStatusCode();
+        if (200 == status) {
+            byte[] buf = new byte[128];
+            int r = hr.getEntity().getContent().read(buf);
+            byte[] buf2 = new byte[r];
+            System.arraycopy(buf, 0, buf2, 0, r);
+            String name = new String(buf2);
 
-        return users.get(username);
+            if (!name.equals(username)) {
+                throw new RuntimeException();
+            }
+
+            return new User(name, null);
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     /*
