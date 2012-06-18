@@ -11,6 +11,7 @@ package naamakahvi.naamakahviclient;
 
 import java.util.List;
 import java.net.URI;
+import java.util.HashMap;
 import org.apache.http.HttpResponse;
 
 import org.apache.http.client.ResponseHandler;
@@ -23,6 +24,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public class Client {
     private String host;
     private int port;
+    private static HashMap<String, IUser> users;
 
     /*
      * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
@@ -34,7 +36,7 @@ public class Client {
         this.port = port;
     }
 
-    public User registerUser(String username, ImageData imagedata) throws Exception {
+    public IUser registerUser(String username, ImageData imagedata) throws Exception {
         HttpClient hc = new DefaultHttpClient();
         URIBuilder ub = new URIBuilder();
         ub.setScheme("http").setHost(this.host).setPath("/register").setParameter("username", username).setParameter("imagedata", imagedata.toString());
@@ -44,13 +46,30 @@ public class Client {
         System.out.println(hr);
         return null;
     }
+    
+    class UserExistsException extends Throwable {}
+    
+    public IUser registerUser(String username) throws UserExistsException {        
+        if (null != users.get(username))  {
+            throw new UserExistsException();
+        }
+        
+        IUser u = new User(username, null);
+        users.put(username, u);
+        return u;
+    }
 
     /*
      * Tälle jutulle annetaan OpenCV:ltä/kameralta kuvadataa, pusketaan se
      * serverille joka antaa tuloksena käyttäjän tai joukon käyttäjiä joita kuva
      * vastaa.
      */
-    public List<User> authenticateImage(ImageData imagedata) {
+    public List<IUser> authenticateImage(ImageData imagedata) {
+        // TODO 
+        throw new RuntimeException();
+    }
+    
+    public IUser authenticateText(String username) {
         // TODO 
         throw new RuntimeException();
     }

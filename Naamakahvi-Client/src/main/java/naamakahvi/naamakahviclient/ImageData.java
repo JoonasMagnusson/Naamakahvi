@@ -1,6 +1,3 @@
-
-package naamakahvi.naamakahviclient;
-
     /*
      * Tämän ImageData-luokan olis tarkoitus olla se data mitä liikkuu
      * clientistä serverille päin ja jonka serveri sitten tallentaa jotta se voi
