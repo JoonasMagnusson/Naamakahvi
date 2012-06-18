@@ -11,56 +11,23 @@ package naamakahvi.naamakahviclient;
 
 import java.util.List;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import org.apache.http.HttpResponse;
 
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class Client {
-    /*
-     * Tämän ImageData-luokan olis tarkoitus olla se data mitä liikkuu
-     * clientistä serverille päin ja jonka serveri sitten tallentaa jotta se voi
-     * myöhemmin käyttää sitä tunnistamiseen.
-     *
-     * Tämän luokan toteutus riippuu aika paljon siitä mitä OpenCV:ltä päin on
-     * tulossa.
-     */
 
- 
-
-    // Tämä User-luokka on Clientin-luokan "sisällä" jotta Client voi kutsua sen privaatti-konstruktoria.
-    class User {
-        /*
-         * Koska serveri "luo" uudet käyttäjät, tämän konstruktori on privaatti
-         * ja käyttäjiin on tarkoitus päästä käsiksi Clientin registerUser() ja
-         * authenticateUser() metodien kautta.
-         */
-
-        private User(String username, ImageData imagedata) {
-        }
-
-        public String getUserName() {
-            // TODO
-            throw new RuntimeException();
-        }
-
-        /*
-         * // Varsinainen osto ja tuonti tapahtuvat näillä metodeilla public
-         * void osta(tuote, määrä) throws JokuException {
-         *
-         * }
-         *
-         * public void tuo(tuote, määrä) throws JokuException {
-         *
-         * }
-         */
-    }
     private String host;
     private int port;
+
 
     /*
      * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
@@ -72,15 +39,63 @@ public class Client {
         this.port = port;
     }
 
-    public User registerUser(String username, ImageData imagedata) throws Exception {
+    public IUser registerUser(String username, ImageData imagedata) throws Exception {
         HttpClient hc = new DefaultHttpClient();
         URIBuilder ub = new URIBuilder();
-        ub.setScheme("http").setHost(this.host).setPath("/register").setParameter("username", username).setParameter("imagedata", imagedata.toString());
+        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/register/").setParameter("username", username).setParameter("imagedata", "asdf");
         URI uri = ub.build();
-        HttpGet get = new HttpGet(uri);
-        HttpResponse hr = hc.execute(get);
-        System.out.println(hr);
-        return null;
+        HttpPost post = new HttpPost(uri);
+        HttpResponse hr = hc.execute(post);
+        int status = hr.getStatusLine().getStatusCode();
+        if (200 == status) {
+            byte[] buf = new byte[128];
+            int r = hr.getEntity().getContent().read(buf);
+            byte[] buf2 = new byte[r];
+            System.arraycopy(buf, 0, buf2, 0, r);
+            String name = new String(buf2);
+
+            if (!name.equals(username)) {
+                throw new RuntimeException();
+            }
+
+            return new User(name, null);
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    class UserExistsException extends Throwable {
+    }
+
+    class UserDoesNotExistException extends Throwable {
+    }
+
+    /*
+     * Feikkikirjautuminen kälin testaukseen
+     */
+    public IUser authenticateText(String username) throws Exception {
+        HttpClient hc = new DefaultHttpClient();
+        URIBuilder ub = new URIBuilder();
+        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/authenticate_text/").setParameter("username", username);
+        URI uri = ub.build();
+        HttpPost post = new HttpPost(uri);
+        HttpResponse hr = hc.execute(post);
+        int status = hr.getStatusLine().getStatusCode();
+        if (200 == status) {
+            byte[] buf = new byte[128];
+            int r = hr.getEntity().getContent().read(buf);
+            byte[] buf2 = new byte[r];
+            System.arraycopy(buf, 0, buf2, 0, r);
+            String name = new String(buf2);
+
+            if (!name.equals(username)) {
+                throw new RuntimeException();
+            }
+
+            return new User(name, null);
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     /*
@@ -88,7 +103,7 @@ public class Client {
      * serverille joka antaa tuloksena käyttäjän tai joukon käyttäjiä joita kuva
      * vastaa.
      */
-    public List<User> authenticateImage(ImageData imagedata) {
+    public List<IUser> authenticateImage(ImageData imagedata) {
         // TODO 
         throw new RuntimeException();
     }
