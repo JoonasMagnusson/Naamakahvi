@@ -2,12 +2,16 @@ package naamakahvi.naamakahviclient;
 
 class User implements IUser {
 
+    private String username;
+    
     User(String username, ImageData imagedata) {
+        this.username = username;
     }
 
+    
+    
     public String getUserName() {
-        // TODO
-        throw new RuntimeException();
+        return this.username;
     }
 
     /*

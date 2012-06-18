@@ -10,5 +10,7 @@
 package naamakahvi.naamakahviclient;
 
 public class ImageData {
-    
+    public String toString() {
+        return "I AM IMAGEDATA";
+    }
 }
