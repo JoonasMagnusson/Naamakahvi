@@ -1,3 +1,4 @@
+
 package naamakahvi.naamakahviclient;
 
     /*
@@ -8,6 +9,9 @@ package naamakahvi.naamakahviclient;
      * Tämän luokan toteutus riippuu aika paljon siitä mitä OpenCV:ltä päin on
      * tulossa.
      */
+
+package naamakahvi.naamakahviclient;
+
 public class ImageData {
     
 }
