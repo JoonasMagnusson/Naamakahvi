@@ -9,18 +9,19 @@
  */
 package naamakahvi.naamakahviclient;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
-
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class Client {
@@ -37,23 +38,23 @@ public class Client {
     public Client(String host, int port) {
         this.host = host;
         this.port = port;
-    }
+    }    
 
     public IUser registerUser(String username, ImageData imagedata) throws Exception {
-        HttpClient hc = new DefaultHttpClient();
-        URIBuilder ub = new URIBuilder();
-        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/register/").setParameter("username", username).setParameter("imagedata", "asdf");
-        URI uri = ub.build();
-        HttpPost post = new HttpPost(uri);
-        HttpResponse hr = hc.execute(post);
-        int status = hr.getStatusLine().getStatusCode();
-        if (200 == status) {
-            byte[] buf = new byte[128];
-            int r = hr.getEntity().getContent().read(buf);
-            byte[] buf2 = new byte[r];
-            System.arraycopy(buf, 0, buf2, 0, r);
-            String name = new String(buf2);
+        HttpClient httpClient = new DefaultHttpClient();
 
+        HttpPost post = new HttpPost(buildURI("/register/"));
+
+        post.setEntity(new StringEntity(username));
+
+        HttpResponse response = httpClient.execute(post);
+        int status = response.getStatusLine().getStatusCode();
+
+        if (200 == status) {
+            String name = readResponseContent(response);
+
+            System.out.println("name: " + name + ", username: " + username);
+            
             if (!name.equals(username)) {
                 throw new RuntimeException();
             }
@@ -63,6 +64,34 @@ public class Client {
             throw new RuntimeException();
         }
     }
+    
+    private URI buildURI(String path) {
+        URIBuilder ub = new URIBuilder();
+        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath(path);
+        try {
+            URI uri = ub.build();
+
+            return uri;
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
+    private String readResponseContent(HttpResponse response) {        
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            String name = reader.readLine();
+            return name;
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+
+    }
 
     class UserExistsException extends Throwable {
     }
@@ -70,9 +99,6 @@ public class Client {
     class UserDoesNotExistException extends Throwable {
     }
 
-    /*
-     * Feikkikirjautuminen kälin testaukseen
-     */
     public IUser authenticateText(String username) throws Exception {
         HttpClient hc = new DefaultHttpClient();
         URIBuilder ub = new URIBuilder();
