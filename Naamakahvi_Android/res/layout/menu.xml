@@ -9,21 +9,23 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="0.32" >
-
+
         <Button
             android:id="@+id/button1"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_gravity="center"
             android:layout_margin="5dp"
+            android:onClick="onCoffeeClick"
             android:text="Coffee" />
-
+
         <Button
             android:id="@+id/button2"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_gravity="center"
             android:layout_margin="5dp"
+            android:onClick="onEspressoClick"
             android:text="Espresso" />
 
     </LinearLayout>

@@ -3,5 +3,10 @@
 
     <string name="hello">Hello World, Naamakahvi_Menu!</string>
     <string name="app_name">Naamakahvi_Android</string>
+    <string name="rec_string_prefix">You were recognized as:</string>
+    <string name="rec_string_suffix">Is this correct?</string>
+    <string name="chk_order">Order:</string>
+    <string name="countdown_prefix">Confirming in</string>
+    <string name="countdown_suffix">s</string>
 
 </resources>

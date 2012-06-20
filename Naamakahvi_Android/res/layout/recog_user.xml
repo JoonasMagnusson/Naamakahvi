@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
-    <ImageView
-        android:id="@+id/imageView1"
+
+    <ImageButton
+        android:id="@+id/imageButton1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.26"
+        android:onClick="tmpOnImageButtonClick"
+        android:scaleType="fitCenter"
         android:src="@android:drawable/ic_menu_camera" />
 
     <Button
