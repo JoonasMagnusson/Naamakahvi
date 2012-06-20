@@ -9,6 +9,7 @@
  */
 package naamakahvi.naamakahviclient;
 
+import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,6 +24,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 public class Client {
 
@@ -38,33 +41,34 @@ public class Client {
     public Client(String host, int port) {
         this.host = host;
         this.port = port;
-    }    
+    }
 
-    public IUser registerUser(String username, ImageData imagedata) throws Exception {
-        HttpClient httpClient = new DefaultHttpClient();
+    
 
-        HttpPost post = new HttpPost(buildURI("/register/"));
-
-        post.setEntity(new StringEntity(username));
-
-        HttpResponse response = httpClient.execute(post);
-        int status = response.getStatusLine().getStatusCode();
-
-        if (200 == status) {
-            String name = readResponseContent(response);
-
-            System.out.println("name: " + name + ", username: " + username);
-            
-            if (!name.equals(username)) {
-                throw new RuntimeException();
+    public IUser registerUser(String username, ImageData imagedata) throws RegistrationException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            String user = new Gson().toJson(new User(username, null));
+            HttpPost post = new HttpPost(buildURI("/register/"));
+            post.setEntity(new StringEntity(user));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+            if (status == 200) {
+                User response_user = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
+                if (!response_user.getUserName().equals(username)) {
+                    throw new RegistrationException("username returned from server doesn't match given username");
+                }
+                return response_user;
+            } else {
+                throw new RegistrationException("status code returned from server was " + status);
             }
-
-            return new User(name, null);
-        } else {
-            throw new RuntimeException();
+        } catch (RegistrationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RegistrationException(e.toString());
         }
     }
-    
+
     private URI buildURI(String path) {
         URIBuilder ub = new URIBuilder();
         ub.setScheme("http").setHost(this.host).setPort(this.port).setPath(path);
@@ -79,49 +83,43 @@ public class Client {
         return null;
     }
 
-    private String readResponseContent(HttpResponse response) {        
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            String name = reader.readLine();
-            return name;
-            
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return null;
-
+    private String readResponseContent(HttpResponse response) throws IOException {
+        return Util.readStream(response.getEntity().getContent());
     }
 
-    class UserExistsException extends Throwable {
-    }
 
-    class UserDoesNotExistException extends Throwable {
-    }
-
+    
     public IUser authenticateText(String username) throws Exception {
-        HttpClient hc = new DefaultHttpClient();
-        URIBuilder ub = new URIBuilder();
-        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath("/authenticate_text/").setParameter("username", username);
-        URI uri = ub.build();
-        HttpPost post = new HttpPost(uri);
-        HttpResponse hr = hc.execute(post);
-        int status = hr.getStatusLine().getStatusCode();
-        if (200 == status) {
-            byte[] buf = new byte[128];
-            int r = hr.getEntity().getContent().read(buf);
-            byte[] buf2 = new byte[r];
-            System.arraycopy(buf, 0, buf2, 0, r);
-            String name = new String(buf2);
+        HttpClient httpClient = new DefaultHttpClient();
 
-            if (!name.equals(username)) {
+        HttpPost post = new HttpPost(buildURI("/authenticate_text/"));
+
+        String user = new Gson().toJson(new User(username, null));
+
+        //System.out.println("suser: " + user);
+
+        post.setEntity(new StringEntity(user));
+
+        System.out.println("ennen");
+        HttpResponse response = httpClient.execute(post);
+        System.out.println("jälkeen");
+        int status = response.getStatusLine().getStatusCode();
+
+        if (200 == status) {
+
+            User response_user = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
+
+            System.out.println("response_user.username: " + response_user.getUserName() + ", username: " + username);
+
+            if (!response_user.getUserName().equals(username)) {
                 throw new RuntimeException();
             }
 
-            return new User(name, null);
+            return response_user;
         } else {
             throw new RuntimeException();
         }
+
     }
 
     /*
