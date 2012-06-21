@@ -107,7 +107,7 @@ public class ClientTest {
         }
     }
 
-    @Test
+  //  @Test
     public void authenticate_test() throws Exception {
         Client c = new Client(host, port);
         try {

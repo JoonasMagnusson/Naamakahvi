@@ -12,12 +12,14 @@ package naamakahvi.naamakahviclient;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -48,17 +50,22 @@ public class Client {
     public IUser registerUser(String username, ImageData imagedata) throws RegistrationException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            String user = new Gson().toJson(new User(username, null));
+            //String user = new Gson().toJson(new User(username, null));
+            String user = "username=ABC";
             HttpPost post = new HttpPost(buildURI("/register/"));
+            post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             post.setEntity(new StringEntity(user));
             HttpResponse response = httpClient.execute(post);
             int status = response.getStatusLine().getStatusCode();
+     
             if (status == 200) {
-                User response_user = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
-                if (!response_user.getUserName().equals(username)) {
+                String responseUsername = Util.readStream(response.getEntity().getContent());
+   
+                if (!responseUsername.equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
-                return response_user;
+                
+                return new User(responseUsername, null);
             } else {
                 throw new RegistrationException("status code returned from server was " + status);
             }
@@ -90,36 +97,32 @@ public class Client {
 
     
     public IUser authenticateText(String username) throws Exception {
-        HttpClient httpClient = new DefaultHttpClient();
-
-        HttpPost post = new HttpPost(buildURI("/authenticate_text/"));
-
-        String user = new Gson().toJson(new User(username, null));
-
-        //System.out.println("suser: " + user);
-
-        post.setEntity(new StringEntity(user));
-
-        System.out.println("ennen");
-        HttpResponse response = httpClient.execute(post);
-        System.out.println("jälkeen");
-        int status = response.getStatusLine().getStatusCode();
-
-        if (200 == status) {
-
-            User response_user = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
-
-            System.out.println("response_user.username: " + response_user.getUserName() + ", username: " + username);
-
-            if (!response_user.getUserName().equals(username)) {
-                throw new RuntimeException();
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            //String user = new Gson().toJson(new User(username, null));
+            String user = "username=ABC";
+            HttpPost post = new HttpPost(buildURI("/register/"));
+            post.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            post.setEntity(new StringEntity(user));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+     
+            if (status == 200) {
+                String responseUsername = Util.readStream(response.getEntity().getContent());
+   
+                if (!responseUsername.equals(username)) {
+                    throw new RegistrationException("username returned from server doesn't match given username");
+                }
+                
+                return new User(responseUsername, null);
+            } else {
+                throw new RegistrationException("status code returned from server was " + status);
             }
-
-            return response_user;
-        } else {
-            throw new RuntimeException();
+        } catch (RegistrationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RegistrationException(e.toString());
         }
-
     }
 
     /*
@@ -134,8 +137,9 @@ public class Client {
 
     public static void main(String[] args) {
         try {
-            Client c = new Client("le-host", 1234);
-            c.registerUser("veikko nieminen", new ImageData());
+            Client c = new Client("127.0.0.1", 5000);
+            IUser user = c.registerUser("ABC", new ImageData());
+            System.out.println("Registered user " + user.getUserName());
         } catch (Exception e) {
             e.printStackTrace();
         }
