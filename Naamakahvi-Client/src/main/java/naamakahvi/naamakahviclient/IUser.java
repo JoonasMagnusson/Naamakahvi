@@ -1,5 +1,5 @@
 package naamakahvi.naamakahviclient;
 
 public interface IUser {
-    public String getUserName();    
+    public String getUserName();
 }
