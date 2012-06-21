@@ -43,15 +43,12 @@ public class Client {
     public Client(String host, int port) {
         this.host = host;
         this.port = port;
-    }
-
-    
+    }    
 
     public IUser registerUser(String username, ImageData imagedata) throws RegistrationException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            //String user = new Gson().toJson(new User(username, null));
-            String user = "username=ABC";
+            String user = "username=" + username;
             HttpPost post = new HttpPost(buildURI("/register/"));
             post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             post.setEntity(new StringEntity(user));
@@ -59,13 +56,13 @@ public class Client {
             int status = response.getStatusLine().getStatusCode();
      
             if (status == 200) {
-                String responseUsername = Util.readStream(response.getEntity().getContent());
+                User responseUser = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
    
-                if (!responseUsername.equals(username)) {
+                if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
                 
-                return new User(responseUsername, null);
+                return responseUser;
             } else {
                 throw new RegistrationException("status code returned from server was " + status);
             }
@@ -99,8 +96,7 @@ public class Client {
     public IUser authenticateText(String username) throws Exception {
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            //String user = new Gson().toJson(new User(username, null));
-            String user = "username=ABC";
+            String user = "username=" + username;
             HttpPost post = new HttpPost(buildURI("/register/"));
             post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             post.setEntity(new StringEntity(user));
@@ -108,13 +104,13 @@ public class Client {
             int status = response.getStatusLine().getStatusCode();
      
             if (status == 200) {
-                String responseUsername = Util.readStream(response.getEntity().getContent());
+                User responseUser = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
    
-                if (!responseUsername.equals(username)) {
+                if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
                 
-                return new User(responseUsername, null);
+                return responseUser;
             } else {
                 throw new RegistrationException("status code returned from server was " + status);
             }
