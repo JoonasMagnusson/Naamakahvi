@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ClientTest {
-
     private LocalTestServer server = null;
     private static HashMap<String, IUser> users = new HashMap<String, IUser>();
     HttpRequestHandler registrationHandler = new HttpRequestHandler() {
@@ -35,7 +34,7 @@ public class ClientTest {
             } else {
                 data = EntityUtils.toByteArray(entity);
             }
-            
+
             String username = new String(data).substring(9);
             IUser user = new User(username, null);
             StringEntity stringEntity = new StringEntity(new Gson().toJson(user, User.class), ContentType.create("text/plain", "UTF-8"));
