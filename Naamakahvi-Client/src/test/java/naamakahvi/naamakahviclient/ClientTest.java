@@ -22,13 +22,12 @@ public class ClientTest {
     private static HashMap<String, IUser> users = new HashMap<String, IUser>();
     
     private class ResponseUser extends User {
-        private final boolean success;
+        private final String status;
         
-        private ResponseUser(String uname, ImageData id, boolean success) {
+        private ResponseUser(String uname, ImageData id, String success) {
                 super(uname, id);
-                this.success = success;
-        }
-        
+                this.status = success;
+        }        
     }
     
     HttpRequestHandler registrationHandler = new HttpRequestHandler() {
@@ -47,7 +46,7 @@ public class ClientTest {
             }
 
             String username = new String(data).substring(9);
-            IUser user = new ResponseUser(username, null, true);
+            IUser user = new ResponseUser(username, null, "ok");
             
             StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
             response.setEntity(stringEntity);
