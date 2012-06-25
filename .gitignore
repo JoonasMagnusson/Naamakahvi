@@ -1,4 +1,4 @@
 *.pyc
 *.class
 .metadata/
-Naamakahvi-Client/target/
+target/
