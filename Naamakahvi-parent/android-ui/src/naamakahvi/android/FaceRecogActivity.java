@@ -26,6 +26,10 @@ public class FaceRecogActivity extends Activity {
     	startActivityForResult(i,REQUEST_CONFIRM);
     }
     
+    public void tmpOnRegButtonClick(View v){
+    	setContentView(R.layout.new_user);
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (requestCode == REQUEST_CONFIRM){

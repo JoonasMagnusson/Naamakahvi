@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    
+    
+    <TextView
+        android:id="@+id/syotatunnus_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:text="Syötä käyttäjätunnus"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/syotatunnus_text"
+        android:layout_marginTop="42dp"
+        android:background="@android:color/white"
+        android:ems="10"
+        android:textColor="#050505" >
+
+        <requestFocus />
+    </EditText>
+   
+    
+    
+    
+    
+</RelativeLayout>

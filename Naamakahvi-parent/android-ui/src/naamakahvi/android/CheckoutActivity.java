@@ -1,6 +1,6 @@
 package naamakahvi.android;
 
-import naamakahvi.android.R;
+
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,7 +17,6 @@ public class CheckoutActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm);
-
 		TextView nameView = (TextView) findViewById(R.id.cnf_text);
 		nameView.setText(getString(R.string.chk_order) + "\n 1x Espresso");
 

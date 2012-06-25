@@ -18,15 +18,19 @@ public final class R {
         public static final int button2=0x7f050002;
         public static final int button3=0x7f050005;
         public static final int cnf_text=0x7f050000;
-        public static final int imageButton1=0x7f050006;
+        public static final int editText=0x7f050007;
+        public static final int imageButton1=0x7f050008;
         public static final int rec_countdown=0x7f050003;
+        public static final int regButton=0x7f050009;
+        public static final int syotatunnus_text=0x7f050006;
         public static final int textView1=0x7f050004;
     }
     public static final class layout {
         public static final int confirm=0x7f030000;
         public static final int custom_order=0x7f030001;
         public static final int menu=0x7f030002;
-        public static final int recog_user=0x7f030003;
+        public static final int new_user=0x7f030003;
+        public static final int recog_user=0x7f030004;
     }
     public static final class string {
         public static final int app_name=0x7f040001;
