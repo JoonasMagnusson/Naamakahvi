@@ -13,6 +13,7 @@
   <modules>
   	<module>client</module>
   	<module>swingui</module>
+  	<module>android-ui</module>
   </modules>
 
       <build>         
