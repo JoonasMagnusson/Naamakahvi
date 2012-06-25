@@ -63,7 +63,6 @@ public class CheckoutPage extends JPanel implements ActionListener{
 		countdownSecs = 10;
 	}
 	
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == countdownTimer){
 			countdownSecs--;
