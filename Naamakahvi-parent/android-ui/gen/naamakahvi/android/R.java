@@ -36,5 +36,6 @@ public final class R {
         public static final int hello=0x7f040000;
         public static final int rec_string_prefix=0x7f040002;
         public static final int rec_string_suffix=0x7f040003;
+        public static final int reg_button=0x7f040007;
     }
 }

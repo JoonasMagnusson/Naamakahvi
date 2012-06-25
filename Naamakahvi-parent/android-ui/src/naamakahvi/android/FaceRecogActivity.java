@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+
+
 public class FaceRecogActivity extends Activity {
 	
 	private final short REQUEST_CONFIRM = 1;

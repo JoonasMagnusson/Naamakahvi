@@ -10,12 +10,35 @@
   <name>Naamakahvi parent project</name>
   <url>http://maven.apache.org</url>
 
-  <modules>
-  	<module>client</module>
-  	<module>swingui</module>
-  	<module>android-ui</module>
-  </modules>
-
+	
+	<profiles>
+		<profile>
+			<id>no-android</id>
+			<activation>
+      				<activeByDefault>true</activeByDefault>
+    			</activation>
+    			<modules>
+  				<module>client</module>
+  				<module>swingui</module>
+  			</modules>
+		</profile>
+	
+		<profile>
+			<id>with-android</id>
+   			<activation>
+      				<property>
+        				<name>android</name>
+      				</property>
+    			</activation>
+    			<modules>
+  				<module>client</module>
+  				<module>swingui</module>
+  				<module>android-ui</module>
+  			</modules>
+  		</profile>
+	
+	</profiles>	
+		
       <build>         
         <plugins>
             <plugin>
