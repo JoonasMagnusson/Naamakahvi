@@ -10,6 +10,9 @@
 package naamakahvi.naamakahviclient;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class Client {
+
     private String host;
     private int port;
 
@@ -48,13 +52,20 @@ public class Client {
             int status = response.getStatusLine().getStatusCode();
 
             if (status == 200) {
-                User responseUser = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+//                
+                if (obj.get("success").getAsBoolean()) {
+                    obj.remove("success");
+                    User responseUser = new Gson().fromJson(obj, User.class);
+                    if (!responseUser.getUserName().equals(username)) {
+                        throw new RegistrationException("username returned from server doesn't match given username");
+                    }
 
-                if (!responseUser.getUserName().equals(username)) {
-                    throw new RegistrationException("username returned from server doesn't match given username");
+                    return responseUser;
+                } else {
+                    throw new RegistrationException("Registration failed: Try another username");
                 }
-
-                return responseUser;
             } else {
                 throw new RegistrationException("status code returned from server was " + status);
             }
