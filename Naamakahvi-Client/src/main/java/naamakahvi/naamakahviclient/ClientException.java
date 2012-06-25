@@ -16,7 +16,8 @@ public class ClientException extends Exception {
         this.reason = reason;
     }
 
-    public String getReason() {
+    @Override
+    public String getMessage() {
         return reason;
     }
 }

@@ -59,6 +59,7 @@ public class Client {
             if (status == 200) {                
                 JsonObject obj = responseToJson(response);
                 
+
                 if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                     obj.remove("status");
                     User responseUser = new Gson().fromJson(obj, User.class);
@@ -76,7 +77,7 @@ public class Client {
         } catch (RegistrationException e) {
             throw e;
         } catch (Exception e) {
-            throw new RegistrationException(e.toString());
+            throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
         }
     }
 
@@ -117,7 +118,7 @@ public class Client {
 
                     return responseUser;
                 } else {
-                    throw new RegistrationException("Registration failed: Try another username");
+                    throw new RegistrationException("Authentication failed");
                 }
             } else {
                 throw new RegistrationException("status code returned from server was " + status);
@@ -140,12 +141,13 @@ public class Client {
     }
 
     public static void main(String[] args) {
+            System.out.println("P");
         try {
             Client c = new Client("127.0.0.1", 5000);
-            IUser user = c.registerUser("ABC", new ImageData());
+            IUser user = c.registerUser("dlfsfh", new ImageData());
             System.out.println("Registered user " + user.getUserName());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RegistrationException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
