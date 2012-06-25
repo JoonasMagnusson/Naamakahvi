@@ -40,6 +40,11 @@ public class Client {
         this.host = host;
         this.port = port;
     }
+    
+    private JsonObject responseToJson(HttpResponse response) throws IOException {
+        String s = Util.readStream(response.getEntity().getContent());
+        return new JsonParser().parse(s).getAsJsonObject();
+    }
 
     public IUser registerUser(String username, ImageData imagedata) throws RegistrationException {
         try {
@@ -51,12 +56,11 @@ public class Client {
             HttpResponse response = httpClient.execute(post);
             int status = response.getStatusLine().getStatusCode();
 
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-//                
-                if (obj.get("success").getAsBoolean()) {
-                    obj.remove("success");
+            if (status == 200) {                
+                JsonObject obj = responseToJson(response);
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    obj.remove("status");
                     User responseUser = new Gson().fromJson(obj, User.class);
                     if (!responseUser.getUserName().equals(username)) {
                         throw new RegistrationException("username returned from server doesn't match given username");
@@ -101,13 +105,20 @@ public class Client {
             int status = response.getStatusLine().getStatusCode();
 
             if (status == 200) {
-                User responseUser = new Gson().fromJson(Util.readStream(response.getEntity().getContent()), User.class);
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    obj.remove("status");
+                    User responseUser = new Gson().fromJson(obj, User.class);
+                    if (!responseUser.getUserName().equals(username)) {
+                        throw new RegistrationException("username returned from server doesn't match given username");
+                    }
 
-                if (!responseUser.getUserName().equals(username)) {
-                    throw new RegistrationException("username returned from server doesn't match given username");
+                    return responseUser;
+                } else {
+                    throw new RegistrationException("Registration failed: Try another username");
                 }
-
-                return responseUser;
             } else {
                 throw new RegistrationException("status code returned from server was " + status);
             }
