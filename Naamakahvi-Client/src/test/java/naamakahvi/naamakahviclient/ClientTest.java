@@ -20,6 +20,17 @@ import org.junit.Test;
 public class ClientTest {
     private LocalTestServer server = null;
     private static HashMap<String, IUser> users = new HashMap<String, IUser>();
+    
+    private class ResponseUser extends User {
+        private final boolean success;
+        
+        private ResponseUser(String uname, ImageData id, boolean success) {
+                super(uname, id);
+                this.success = success;
+        }
+        
+    }
+    
     HttpRequestHandler registrationHandler = new HttpRequestHandler() {
 
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
@@ -36,8 +47,9 @@ public class ClientTest {
             }
 
             String username = new String(data).substring(9);
-            IUser user = new User(username, null);
-            StringEntity stringEntity = new StringEntity(new Gson().toJson(user, User.class), ContentType.create("text/plain", "UTF-8"));
+            IUser user = new ResponseUser(username, null, true);
+            
+            StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
             response.setEntity(stringEntity);
             response.setStatusCode(200);
         }
