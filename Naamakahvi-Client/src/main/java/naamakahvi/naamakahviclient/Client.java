@@ -1,12 +1,3 @@
-/*
- Tämä on vasta todella karkea luonnos siitä millainen clientistä ehkä mahdollisesti saattaisi tulla,
- ehdotuksia otetaan vastaan.
-
- Tämän kikkareen on siis tarkoitus keskustella serverin kanssa ja tarjota eri käyttöliittymille
- API jotta käyttöliittymien ei tarvitse välittää siitä miten serverin kanssa kommunikointi tapahtuu.
-
- t. Janne
- */
 package naamakahvi.naamakahviclient;
 
 import java.util.*;
@@ -174,15 +165,30 @@ public class Client {
         }
     }
 
-
-    public static void main(String[] args) {
-            System.out.println("P");
+    public void buyProduct(IProduct product, int amount) throws ClientException {
         try {
-            Client c = new Client("127.0.0.1", 5000);
-            IUser user = c.registerUser("dlfsfh", new ImageData());
-            System.out.println("Registered user " + user.getUserName());
-        } catch (RegistrationException e) {
-            System.out.println(e.getMessage());
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/buy_product/"));
+            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    return;
+                } else {
+                    throw new GeneralClientException("Buying the product failed");
+                }
+            } else {
+                throw new GeneralClientException("Status code returned from server was " + status);
+            }
+
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
         }
     }
+
 }

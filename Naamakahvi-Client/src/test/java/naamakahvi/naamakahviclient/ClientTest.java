@@ -103,6 +103,17 @@ public class ClientTest {
             
     };
 
+
+    private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
+    
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            stringResponse(response, ans.toString());
+        }
+            
+    };
+
     private void makeResponse(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
         response.setEntity(stringEntity);
@@ -127,6 +138,7 @@ public class ClientTest {
         server.register("/register/*", registrationHandler);
         server.register("/authenticate_text/*", textAuthenticationHandler);
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
+        server.register("/buy_product/*", buyProductHandler);
 
         try {
             server.start();
@@ -194,10 +206,20 @@ public class ClientTest {
         Client c = new Client(host, port);
         List<IProduct> ps = c.listBuyableProducts();
 
+        System.out.println("Buyable products are:");
+
         for (IProduct p : ps) {
-            System.out.println("Buyable products are:");
             System.out.println(p.getName());
         }
 
+    }
+
+    @Test
+    public void buyProduct() throws ClientException {
+        Client c = new Client(host, port);
+        IProduct p = c.listBuyableProducts().get(0);
+        final int amount = 3;
+        c.buyProduct(p, 3);
+        System.out.println("Bought " + amount + " " + p.getName() + "(s)");
     }
 }
