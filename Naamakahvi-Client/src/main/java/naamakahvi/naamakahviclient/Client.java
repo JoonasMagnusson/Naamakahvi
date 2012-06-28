@@ -265,5 +265,30 @@ public class Client {
         }
     }
 
+    public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/bring_product/"));
+            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    return;
+                } else {
+                    throw new GeneralClientException("Bringing the product failed");
+                }
+            } else {
+                throw new GeneralClientException("Status code returned from server was " + status);
+            }
+
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
 
 }

@@ -147,9 +147,19 @@ public class ClientTest {
             ans.add("stations", ar);
             stringResponse(response, ans.toString());
         }
+    };
             
+    private HttpRequestHandler bringProductHandler = new HttpRequestHandler() {
+            
+            public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+                JsonObject ans = new JsonObject();
+                ans.add("status", new JsonPrimitive("ok"));
+                stringResponse(response, ans.toString());
+            }
             
     };
+            
+
 
     private void makeResponse(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
@@ -178,6 +188,7 @@ public class ClientTest {
         server.register("/buy_product/*", buyProductHandler);
         server.register("/list_bringable_products/*", listBringableProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
+        server.register("/bring_product/*", bringProductHandler);
 
         try {
             server.start();
@@ -275,6 +286,16 @@ public class ClientTest {
             System.out.println(p.getName());
         }
 
+    }
+
+    @Test
+    public void bringProduct() throws ClientException {
+        Client c = new Client(host, port, station);
+        IProduct p = c.listBuyableProducts().get(0);
+        IUser u = c.authenticateText("Teemu");
+        final int amount = 3;
+        c.bringProduct(u, p, 3);
+        System.out.println("Bringed " + amount + " " + p.getName() + "(s)");
     }
 
     @Test
