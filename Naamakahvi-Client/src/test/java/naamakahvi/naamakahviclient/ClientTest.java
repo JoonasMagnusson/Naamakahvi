@@ -103,7 +103,6 @@ public class ClientTest {
             
     };
 
-
     private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
     
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
@@ -111,6 +110,23 @@ public class ClientTest {
             ans.add("status", new JsonPrimitive("ok"));
             stringResponse(response, ans.toString());
         }
+            
+    };
+
+    private HttpRequestHandler listBringableProductsHandler = new HttpRequestHandler() {
+    
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            JsonArray ar = new JsonArray();
+            
+            for (String s : new String[]{"suodatinkahvi", "espressopavut", "kahvisuodatin", "sokeri", "puhdistuspilleri"}) {
+                ar.add(new JsonPrimitive(s));
+            }
+            ans.add("bringable_products", ar);
+            stringResponse(response, ans.toString());
+        }
+            
             
     };
 
@@ -139,6 +155,7 @@ public class ClientTest {
         server.register("/authenticate_text/*", textAuthenticationHandler);
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
         server.register("/buy_product/*", buyProductHandler);
+        server.register("/list_bringable_products/*", listBringableProductsHandler);
 
         try {
             server.start();
@@ -222,4 +239,18 @@ public class ClientTest {
         c.buyProduct(p, 3);
         System.out.println("Bought " + amount + " " + p.getName() + "(s)");
     }
+
+    @Test
+    public void listBringableProducts() throws ClientException {
+        Client c = new Client(host, port);
+        List<IProduct> ps = c.listBringableProducts();
+
+        System.out.println("Bringable products are:");
+
+        for (IProduct p : ps) {
+            System.out.println(p.getName());
+        }
+
+    }
+
 }

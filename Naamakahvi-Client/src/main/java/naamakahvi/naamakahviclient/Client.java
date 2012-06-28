@@ -191,4 +191,35 @@ public class Client {
         }
     }
 
+    // bringable? lolwut
+    public List<IProduct> listBringableProducts() throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet get = new HttpGet(buildURI("/list_bringable_products/"));
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(get);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    List<IProduct> ans = new ArrayList();
+                    for (JsonElement e : obj.get("bringable_products").getAsJsonArray()) {
+                        ans.add(new Product(e.getAsString()));
+                    }
+                    return ans;
+                } else {
+                    throw new GeneralClientException("Could not fetch list of bringable products");
+                }
+            } else {
+                throw new GeneralClientException("status code returned from server was " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+
 }
