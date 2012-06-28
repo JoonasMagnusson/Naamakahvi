@@ -19,15 +19,59 @@ public class Client {
 
     private String host;
     private int port;
+    private IStation station;
+
+    private static class Station implements IStation {
+        
+        private String name;
+
+        Station(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
+    public static List<IStation> listStations(String host, int port) throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet get = new HttpGet(new URIBuilder().setScheme("http").setHost(host).setPort(port).setPath("/list_stations/").build());
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(get);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    List<IStation> ans = new ArrayList();
+                    for (JsonElement e : obj.get("stations").getAsJsonArray()) {
+                        ans.add(new Station(e.getAsString()));
+                    }
+                    return ans;
+                } else {
+                    throw new GeneralClientException("Could not fetch list of stations");
+                }
+            } else {
+                throw new GeneralClientException("status code returned from server was " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
 
     /*
      * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
      * käyttää myöhemmissä metodikutsuissaan, jotka muodostavat aina uuden
      * HTTP-yhteyden.
      */
-    public Client(String host, int port) {
+    public Client(String host, int port, IStation station) {
         this.host = host;
         this.port = port;
+        this.station = station;
     }
     
     private JsonObject responseToJson(HttpResponse response) throws IOException {
@@ -129,7 +173,7 @@ public class Client {
         throw new RuntimeException();
     }
 
-    class GeneralClientException extends ClientException {
+    static class GeneralClientException extends ClientException {
         public GeneralClientException(String s) {
             super(s);
         }
@@ -221,5 +265,30 @@ public class Client {
         }
     }
 
+    public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/bring_product/"));
+            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    return;
+                } else {
+                    throw new GeneralClientException("Bringing the product failed");
+                }
+            } else {
+                throw new GeneralClientException("Status code returned from server was " + status);
+            }
+
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
 
 }

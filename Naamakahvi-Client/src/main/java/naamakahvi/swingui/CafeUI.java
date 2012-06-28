@@ -124,7 +124,7 @@ public class CafeUI extends JFrame implements ActionListener{
 			}
 			if (source.getID() == BUTTON_REGISTER_USER){
 				try {
-					Client c = new Client("127.0.0.1", 5000);
+					Client c = new Client("127.0.0.1", 5000, null);
 					IUser user = c.registerUser(register.getUsername(), null);
 					register.setHelpText("Registered user " + user.getUserName());
 				}
