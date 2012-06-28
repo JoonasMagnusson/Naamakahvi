@@ -2,6 +2,7 @@ package naamakahvi.naamakahviclient;
 
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,22 +16,29 @@ import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class ClientTest {
+
     private LocalTestServer server = null;
-    private static HashMap<String, IUser> users = new HashMap<String, IUser>();
-    
+    private HashMap<String, IUser> users = new HashMap<String, IUser>();
+    private int port;
+    private String host;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private class ResponseUser extends User {
+
         private final String status;
-        
+
         private ResponseUser(String uname, ImageData id, String success) {
-                super(uname, id);
-                this.status = success;
-        }        
+            super(uname, id);
+            this.status = success;
+        }
     }
-    
-    HttpRequestHandler registrationHandler = new HttpRequestHandler() {
+    private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
 
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
             HttpEntity entity = null;
@@ -38,53 +46,62 @@ public class ClientTest {
                 entity = ((HttpEntityEnclosingRequest) request).getEntity();
             }
 
-            byte[] data;
-            if (entity == null) {
-                data = new byte[0];
+            String username = readUsernameFromEntity(entity);
+            IUser user;
+
+            if (users.containsKey(username)) {
+                user = new ResponseUser(username, null, "fail");
             } else {
-                data = EntityUtils.toByteArray(entity);
+                user = new ResponseUser(username, null, "ok");
             }
 
-            String username = new String(data).substring(9);
-            IUser user = new ResponseUser(username, null, "ok");
-            
-            StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
-            response.setEntity(stringEntity);
-            response.setStatusCode(200);
+            makeResponse(user, response);
         }
     };
-    
-    HttpRequestHandler authenticationHandler = registrationHandler;
-    
-//    HttpRequestHandler authenticate_text_handler = new HttpRequestHandler() {
-//
-//        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
-//            DefaultedHttpParams params = (DefaultedHttpParams) request.getParams();
-//            
-//            Set<String> names = params.getNames();
-//            for (String s : names) {
-//                System.out.println(s);
-//            }
-//            System.out.println("params: " + request.getParams());
-//            //String username = "asdf"; //  request.getParams().getParameter("username").toString();
-//            
-//            //System.out.println("username: " + username);
-//            StringEntity se = new StringEntity("asdf", ContentType.create("text/plain", "UTF-8"));                     
-//            response.setEntity(se);
-//            response.setStatusCode(200);
-//            
-//        }
-//    };
-    static int port;
-    static String host;
+    private HttpRequestHandler textAuthenticationHandler = new HttpRequestHandler() {
+
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            HttpEntity entity = null;
+            if (request instanceof HttpEntityEnclosingRequest) {
+                entity = ((HttpEntityEnclosingRequest) request).getEntity();
+            }
+
+            String username = readUsernameFromEntity(entity);
+            IUser user;
+
+            if (users.containsKey(username)) {
+                user = new ResponseUser(username, null, "ok");
+            } else {
+                user = new ResponseUser(username, null, "fail");
+            }
+
+            makeResponse(user, response);
+        }
+    };
+
+    private void makeResponse(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
+        StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
+        response.setEntity(stringEntity);
+        response.setStatusCode(200);
+    }
+
+    private String readUsernameFromEntity(HttpEntity entity) throws IOException {
+        byte[] data;
+        if (entity == null) {
+            data = new byte[0];
+        } else {
+            data = EntityUtils.toByteArray(entity);
+        }
+        return new String(data).substring(9);
+    }
 
     @Before
     public void setUp() {
+        users.put("Teemu", new User("Teemu", null)); 
+        
         server = new LocalTestServer(null, null);
-
         server.register("/register/*", registrationHandler);
-        //server.register("/authenticate_text/*", authenticate_text_handler);
-
+        server.register("/authenticate_text/*", textAuthenticationHandler);
 
         try {
             server.start();
@@ -106,11 +123,10 @@ public class ClientTest {
     }
 
     @Test
-    public void registrationTest() throws Exception {
+    public void registrationWithNewNameSuccessful() throws Exception {
         Client c = new Client(host, port);
         try {
             IUser u = c.registerUser("Pekka", null);
-            System.out.println(u.getUserName());
             assertEquals(u.getUserName(), "Pekka");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,15 +135,32 @@ public class ClientTest {
     }
 
     @Test
-    public void authenticationTest() throws Exception {
+    public void authenticationWithExistingNameSuccessful() throws Exception {
         Client c = new Client(host, port);
         try {
-            IUser u = c.authenticateText("Harri");
-            System.out.println(u.getUserName());
-            assertEquals(u.getUserName(), "Harri");
+            IUser u = c.authenticateText("Teemu");
+            assertEquals(u.getUserName(), "Teemu");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;
         }
+    }
+
+    @Test
+    public void registrationWithExistingNameFails() throws RegistrationException {
+        thrown.expect(ClientException.class);
+        thrown.expectMessage("Registration failed: Try another username");
+        
+        Client c = new Client(host, port);
+        IUser u = c.registerUser("Teemu", null);
+    }
+
+    @Test
+    public void authenticationWithUnknownNameFails() throws AuthenticationException {
+        thrown.expect(ClientException.class);
+        thrown.expectMessage("Authentication failed");
+        
+        Client c = new Client(host, port);
+        IUser u = c.authenticateText("Matti");
     }
 }
