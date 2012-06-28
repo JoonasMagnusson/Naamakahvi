@@ -165,11 +165,11 @@ public class Client {
         }
     }
 
-    public void buyProduct(IProduct product, int amount) throws ClientException {
+    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/buy_product/"));
-            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount));
+            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
             HttpResponse response = httpClient.execute(post);
             int status = response.getStatusLine().getStatusCode();
 

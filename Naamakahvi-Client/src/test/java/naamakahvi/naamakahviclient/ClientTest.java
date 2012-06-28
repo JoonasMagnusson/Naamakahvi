@@ -235,8 +235,9 @@ public class ClientTest {
     public void buyProduct() throws ClientException {
         Client c = new Client(host, port);
         IProduct p = c.listBuyableProducts().get(0);
+        IUser u = c.authenticateText("Teemu");
         final int amount = 3;
-        c.buyProduct(p, 3);
+        c.buyProduct(u, p, 3);
         System.out.println("Bought " + amount + " " + p.getName() + "(s)");
     }
 
