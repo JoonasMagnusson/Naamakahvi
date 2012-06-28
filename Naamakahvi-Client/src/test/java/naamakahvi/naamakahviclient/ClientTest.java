@@ -28,6 +28,10 @@ public class ClientTest {
     private HashMap<String, IUser> users = new HashMap<String, IUser>();
     private int port;
     private String host;
+    private IStation station;
+
+    
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -130,6 +134,23 @@ public class ClientTest {
             
     };
 
+    private HttpRequestHandler listStationsHandler = new HttpRequestHandler() {
+    
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            JsonArray ar = new JsonArray();
+            
+            for (String s : new String[]{"asema1", "asema2", "asema3"}) {
+                ar.add(new JsonPrimitive(s));
+            }
+            ans.add("stations", ar);
+            stringResponse(response, ans.toString());
+        }
+            
+            
+    };
+
     private void makeResponse(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
         response.setEntity(stringEntity);
@@ -156,11 +177,13 @@ public class ClientTest {
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
         server.register("/buy_product/*", buyProductHandler);
         server.register("/list_bringable_products/*", listBringableProductsHandler);
+        server.register("/list_stations/*", listStationsHandler);
 
         try {
             server.start();
             port = server.getServiceAddress().getPort();
             host = server.getServiceAddress().getHostName();
+            station = Client.listStations(host, port).get(0);
             System.out.println("HOST: " + host + ", PORT: " + port);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -178,7 +201,7 @@ public class ClientTest {
 
     @Test
     public void registrationWithNewNameSuccessful() throws Exception {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         try {
             IUser u = c.registerUser("Pekka", null);
             assertEquals(u.getUserName(), "Pekka");
@@ -190,7 +213,7 @@ public class ClientTest {
 
     @Test
     public void authenticationWithExistingNameSuccessful() throws Exception {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         try {
             IUser u = c.authenticateText("Teemu");
             assertEquals(u.getUserName(), "Teemu");
@@ -205,7 +228,7 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Registration failed: Try another username");
         
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         IUser u = c.registerUser("Teemu", null);
     }
 
@@ -214,13 +237,13 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");
         
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         IUser u = c.authenticateText("Matti");
     }
 
     @Test
     public void listBuyableProducts() throws ClientException {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBuyableProducts();
 
         System.out.println("Buyable products are:");
@@ -233,7 +256,7 @@ public class ClientTest {
 
     @Test
     public void buyProduct() throws ClientException {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         IProduct p = c.listBuyableProducts().get(0);
         IUser u = c.authenticateText("Teemu");
         final int amount = 3;
@@ -243,7 +266,7 @@ public class ClientTest {
 
     @Test
     public void listBringableProducts() throws ClientException {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBringableProducts();
 
         System.out.println("Bringable products are:");
@@ -253,5 +276,18 @@ public class ClientTest {
         }
 
     }
+
+    @Test
+    public void listStations() throws ClientException {
+        List<IStation> ss = Client.listStations(host, port);
+
+        System.out.println("Available stations are:");
+
+        for (IStation s : ss) {
+            System.out.println(s.getName());
+        }
+
+    }
+
 
 }
