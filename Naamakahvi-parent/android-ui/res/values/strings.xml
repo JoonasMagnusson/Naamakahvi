@@ -9,5 +9,7 @@
     <string name="countdown_prefix">Confirming in</string>
     <string name="countdown_suffix">s</string>
     <string name="reg_button">New user</string>
+    <string name="user_list">User List</string>
+    <string name="other_order">Other order</string>
 
 </resources>

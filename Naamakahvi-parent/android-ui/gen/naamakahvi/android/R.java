@@ -16,14 +16,16 @@ public final class R {
     public static final class id {
         public static final int button1=0x7f050001;
         public static final int button2=0x7f050002;
-        public static final int button3=0x7f050005;
+        public static final int button3=0x7f050004;
         public static final int cnf_text=0x7f050000;
-        public static final int editText=0x7f050007;
+        public static final int editText1=0x7f050006;
+        public static final int editText2=0x7f050007;
+        public static final int gridView1=0x7f05000a;
         public static final int imageButton1=0x7f050008;
         public static final int rec_countdown=0x7f050003;
-        public static final int regButton=0x7f050009;
-        public static final int syotatunnus_text=0x7f050006;
-        public static final int textView1=0x7f050004;
+        public static final int regButton=0x7f05000b;
+        public static final int textView1=0x7f050005;
+        public static final int textView2=0x7f050009;
     }
     public static final class layout {
         public static final int confirm=0x7f030000;
@@ -38,8 +40,10 @@ public final class R {
         public static final int countdown_prefix=0x7f040005;
         public static final int countdown_suffix=0x7f040006;
         public static final int hello=0x7f040000;
+        public static final int other_order=0x7f040009;
         public static final int rec_string_prefix=0x7f040002;
         public static final int rec_string_suffix=0x7f040003;
         public static final int reg_button=0x7f040007;
+        public static final int user_list=0x7f040008;
     }
 }
