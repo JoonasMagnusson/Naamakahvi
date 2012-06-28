@@ -1,7 +1,9 @@
 package naamakahvi.naamakahviclient;
 
-import com.google.gson.Gson;
+import java.util.*;
+import com.google.gson.*;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -79,6 +81,28 @@ public class ClientTest {
         }
     };
 
+    private static void stringResponse(HttpResponse r, String s) throws UnsupportedEncodingException {
+        r.setEntity(new StringEntity(s, ContentType.create("text/plain", "UTF-8")));
+        r.setStatusCode(200);
+    }
+
+    private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
+    
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            JsonArray ar = new JsonArray();
+            
+            for (String s : new String[]{"kahvi", "espresso", "tuplaespresso"}) {
+                ar.add(new JsonPrimitive(s));
+            }
+            ans.add("buyable_products", ar);
+            stringResponse(response, ans.toString());
+        }
+            
+            
+    };
+
     private void makeResponse(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
         response.setEntity(stringEntity);
@@ -102,6 +126,7 @@ public class ClientTest {
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
         server.register("/authenticate_text/*", textAuthenticationHandler);
+        server.register("/list_buyable_products/*", listBuyableProductsHandler);
 
         try {
             server.start();
@@ -162,5 +187,17 @@ public class ClientTest {
         
         Client c = new Client(host, port);
         IUser u = c.authenticateText("Matti");
+    }
+
+    @Test
+    public void listBuyableProducts() throws ClientException {
+        Client c = new Client(host, port);
+        List<IProduct> ps = c.listBuyableProducts();
+
+        for (IProduct p : ps) {
+            System.out.println("Buyable products are:");
+            System.out.println(p.getName());
+        }
+
     }
 }

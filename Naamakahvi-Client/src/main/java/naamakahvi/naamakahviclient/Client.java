@@ -9,10 +9,8 @@
  */
 package naamakahvi.naamakahviclient;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.util.*;
+import com.google.gson.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -139,6 +137,43 @@ public class Client {
         // TODO 
         throw new RuntimeException();
     }
+
+    class GeneralClientException extends ClientException {
+        public GeneralClientException(String s) {
+            super(s);
+        }
+        
+    }
+    
+    public List<IProduct> listBuyableProducts() throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet get = new HttpGet(buildURI("/list_buyable_products/"));
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(get);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    List<IProduct> ans = new ArrayList();
+                    for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
+                        ans.add(new Product(e.getAsString()));
+                    }
+                    return ans;
+                } else {
+                    throw new GeneralClientException("Could not fetch list of buyable products");
+                }
+            } else {
+                throw new GeneralClientException("status code returned from server was " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
 
     public static void main(String[] args) {
             System.out.println("P");
