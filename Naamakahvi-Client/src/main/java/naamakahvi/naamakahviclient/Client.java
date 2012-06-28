@@ -95,11 +95,11 @@ public class Client {
         return null;
     }
 
-    public IUser authenticateText(String username) throws Exception {
+    public IUser authenticateText(String username) throws AuthenticationException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             String user = "username=" + username;
-            HttpPost post = new HttpPost(buildURI("/register/"));
+            HttpPost post = new HttpPost(buildURI("/authenticate_text/"));
             post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             post.setEntity(new StringEntity(user));
             HttpResponse response = httpClient.execute(post);
@@ -113,20 +113,20 @@ public class Client {
                     obj.remove("status");
                     User responseUser = new Gson().fromJson(obj, User.class);
                     if (!responseUser.getUserName().equals(username)) {
-                        throw new RegistrationException("username returned from server doesn't match given username");
+                        throw new AuthenticationException("username returned from server doesn't match given username");
                     }
 
                     return responseUser;
                 } else {
-                    throw new RegistrationException("Authentication failed");
+                    throw new AuthenticationException("Authentication failed");
                 }
             } else {
-                throw new RegistrationException("status code returned from server was " + status);
+                throw new AuthenticationException("status code returned from server was " + status);
             }
-        } catch (RegistrationException e) {
+        } catch (AuthenticationException e) {
             throw e;
         } catch (Exception e) {
-            throw new RegistrationException(e.toString());
+            throw new AuthenticationException(e.toString());
         }
     }
 
