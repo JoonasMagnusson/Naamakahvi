@@ -107,7 +107,7 @@ public class ClientTest {
 
     @Test
     public void registrationTest() throws Exception {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, null);
         try {
             IUser u = c.registerUser("Pekka", null);
             System.out.println(u.getUserName());
@@ -120,7 +120,7 @@ public class ClientTest {
 
     @Test
     public void authenticationTest() throws Exception {
-        Client c = new Client(host, port);
+        Client c = new Client(host, port, null);
         try {
             IUser u = c.authenticateText("Harri");
             System.out.println(u.getUserName());

@@ -1,13 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package naamakahvi.naamakahviclient;
 
-/**
- *
- * @author jronkone
- */
 public class ClientException extends Exception {
 
     private String reason;
@@ -34,4 +26,11 @@ class RegistrationException extends ClientException {
     RegistrationException(String reason) {
         super(reason);
     }
+}
+
+class GeneralClientException extends ClientException {
+        public GeneralClientException(String s) {
+            super(s);
+        }
+        
 }

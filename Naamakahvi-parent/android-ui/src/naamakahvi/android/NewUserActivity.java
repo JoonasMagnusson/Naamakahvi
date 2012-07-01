@@ -14,7 +14,7 @@ public class NewUserActivity extends Activity {
     
     public void onRegistrationClick(View v)  {
 		try {
-			Client client = new Client("127.0.0.1", 5000);
+			Client client = new Client("127.0.0.1", 5000, null);
 			String username = ((EditText)findViewById(R.id.editTextUsername)).getText().toString();
 			String name = ((EditText)findViewById(R.id.editTextName)).getText().toString();
 			IUser user = client.registerUser(username, null);
