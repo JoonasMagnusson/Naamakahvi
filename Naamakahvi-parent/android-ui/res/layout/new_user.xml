@@ -26,7 +26,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <EditText
-                android:id="@+id/editText1"
+                android:id="@+id/editTextUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -40,7 +40,7 @@
             </EditText>
 
             <EditText
-                android:id="@+id/editText2"
+                android:id="@+id/editTextName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -52,11 +52,12 @@
                 android:textSize="20dp" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/clientRegisterButton"
                 android:layout_width="319dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
+                android:onClick="onRegistrationClick"
                 android:text="OK" />
         </LinearLayout>
 
