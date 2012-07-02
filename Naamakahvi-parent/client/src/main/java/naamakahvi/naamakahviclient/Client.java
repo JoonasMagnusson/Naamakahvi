@@ -1,18 +1,7 @@
-/*
- Tämä on vasta todella karkea luonnos siitä millainen clientistä ehkä mahdollisesti saattaisi tulla,
- ehdotuksia otetaan vastaan.
-
- Tämän kikkareen on siis tarkoitus keskustella serverin kanssa ja tarjota eri käyttöliittymille
- API jotta käyttöliittymien ei tarvitse välittää siitä miten serverin kanssa kommunikointi tapahtuu.
-
- t. Janne
- */
 package naamakahvi.naamakahviclient;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.util.*;
+import com.google.gson.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -30,15 +19,59 @@ public class Client {
 
     private String host;
     private int port;
+    private IStation station;
+
+    private static class Station implements IStation {
+        
+        private String name;
+
+        Station(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
+    public static List<IStation> listStations(String host, int port) throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet get = new HttpGet(new URIBuilder().setScheme("http").setHost(host).setPort(port).setPath("/list_stations/").build());
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(get);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    List<IStation> ans = new ArrayList();
+                    for (JsonElement e : obj.get("stations").getAsJsonArray()) {
+                        ans.add(new Station(e.getAsString()));
+                    }
+                    return ans;
+                } else {
+                    throw new GeneralClientException("Could not fetch list of stations");
+                }
+            } else {
+                throw new GeneralClientException("status code returned from server was " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
 
     /*
      * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
      * käyttää myöhemmissä metodikutsuissaan, jotka muodostavat aina uuden
      * HTTP-yhteyden.
      */
-    public Client(String host, int port) {
+    public Client(String host, int port, IStation station) {
         this.host = host;
         this.port = port;
+        this.station = station;
     }
     
     private JsonObject responseToJson(HttpResponse response) throws IOException {
@@ -95,11 +128,11 @@ public class Client {
         return null;
     }
 
-    public IUser authenticateText(String username) throws Exception {
+    public IUser authenticateText(String username) throws AuthenticationException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             String user = "username=" + username;
-            HttpPost post = new HttpPost(buildURI("/register/"));
+            HttpPost post = new HttpPost(buildURI("/authenticate_text/"));
             post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             post.setEntity(new StringEntity(user));
             HttpResponse response = httpClient.execute(post);
@@ -113,20 +146,20 @@ public class Client {
                     obj.remove("status");
                     User responseUser = new Gson().fromJson(obj, User.class);
                     if (!responseUser.getUserName().equals(username)) {
-                        throw new RegistrationException("username returned from server doesn't match given username");
+                        throw new AuthenticationException("username returned from server doesn't match given username");
                     }
 
                     return responseUser;
                 } else {
-                    throw new RegistrationException("Authentication failed");
+                    throw new AuthenticationException("Authentication failed");
                 }
             } else {
-                throw new RegistrationException("status code returned from server was " + status);
+                throw new AuthenticationException("status code returned from server was " + status);
             }
-        } catch (RegistrationException e) {
+        } catch (AuthenticationException e) {
             throw e;
         } catch (Exception e) {
-            throw new RegistrationException(e.toString());
+            throw new AuthenticationException(e.toString());
         }
     }
 
@@ -140,14 +173,122 @@ public class Client {
         throw new RuntimeException();
     }
 
-    public static void main(String[] args) {
-            System.out.println("P");
+    static class GeneralClientException extends ClientException {
+        public GeneralClientException(String s) {
+            super(s);
+        }
+        
+    }
+    
+    public List<IProduct> listBuyableProducts() throws ClientException {
         try {
-            Client c = new Client("127.0.0.1", 5000);
-            IUser user = c.registerUser("dlfsfh", new ImageData());
-            System.out.println("Registered user " + user.getUserName());
-        } catch (RegistrationException e) {
-            System.out.println(e.getMessage());
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet get = new HttpGet(buildURI("/list_buyable_products/"));
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(get);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    List<IProduct> ans = new ArrayList();
+                    for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
+                        ans.add(new Product(e.getAsString()));
+                    }
+                    return ans;
+                } else {
+                    throw new GeneralClientException("Could not fetch list of buyable products");
+                }
+            } else {
+                throw new GeneralClientException("status code returned from server was " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
         }
     }
+
+    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/buy_product/"));
+            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    return;
+                } else {
+                    throw new GeneralClientException("Buying the product failed");
+                }
+            } else {
+                throw new GeneralClientException("Status code returned from server was " + status);
+            }
+
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+    // bringable? lolwut
+    public List<IProduct> listBringableProducts() throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet get = new HttpGet(buildURI("/list_bringable_products/"));
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(get);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+                
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    List<IProduct> ans = new ArrayList();
+                    for (JsonElement e : obj.get("bringable_products").getAsJsonArray()) {
+                        ans.add(new Product(e.getAsString()));
+                    }
+                    return ans;
+                } else {
+                    throw new GeneralClientException("Could not fetch list of bringable products");
+                }
+            } else {
+                throw new GeneralClientException("status code returned from server was " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+    public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/bring_product/"));
+            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
+            HttpResponse response = httpClient.execute(post);
+            int status = response.getStatusLine().getStatusCode();
+
+            if (status == 200) {
+                String s = Util.readStream(response.getEntity().getContent());
+                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
+
+                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                    return;
+                } else {
+                    throw new GeneralClientException("Bringing the product failed");
+                }
+            } else {
+                throw new GeneralClientException("Status code returned from server was " + status);
+            }
+
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
 }
