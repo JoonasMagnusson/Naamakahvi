@@ -42,27 +42,16 @@ public class Client {
 
     public static List<IStation> listStations(String host, int port) throws ClientException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpGet get = new HttpGet(new URIBuilder().setScheme("http").setHost(host).setPort(port).setPath("/list_stations/").build());
-            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            HttpResponse response = httpClient.execute(get);
-            int status = response.getStatusLine().getStatusCode();
+            JsonObject obj = new Client(host, port, null).doGet("/list_stations/");
 
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-                
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    List<IStation> ans = new ArrayList();
-                    for (JsonElement e : obj.get("stations").getAsJsonArray()) {
-                        ans.add(new Station(e.getAsString()));
-                    }
-                    return ans;
-                } else {
-                    throw new GeneralClientException("Could not fetch list of stations");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IStation> ans = new ArrayList();
+                for (JsonElement e : obj.get("stations").getAsJsonArray()) {
+                    ans.add(new Station(e.getAsString()));
                 }
+                return ans;
             } else {
-                throw new GeneralClientException("status code returned from server was " + status);
+                throw new GeneralClientException("Could not fetch list of stations");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
