@@ -1,6 +1,6 @@
 package naamakahvi.naamakahviclient;
 
-interface IProduct {
+public interface IProduct {
 
     public String getName();
 

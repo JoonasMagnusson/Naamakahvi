@@ -19,6 +19,7 @@ public class NewUserActivity extends Activity {
 			String etunimi = ((EditText)findViewById(R.id.editTextEtunimi)).getText().toString();
 			String sukunimi = ((EditText)findViewById(R.id.editTextSukunimi)).getText().toString();
 			IUser user = client.registerUser(username, etunimi, sukunimi, null);
+			setContentView(R.layout.recog_user);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
