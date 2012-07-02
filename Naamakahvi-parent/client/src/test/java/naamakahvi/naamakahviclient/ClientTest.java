@@ -16,27 +16,22 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class ClientTest {
-
     private LocalTestServer server = null;
     private HashMap<String, IUser> users = new HashMap<String, IUser>();
     private int port;
     private String host;
     private IStation station;
-
-    
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     private class ResponseUser extends User {
-
         private final String status;
 
         private ResponseUser(String uname, ImageData id, String success) {
@@ -45,7 +40,6 @@ public class ClientTest {
         }
     }
     private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
             HttpEntity entity = null;
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -61,11 +55,10 @@ public class ClientTest {
                 user = new ResponseUser(username, null, "ok");
             }
 
-            makeResponse(user, response);
+            makeResponseFromUser(user, response);
         }
     };
     private HttpRequestHandler textAuthenticationHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             HttpEntity entity = null;
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -81,7 +74,7 @@ public class ClientTest {
                 user = new ResponseUser(username, null, "fail");
             }
 
-            makeResponse(user, response);
+            makeResponseFromUser(user, response);
         }
     };
 
@@ -89,58 +82,45 @@ public class ClientTest {
         r.setEntity(new StringEntity(s, ContentType.create("text/plain", "UTF-8")));
         r.setStatusCode(200);
     }
-
     private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
-    
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
-            
+
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso"}) {
                 ar.add(new JsonPrimitive(s));
             }
             ans.add("buyable_products", ar);
             stringResponse(response, ans.toString());
         }
-            
-            
     };
-
     private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
-    
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             stringResponse(response, ans.toString());
         }
-            
     };
-
     private HttpRequestHandler listBringableProductsHandler = new HttpRequestHandler() {
-    
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
-            
+
             for (String s : new String[]{"suodatinkahvi", "espressopavut", "kahvisuodatin", "sokeri", "puhdistuspilleri"}) {
                 ar.add(new JsonPrimitive(s));
             }
             ans.add("bringable_products", ar);
             stringResponse(response, ans.toString());
         }
-            
-            
     };
-
     private HttpRequestHandler listStationsHandler = new HttpRequestHandler() {
-    
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
-            
+
             for (String s : new String[]{"asema1", "asema2", "asema3"}) {
                 ar.add(new JsonPrimitive(s));
             }
@@ -148,20 +128,15 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
-            
     private HttpRequestHandler bringProductHandler = new HttpRequestHandler() {
-            
-            public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
-                JsonObject ans = new JsonObject();
-                ans.add("status", new JsonPrimitive("ok"));
-                stringResponse(response, ans.toString());
-            }
-            
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            stringResponse(response, ans.toString());
+        }
     };
-            
 
-
-    private void makeResponse(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
+    private void makeResponseFromUser(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
         response.setEntity(stringEntity);
         response.setStatusCode(200);
@@ -179,8 +154,8 @@ public class ClientTest {
 
     @Before
     public void setUp() {
-        users.put("Teemu", new User("Teemu", null)); 
-        
+        users.put("Teemu", new User("Teemu", null));
+
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
         server.register("/authenticate_text/*", textAuthenticationHandler);
@@ -238,7 +213,7 @@ public class ClientTest {
     public void registrationWithExistingNameFails() throws RegistrationException {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Registration failed: Try another username");
-        
+
         Client c = new Client(host, port, station);
         IUser u = c.registerUser("Teemu", null);
     }
@@ -247,22 +222,27 @@ public class ClientTest {
     public void authenticationWithUnknownNameFails() throws AuthenticationException {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");
-        
+
         Client c = new Client(host, port, station);
         IUser u = c.authenticateText("Matti");
     }
 
     @Test
-    public void listBuyableProducts() throws ClientException {
+    public void correctBuyableProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBuyableProducts();
 
-        System.out.println("Buyable products are:");
-
-        for (IProduct p : ps) {
-            System.out.println(p.getName());
-        }
-
+        assertTrue(ps.get(0).getName().equals("kahvi")
+                && ps.get(1).getName().equals("espresso")
+                && ps.get(2).getName().equals("tuplaespresso"));
+    }
+    
+    @Test
+    public void rightBuyableProductsAmount() throws ClientException {
+        Client c = new Client(host, port, station);
+        List<IProduct> ps = c.listBuyableProducts();
+        
+        assertTrue(ps.size() == 3);
     }
 
     @Test
@@ -276,16 +256,23 @@ public class ClientTest {
     }
 
     @Test
-    public void listBringableProducts() throws ClientException {
+    public void correctBringableProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBringableProducts();
 
-        System.out.println("Bringable products are:");
+        assertTrue(ps.get(0).getName().equals("suodatinkahvi")
+                && ps.get(1).getName().equals("espressopavut")
+                && ps.get(2).getName().equals("kahvisuodatin")
+                && ps.get(3).getName().equals("sokeri")
+                && ps.get(4).getName().equals("puhdistuspilleri"));
+    }
+    
+    @Test
+    public void rightBringableProductsAmount() throws ClientException {
+        Client c = new Client(host, port, station);
+        List<IProduct> ps = c.listBringableProducts();
 
-        for (IProduct p : ps) {
-            System.out.println(p.getName());
-        }
-
+        assertTrue(ps.size() == 5);
     }
 
     @Test
@@ -299,16 +286,18 @@ public class ClientTest {
     }
 
     @Test
-    public void listStations() throws ClientException {
+    public void correctStationsListed() throws ClientException {
         List<IStation> ss = Client.listStations(host, port);
 
-        System.out.println("Available stations are:");
-
-        for (IStation s : ss) {
-            System.out.println(s.getName());
-        }
-
+        assertTrue(ss.get(0).getName().equals("asema1")
+                && ss.get(1).getName().equals("asema2")
+                && ss.get(2).getName().equals("asema3"));
     }
-
-
+    
+    @Test
+    public void rightStationsAmount() throws ClientException {
+        List<IStation> ss = Client.listStations(host, port);
+        
+        assertTrue(ss.size() == 3);
+    }
 }
