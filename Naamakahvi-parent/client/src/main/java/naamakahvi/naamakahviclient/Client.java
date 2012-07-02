@@ -127,10 +127,12 @@ public class Client {
             throw new GeneralClientException("Server returned HTTP-status code " + status);
     }
 
-    public IUser registerUser(String username, ImageData imagedata) throws RegistrationException {
+    public IUser registerUser(String username, String givenName, String familyName, ImageData imagedata) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
-                                    "username", username);
+                                    "username", username,
+                                    "given", givenName,
+                                    "family", familyName);
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
@@ -222,17 +224,17 @@ public class Client {
         }
     }
 
-    public List<IProduct> listBringableProducts() throws ClientException {
+    public List<IProduct> listRawProducts() throws ClientException {
         try {
-            JsonObject obj = doGet("/list_bringable_products/");
+            JsonObject obj = doGet("/list_raw_products/");
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 List<IProduct> ans = new ArrayList();
-                for (JsonElement e : obj.get("bringable_products").getAsJsonArray()) {
+                for (JsonElement e : obj.get("raw_products").getAsJsonArray()) {
                     ans.add(new Product(e.getAsString()));
                 }
                 return ans;
             } else {
-                throw new GeneralClientException("Could not fetch list of bringable products");
+                throw new GeneralClientException("Could not fetch list of raw products");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());

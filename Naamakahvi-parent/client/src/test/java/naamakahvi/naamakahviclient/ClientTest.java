@@ -34,44 +34,36 @@ public class ClientTest {
     private class ResponseUser extends User {
         private final String status;
 
-        private ResponseUser(String uname, ImageData id, String success) {
-            super(uname, id);
+        private ResponseUser(String uname, String given, String family, ImageData id, String success) {
+            super(uname, given, family, id);
             this.status = success;
         }
     }
     private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
-            HttpEntity entity = null;
-            if (request instanceof HttpEntityEnclosingRequest) {
-                entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            }
-
-            String username = readUsernameFromEntity(entity);
+            HashMap<String, String> userData = getUserData(request);
+            String username = userData.get("username");
             IUser user;
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, null, "fail");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "fail");
             } else {
-                user = new ResponseUser(username, null, "ok");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
             }
-
+            
             makeResponseFromUser(user, response);
         }
     };
     private HttpRequestHandler textAuthenticationHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
-            HttpEntity entity = null;
-            if (request instanceof HttpEntityEnclosingRequest) {
-                entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            }
-
-            String username = readUsernameFromEntity(entity);
+            HashMap<String, String> userData = getUserData(request);
+            String username = userData.get("username");
             IUser user;
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, null, "ok");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
             } else {
-                user = new ResponseUser(username, null, "fail");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "fail");
             }
 
             makeResponseFromUser(user, response);
@@ -102,7 +94,7 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
-    private HttpRequestHandler listBringableProductsHandler = new HttpRequestHandler() {
+    private HttpRequestHandler listRawProductsHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -111,7 +103,7 @@ public class ClientTest {
             for (String s : new String[]{"suodatinkahvi", "espressopavut", "kahvisuodatin", "sokeri", "puhdistuspilleri"}) {
                 ar.add(new JsonPrimitive(s));
             }
-            ans.add("bringable_products", ar);
+            ans.add("raw_products", ar);
             stringResponse(response, ans.toString());
         }
     };
@@ -142,26 +134,32 @@ public class ClientTest {
         response.setStatusCode(200);
     }
 
-    private String readUsernameFromEntity(HttpEntity entity) throws IOException {
-        byte[] data;
-        if (entity == null) {
-            data = new byte[0];
-        } else {
-            data = EntityUtils.toByteArray(entity);
+    private HashMap<String, String> getUserData(HttpRequest request) throws IOException {
+        HttpEntity entity = null;
+        if (request instanceof HttpEntityEnclosingRequest) {
+            entity = ((HttpEntityEnclosingRequest) request).getEntity();
         }
-        return new String(data).substring(9);
+
+        String postBody = EntityUtils.toString(entity);
+        String[] data = postBody.split("&|=");
+        HashMap<String, String> userData = new HashMap<String, String>();
+        for (int i = 0; i < data.length; i += 2) {
+            userData.put(data[i], data[i + 1]);
+        }
+
+        return userData;
     }
 
     @Before
     public void setUp() {
-        users.put("Teemu", new User("Teemu", null));
+        users.put("Teemu", new User("Teemu", "Teemu", "Lahti", null));
 
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
         server.register("/authenticate_text/*", textAuthenticationHandler);
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
         server.register("/buy_product/*", buyProductHandler);
-        server.register("/list_bringable_products/*", listBringableProductsHandler);
+        server.register("/list_raw_products/*", listRawProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
         server.register("/bring_product/*", bringProductHandler);
 
@@ -189,7 +187,7 @@ public class ClientTest {
     public void registrationWithNewNameSuccessful() throws Exception {
         Client c = new Client(host, port, station);
         try {
-            IUser u = c.registerUser("Pekka", null);
+            IUser u = c.registerUser("Pekka", "Pekka", "Virtanen", null);
             assertEquals(u.getUserName(), "Pekka");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -215,7 +213,7 @@ public class ClientTest {
         thrown.expectMessage("Registration failed: Try another username");
 
         Client c = new Client(host, port, station);
-        IUser u = c.registerUser("Teemu", null);
+        IUser u = c.registerUser("Teemu", "Teemu", "Lahti", null);
     }
 
     @Test
@@ -236,12 +234,12 @@ public class ClientTest {
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso"));
     }
-    
+
     @Test
     public void rightBuyableProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBuyableProducts();
-        
+
         assertTrue(ps.size() == 3);
     }
 
@@ -256,9 +254,9 @@ public class ClientTest {
     }
 
     @Test
-    public void correctBringableProductsListed() throws ClientException {
+    public void correctRawProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listBringableProducts();
+        List<IProduct> ps = c.listRawProducts();
 
         assertTrue(ps.get(0).getName().equals("suodatinkahvi")
                 && ps.get(1).getName().equals("espressopavut")
@@ -266,11 +264,11 @@ public class ClientTest {
                 && ps.get(3).getName().equals("sokeri")
                 && ps.get(4).getName().equals("puhdistuspilleri"));
     }
-    
+
     @Test
-    public void rightBringableProductsAmount() throws ClientException {
+    public void rightRawProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listBringableProducts();
+        List<IProduct> ps = c.listRawProducts();
 
         assertTrue(ps.size() == 5);
     }
@@ -282,7 +280,7 @@ public class ClientTest {
         IUser u = c.authenticateText("Teemu");
         final int amount = 3;
         c.bringProduct(u, p, 3);
-        System.out.println("Bringed " + amount + " " + p.getName() + "(s)");
+        System.out.println("Brought " + amount + " " + p.getName() + "(s)");
     }
 
     @Test
@@ -293,11 +291,11 @@ public class ClientTest {
                 && ss.get(1).getName().equals("asema2")
                 && ss.get(2).getName().equals("asema3"));
     }
-    
+
     @Test
     public void rightStationsAmount() throws ClientException {
         List<IStation> ss = Client.listStations(host, port);
-        
+
         assertTrue(ss.size() == 3);
     }
 }
