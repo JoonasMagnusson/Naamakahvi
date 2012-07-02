@@ -7,29 +7,34 @@ import javax.swing.*;
  * Oston vahvistusnäkymä
  */
 public class CheckoutPage extends JPanel implements ActionListener{
-	private FlowLayout layout;
 	private JLabel purchaseText, countdownText;
-	private IDButton ok, cancel;
+	private JButton ok, menu, wrongUser;
 	private Timer countdownTimer;
-	private int countdownSecs = 10;
+	private int countdownSecs;
+	private static final int countdownLength = 10;
+	private CafeUI master;
 	
 	public CheckoutPage(CafeUI master){
-		layout = new FlowLayout();
-		setLayout(layout);
+		this.master = master;
 		
 		purchaseText = new JLabel("Placeholder", SwingConstants.CENTER);
-		purchaseText.setFont(CafeUI.UI_FONT_BIG);
-		purchaseText.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/3));
+		purchaseText.setFont(CafeUI.UI_FONT);
+		purchaseText.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/4));
 		
-		ok = new IDButton(CafeUI.BUTTON_CONFIRM_PURCHASE, "OK");
+		ok = new JButton("OK");
 		ok.setFont(CafeUI.UI_FONT_BIG);
-		ok.setPreferredSize(new Dimension(CafeUI.X_RES/2 - 10, CafeUI.Y_RES/3));
-		ok.addActionListener(master);
+		ok.setPreferredSize(new Dimension(CafeUI.X_RES - 20, CafeUI.Y_RES/4));
+		ok.addActionListener(this);
 		
-		cancel = new IDButton(CafeUI.BUTTON_CANCEL, "Peruuta");
-		cancel.setFont(CafeUI.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(CafeUI.X_RES/2 - 10, CafeUI.Y_RES/3));
-		cancel.addActionListener(master);
+		menu = new JButton("Vaihda tuotetta");
+		menu.setFont(CafeUI.UI_FONT_BIG);
+		menu.setPreferredSize(new Dimension(CafeUI.X_RES/2 - 10, CafeUI.Y_RES/4));
+		menu.addActionListener(this);
+		
+		wrongUser = new JButton("Peruuta");
+		wrongUser.setFont(CafeUI.UI_FONT_BIG);
+		wrongUser.setPreferredSize(new Dimension(CafeUI.X_RES/2 - 10, CafeUI.Y_RES/4));
+		wrongUser.addActionListener(this);
 		
 		countdownText = new JLabel("Placeholder", SwingConstants.CENTER);
 		countdownText.setFont(CafeUI.UI_FONT);
@@ -39,32 +44,35 @@ public class CheckoutPage extends JPanel implements ActionListener{
 		
 		add(purchaseText);
 		add(ok);
-		add(cancel);
+		add(menu);
+		add(wrongUser);
 		add(countdownText);
 	}
 	/*
 	 * Asettaa tekstin, joka kertoo käyttäjälle, mitä ollaan ostamassa
 	 */
-	public void setPurchaseText(String text){
+	protected void setPurchaseText(String text){
 		purchaseText.setText(text);
 	}
 	/*
 	 * Käynnistää ajastimen, jonka loppuessa ostos kirjataan automaattisesti
 	 */
-	public void startCountdown(){
+	protected void startCountdown(){
+		countdownSecs = countdownLength;
 		countdownTimer.start();
 		countdownText.setText("Tuote veloitetaan automaattisesti " + countdownSecs + " sekunnin kuluttua");
 	}
 	/*
 	 * Pysäyttää automaattikirjausajastimen
 	 */
-	public void stopCountdown(){
+	protected void stopCountdown(){
 		countdownTimer.stop();
-		countdownSecs = 10;
 	}
 	
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == countdownTimer){
+		Object s = e.getSource();
+		if (s == countdownTimer){
 			countdownSecs--;
 			if (countdownSecs > 0){
 				countdownText.setText("Tuote veloitetaan automaattisesti " + countdownSecs + " sekunnin kuluttua");
@@ -74,6 +82,19 @@ public class CheckoutPage extends JPanel implements ActionListener{
 				ok.doClick();
 			}
 		}
-		
+		if (s == menu){
+			stopCountdown();
+			master.switchPage(CafeUI.VIEW_MENU_PAGE);
+		}
+		if (s == wrongUser){
+			stopCountdown();
+			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
+		}
+		if (s == ok){
+			stopCountdown();
+			if (master.buyProduct()){
+				master.switchPage(CafeUI.VIEW_FRONT_PAGE);
+			}
+		}
 	}
 }

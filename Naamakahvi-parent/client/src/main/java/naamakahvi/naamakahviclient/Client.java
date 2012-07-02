@@ -1,0 +1,261 @@
+package naamakahvi.naamakahviclient;
+
+import java.util.*;
+import com.google.gson.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.*;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.protocol.HTTP;
+
+public class Client {
+
+    private String host;
+    private int port;
+    private IStation station;
+
+    private static class Station implements IStation {
+        
+        private String name;
+
+        Station(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+    }
+
+    public static List<IStation> listStations(String host, int port) throws ClientException {
+        try {
+            JsonObject obj = new Client(host, port, null).doGet("/list_stations/");
+
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IStation> ans = new ArrayList();
+                for (JsonElement e : obj.get("stations").getAsJsonArray()) {
+                    ans.add(new Station(e.getAsString()));
+                }
+                return ans;
+            } else {
+                throw new GeneralClientException("Could not fetch list of stations");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+    /*
+     * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
+     * käyttää myöhemmissä metodikutsuissaan, jotka muodostavat aina uuden
+     * HTTP-yhteyden.
+     */
+    public Client(String host, int port, IStation station) {
+        this.host = host;
+        this.port = port;
+        this.station = station;
+    }
+    
+    private static JsonObject responseToJson(HttpResponse response) throws IOException {
+        String s = Util.readStream(response.getEntity().getContent());
+        return new JsonParser().parse(s).getAsJsonObject();
+    }
+
+    private URI buildURI(String path) throws Exception {
+        return new URIBuilder().setScheme("http").setHost(this.host).setPort(this.port).setPath(path).build();
+    }
+
+    private JsonObject doPost(String path, String... params) throws Exception {
+        if (0 != (params.length % 2)) 
+            throw new RuntimeException("Odd number of parameters");
+
+        final URI uri = buildURI(path);
+        final HttpClient c = new DefaultHttpClient();
+        final HttpPost post = new HttpPost(uri);
+        final List<NameValuePair> plist = new ArrayList<NameValuePair>();
+        
+        for (int i = 0; i < params.length; i += 2) 
+            plist.add(new BasicNameValuePair(params[i], params[i+1]));
+
+        post.setEntity(new UrlEncodedFormEntity(plist, HTTP.UTF_8));
+        post.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        
+        final HttpResponse resp = c.execute(post);
+        final int status = resp.getStatusLine().getStatusCode();
+
+        if (200 == status) 
+            return responseToJson(resp);
+        else 
+            throw new GeneralClientException("Server returned HTTP-status code " + status);
+    }
+
+    private JsonObject doGet(String path, String... params) throws Exception {
+        if (0 != (params.length % 2)) 
+            throw new RuntimeException("Odd number of parameters");
+        
+        final HttpClient c = new DefaultHttpClient();
+
+        final URIBuilder ub = new URIBuilder().setScheme("http").setHost(this.host).setPort(this.port).setPath(path);
+
+        for (int i = 0; i < params.length; i += 2) 
+            ub.setParameter(params[i], params[i+1]);
+
+        final URI uri = ub.build();
+        final HttpGet get = new HttpGet(uri);
+
+        get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        final HttpResponse resp = c.execute(get);
+        final int status = resp.getStatusLine().getStatusCode();
+
+        if (200 == status) 
+            return responseToJson(resp);
+        else 
+            throw new GeneralClientException("Server returned HTTP-status code " + status);
+    }
+
+    public IUser registerUser(String username, String givenName, String familyName, ImageData imagedata) throws RegistrationException {
+        try {
+            JsonObject obj = doPost("/register/",
+                                    "username", username,
+                                    "given", givenName,
+                                    "family", familyName);
+
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                obj.remove("status");
+                User responseUser = new Gson().fromJson(obj, User.class);
+                if (!responseUser.getUserName().equals(username)) {
+                    throw new RegistrationException("username returned from server doesn't match given username");
+                }
+                
+                return responseUser;
+            } else {
+                throw new RegistrationException("Registration failed: Try another username");
+            }
+        } catch (RegistrationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
+        }
+    }
+
+    public IUser authenticateText(String username) throws AuthenticationException {
+        try {
+            JsonObject obj = doPost("/authenticate_text/",
+                                    "username", username);
+
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                obj.remove("status");
+                User responseUser = new Gson().fromJson(obj, User.class);
+                if (!responseUser.getUserName().equals(username)) {
+                    throw new AuthenticationException("username returned from server doesn't match given username");
+                }
+                
+                return responseUser;
+            } else {
+                throw new AuthenticationException("Authentication failed");
+            }
+        } catch (AuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AuthenticationException(e.toString());
+        }
+    }
+
+    /*
+     * Tälle jutulle annetaan OpenCV:ltä/kameralta kuvadataa, pusketaan se
+     * serverille joka antaa tuloksena käyttäjän tai joukon käyttäjiä joita kuva
+     * vastaa.
+     */
+    public List<IUser> authenticateImage(ImageData imagedata) {
+        // TODO 
+        throw new RuntimeException();
+    }
+
+    static class GeneralClientException extends ClientException {
+        public GeneralClientException(String s) {
+            super(s);
+        }
+    }
+    
+    public List<IProduct> listBuyableProducts() throws ClientException {
+        try {
+            JsonObject obj = doGet("/list_buyable_products/");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IProduct> ans = new ArrayList();
+                for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
+                    ans.add(new Product(e.getAsString()));
+                }
+                return ans;
+            } else {
+                throw new GeneralClientException("Could not fetch list of buyable products");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
+        try {
+            JsonObject obj = doPost("/buy_product/",
+                                    "product_name", product.getName(),
+                                    "amount", ""+amount,
+                                    "username", user.getUserName());
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                return;
+            } else {
+                    throw new GeneralClientException("Buying the product failed");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+    public List<IProduct> listRawProducts() throws ClientException {
+        try {
+            JsonObject obj = doGet("/list_raw_products/");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IProduct> ans = new ArrayList();
+                for (JsonElement e : obj.get("raw_products").getAsJsonArray()) {
+                    ans.add(new Product(e.getAsString()));
+                }
+                return ans;
+            } else {
+                throw new GeneralClientException("Could not fetch list of raw products");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+    public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
+        try {
+            JsonObject obj = doPost("/bring_product/",
+                                    "product_name", product.getName(),
+                                    "amount", ""+amount,
+                                    "username=", user.getUserName());
+
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                return;
+            } else {
+                throw new GeneralClientException("Bringing the product failed");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
+}
