@@ -14,6 +14,11 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.*;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.protocol.HTTP;
 
 public class Client {
 
@@ -32,6 +37,7 @@ public class Client {
         public String getName() {
             return this.name;
         }
+
     }
 
     public static List<IStation> listStations(String host, int port) throws ClientException {
@@ -74,38 +80,79 @@ public class Client {
         this.station = station;
     }
     
-    private JsonObject responseToJson(HttpResponse response) throws IOException {
+    private static JsonObject responseToJson(HttpResponse response) throws IOException {
         String s = Util.readStream(response.getEntity().getContent());
         return new JsonParser().parse(s).getAsJsonObject();
     }
 
+    private URI buildURI(String path) throws Exception {
+        return new URIBuilder().setScheme("http").setHost(this.host).setPort(this.port).setPath(path).build();
+    }
+
+    private JsonObject doPost(String path, String... params) throws Exception {
+        if (0 != (params.length % 2)) 
+            throw new RuntimeException("Odd number of parameters");
+
+        final URI uri = buildURI(path);
+        final HttpClient c = new DefaultHttpClient();
+        final HttpPost post = new HttpPost(uri);
+        final List<NameValuePair> plist = new ArrayList<NameValuePair>();
+        
+        for (int i = 0; i < params.length; i += 2) 
+            plist.add(new BasicNameValuePair(params[i], params[i+1]));
+
+        post.setEntity(new UrlEncodedFormEntity(plist, HTTP.UTF_8));
+        post.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        
+        final HttpResponse resp = c.execute(post);
+        final int status = resp.getStatusLine().getStatusCode();
+
+        if (200 == status) 
+            return responseToJson(resp);
+        else 
+            throw new GeneralClientException("Server returned HTTP-status code " + status);
+    }
+
+    private JsonObject doGet(String path, String... params) throws Exception {
+        if (0 != (params.length % 2)) 
+            throw new RuntimeException("Odd number of parameters");
+        
+        final HttpClient c = new DefaultHttpClient();
+
+        final URIBuilder ub = new URIBuilder().setScheme("http").setHost(this.host).setPort(this.port).setPath(path);
+
+        for (int i = 0; i < params.length; i += 2) 
+            ub.setParameter(params[i], params[i+1]);
+
+        final URI uri = ub.build();
+        final HttpGet get = new HttpGet(uri);
+
+        get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        final HttpResponse resp = c.execute(get);
+        final int status = resp.getStatusLine().getStatusCode();
+
+        if (200 == status) 
+            return responseToJson(resp);
+        else 
+            throw new GeneralClientException("Server returned HTTP-status code " + status);
+    }
+
     public IUser registerUser(String username, ImageData imagedata) throws RegistrationException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            String user = "username=" + username;
-            HttpPost post = new HttpPost(buildURI("/register/"));
-            post.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            post.setEntity(new StringEntity(user));
-            HttpResponse response = httpClient.execute(post);
-            int status = response.getStatusLine().getStatusCode();
+            JsonObject obj = doPost("/register/",
+                                    "username", username);
 
-            if (status == 200) {                
-                JsonObject obj = responseToJson(response);
-                
-
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    obj.remove("status");
-                    User responseUser = new Gson().fromJson(obj, User.class);
-                    if (!responseUser.getUserName().equals(username)) {
-                        throw new RegistrationException("username returned from server doesn't match given username");
-                    }
-
-                    return responseUser;
-                } else {
-                    throw new RegistrationException("Registration failed: Try another username");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                obj.remove("status");
+                User responseUser = new Gson().fromJson(obj, User.class);
+                if (!responseUser.getUserName().equals(username)) {
+                    throw new RegistrationException("username returned from server doesn't match given username");
                 }
+                
+                return responseUser;
             } else {
-                throw new RegistrationException("status code returned from server was " + status);
+                throw new RegistrationException("Registration failed: Try another username");
             }
         } catch (RegistrationException e) {
             throw e;
@@ -114,47 +161,21 @@ public class Client {
         }
     }
 
-    private URI buildURI(String path) {
-        URIBuilder ub = new URIBuilder();
-        ub.setScheme("http").setHost(this.host).setPort(this.port).setPath(path);
-        try {
-            URI uri = ub.build();
-
-            return uri;
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return null;
-    }
-
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            String user = "username=" + username;
-            HttpPost post = new HttpPost(buildURI("/authenticate_text/"));
-            post.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            post.setEntity(new StringEntity(user));
-            HttpResponse response = httpClient.execute(post);
-            int status = response.getStatusLine().getStatusCode();
+            JsonObject obj = doPost("/authenticate_text/",
+                                    "username", username);
 
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-                
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    obj.remove("status");
-                    User responseUser = new Gson().fromJson(obj, User.class);
-                    if (!responseUser.getUserName().equals(username)) {
-                        throw new AuthenticationException("username returned from server doesn't match given username");
-                    }
-
-                    return responseUser;
-                } else {
-                    throw new AuthenticationException("Authentication failed");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                obj.remove("status");
+                User responseUser = new Gson().fromJson(obj, User.class);
+                if (!responseUser.getUserName().equals(username)) {
+                    throw new AuthenticationException("username returned from server doesn't match given username");
                 }
+                
+                return responseUser;
             } else {
-                throw new AuthenticationException("status code returned from server was " + status);
+                throw new AuthenticationException("Authentication failed");
             }
         } catch (AuthenticationException e) {
             throw e;
@@ -177,32 +198,19 @@ public class Client {
         public GeneralClientException(String s) {
             super(s);
         }
-        
     }
     
     public List<IProduct> listBuyableProducts() throws ClientException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpGet get = new HttpGet(buildURI("/list_buyable_products/"));
-            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            HttpResponse response = httpClient.execute(get);
-            int status = response.getStatusLine().getStatusCode();
-
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-                
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    List<IProduct> ans = new ArrayList();
-                    for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
-                        ans.add(new Product(e.getAsString()));
-                    }
-                    return ans;
-                } else {
-                    throw new GeneralClientException("Could not fetch list of buyable products");
+            JsonObject obj = doGet("/list_buyable_products/");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IProduct> ans = new ArrayList();
+                for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
+                    ans.add(new Product(e.getAsString()));
                 }
+                return ans;
             } else {
-                throw new GeneralClientException("status code returned from server was " + status);
+                throw new GeneralClientException("Could not fetch list of buyable products");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
@@ -211,54 +219,31 @@ public class Client {
 
     public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost(buildURI("/buy_product/"));
-            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
-            HttpResponse response = httpClient.execute(post);
-            int status = response.getStatusLine().getStatusCode();
-
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    return;
-                } else {
-                    throw new GeneralClientException("Buying the product failed");
-                }
+            JsonObject obj = doPost("/buy_product/",
+                                    "product_name", product.getName(),
+                                    "amount", ""+amount,
+                                    "username", user.getUserName());
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                return;
             } else {
-                throw new GeneralClientException("Status code returned from server was " + status);
+                    throw new GeneralClientException("Buying the product failed");
             }
-
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
         }
     }
 
-    // bringable? lolwut
     public List<IProduct> listBringableProducts() throws ClientException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpGet get = new HttpGet(buildURI("/list_bringable_products/"));
-            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            HttpResponse response = httpClient.execute(get);
-            int status = response.getStatusLine().getStatusCode();
-
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-                
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    List<IProduct> ans = new ArrayList();
-                    for (JsonElement e : obj.get("bringable_products").getAsJsonArray()) {
-                        ans.add(new Product(e.getAsString()));
-                    }
-                    return ans;
-                } else {
-                    throw new GeneralClientException("Could not fetch list of bringable products");
+            JsonObject obj = doGet("/list_bringable_products/");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IProduct> ans = new ArrayList();
+                for (JsonElement e : obj.get("bringable_products").getAsJsonArray()) {
+                    ans.add(new Product(e.getAsString()));
                 }
+                return ans;
             } else {
-                throw new GeneralClientException("status code returned from server was " + status);
+                throw new GeneralClientException("Could not fetch list of bringable products");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
@@ -267,25 +252,16 @@ public class Client {
 
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost(buildURI("/bring_product/"));
-            post.setEntity(new StringEntity("product_name=" + product.getName() + "&" + "amount=" + amount + "&" + "username=" + user.getUserName()));
-            HttpResponse response = httpClient.execute(post);
-            int status = response.getStatusLine().getStatusCode();
+            JsonObject obj = doPost("/bring_product/",
+                                    "product_name", product.getName(),
+                                    "amount", ""+amount,
+                                    "username=", user.getUserName());
 
-            if (status == 200) {
-                String s = Util.readStream(response.getEntity().getContent());
-                JsonObject obj = new JsonParser().parse(s).getAsJsonObject();
-
-                if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                    return;
-                } else {
-                    throw new GeneralClientException("Bringing the product failed");
-                }
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                return;
             } else {
-                throw new GeneralClientException("Status code returned from server was " + status);
+                throw new GeneralClientException("Bringing the product failed");
             }
-
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
         }
