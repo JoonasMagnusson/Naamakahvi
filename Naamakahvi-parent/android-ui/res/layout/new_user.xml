@@ -40,7 +40,7 @@
             </EditText>
 
             <EditText
-                android:id="@+id/editTextName"
+                android:id="@+id/editTextEtunimi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -48,7 +48,19 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
-                android:text="name"
+                android:text="etunimi"
+                android:textSize="20dp" />
+            
+            <EditText
+                android:id="@+id/editTextSukunimi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="10dp"
+                android:inputType="textPersonName"
+                android:text="sukunimi"
                 android:textSize="20dp" />
 
             <Button

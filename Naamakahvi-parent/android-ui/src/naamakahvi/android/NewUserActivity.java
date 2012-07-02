@@ -16,8 +16,9 @@ public class NewUserActivity extends Activity {
 		try {
 			Client client = new Client("127.0.0.1", 5000, null);
 			String username = ((EditText)findViewById(R.id.editTextUsername)).getText().toString();
-			String name = ((EditText)findViewById(R.id.editTextName)).getText().toString();
-			IUser user = client.registerUser(username, null);
+			String etunimi = ((EditText)findViewById(R.id.editTextEtunimi)).getText().toString();
+			String sukunimi = ((EditText)findViewById(R.id.editTextSukunimi)).getText().toString();
+			IUser user = client.registerUser(username, etunimi, sukunimi, null);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
