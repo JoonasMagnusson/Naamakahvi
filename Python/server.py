@@ -67,9 +67,10 @@ def register():
 	if request.method == 'POST':
 		
 		user = request.form['username']
-	
+	    given = request.form['given']
+        family = request.form['family']
 		if(not dbm.login(user)):
-			dbm.register(user,'not','implemented')		
+			dbm.register(user,given,family)		
 			return json.dumps({'status':'ok','username':user})
 		else:
 			return json.dumps({'status':'UserAlreadyExistsError'})
@@ -78,7 +79,7 @@ def register():
 
 
 #Logs user in. Good for checking if user exists.	
-@app.route('/login/',methods=['POST','GET'])
+@app.route('/authenticate_text/',methods=['POST','GET'])
 def login():
 	if request.method == 'POST':
 		user = request.form['username']
@@ -89,9 +90,41 @@ def login():
 	else:
 		return json.dumps({'status':'Error'})
 
-@app.route('/buy/',methods=['POST','GET'])
+@app.route('/list_buyable_products/',methods=['POST','GET'])
+def buyableProducts():
+    return json.dumps({'status':'NotImplementedError'})
+
+@app.route('/list_bringable_products/',methods=['POST','GET'])
+def bringableProducts():
+    return json.dumps({'status':'NotImplementedError'})
+
+
+#Allows the user to buy products.
+#input : username,product,amount
+@app.route('/buy_product/',methods=['POST','GET'])
 def buy():
-	return json.dumps({'status':'Error'})
+    if request.method == 'POST':
+        product = request.form['product_name']
+        user = request.form['username']
+        amount = request.form['amount']
+        
+        #dbm.buy(product,amount,user)
+        print product,amount,user
+        return json.dumps({'status':'ok'})
+        
+    else:
+        return json.dumps({'status':'Error'})
+
+@app.route('/bring_product/',methods=['POST','GET'])
+def bring():
+    return json.dumps({'status':'NotImplementedError'})
+
+@app.route('/list_stations/',methods=['POST','GET'])
+def stations():
+    return json.dumps({'status':'NotImplementedError'})
+
+
+
 
 if __name__ == '__main__':
     app.debug = True
