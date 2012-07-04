@@ -208,10 +208,11 @@ public class Client {
         }
     }
 
-    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
+    public void buyProduct(IUser user, IStation station, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
                                     "product_name", product.getName(),
+                                    "station_name", station.getName(),
                                     "amount", ""+amount,
                                     "username", user.getUserName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
