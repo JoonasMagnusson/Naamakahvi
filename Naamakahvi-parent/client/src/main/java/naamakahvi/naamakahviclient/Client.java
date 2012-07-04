@@ -228,7 +228,8 @@ public class Client {
 
     public List<IProduct> listRawProducts() throws ClientException {
         try {
-            JsonObject obj = doGet("/list_raw_products/");
+            JsonObject obj = doGet("/list_raw_products/",
+                                   "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 List<IProduct> ans = new ArrayList();
                 for (JsonElement e : obj.get("raw_products").getAsJsonArray()) {
