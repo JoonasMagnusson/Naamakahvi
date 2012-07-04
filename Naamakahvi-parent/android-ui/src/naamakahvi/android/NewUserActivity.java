@@ -30,6 +30,8 @@ public class NewUserActivity extends Activity {
 			finish();
 		}
 		catch (Exception ex) {
+			Toast.makeText(getApplicationContext(), "Sinua ei voitu rekisteröidä koska asia x ",
+					Toast.LENGTH_LONG).show();
 			finish();
 		}
     }

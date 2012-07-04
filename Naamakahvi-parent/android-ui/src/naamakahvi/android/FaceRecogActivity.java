@@ -13,11 +13,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 
 
@@ -34,8 +38,19 @@ public class FaceRecogActivity extends Activity {
 //        try {
 //			List<IProduct> bestproducts = client.listBuyableProducts();
 //			IProduct bestProduct = bestproducts.get(0);
-//			GridView productView = (GridView)findViewById(R.id.gridView1);
-//			
+			GridView productView = (GridView)findViewById(R.id.gridView1);
+			// tähän tulee 3? ensimmäistä / parasta tuotetta
+			String[] testiTuotteet = new String[] {"Kahvi", "Espresso", "Tuplaespresso"};
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+	            	android.R.layout.simple_list_item_1, android.R.id.text1, testiTuotteet);
+			productView.setAdapter(adapter);
+			productView.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> parent, View view,
+            		int position, long id) {
+            		String item = (String) parent.getAdapter().getItem(position);
+            		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
+            	}
+            }); 
 //		} catch (ClientException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
