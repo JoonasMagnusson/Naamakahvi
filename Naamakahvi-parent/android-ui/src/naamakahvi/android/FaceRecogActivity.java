@@ -48,8 +48,14 @@ public class FaceRecogActivity extends Activity {
     	startActivityForResult(i,REQUEST_CONFIRM);
     }
     
-    public void tmpOnRegButtonClick(View v){
-    	setContentView(R.layout.new_user);
+    public void onRegButtonClick(View v){
+    	Intent i = new Intent(this, NewUserActivity.class);
+    	startActivityForResult(i, 0);
+    }
+    
+    public void onUserListButtonClick(View v) {
+    	Intent i = new Intent(this, LoginwithusernameActivity.class);
+    	startActivityForResult(i, 1);
     }
     
     @Override
