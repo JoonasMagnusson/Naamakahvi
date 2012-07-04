@@ -249,7 +249,7 @@ public class ClientTest {
         IProduct p = c.listBuyableProducts().get(0);
         IUser u = c.authenticateText("Teemu");
         final int amount = 3;
-        c.buyProduct(u, station, p, 3);
+        c.buyProduct(u, p, 3);
         System.out.println("Bought " + amount + " " + p.getName() + "(s)");
     }
 
@@ -279,7 +279,7 @@ public class ClientTest {
         IProduct p = c.listBuyableProducts().get(0);
         IUser u = c.authenticateText("Teemu");
         final int amount = 3;
-        c.bringProduct(u, station, p, 3);
+        c.bringProduct(u, p, 3);
         System.out.println("Brought " + amount + " " + p.getName() + "(s)");
     }
 
