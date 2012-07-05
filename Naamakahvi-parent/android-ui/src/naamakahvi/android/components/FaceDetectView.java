@@ -171,10 +171,12 @@ public class FaceDetectView extends SurfaceView implements
 		for (int i = 0; i < facesArray.length; i++)  //tunnistetut naamat k�yd��n l�pi
 			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
 					FACE_RECT_COLOR, 3);
+		
+		
 
 		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),
 				Bitmap.Config.ARGB_8888);
-
+		Core.flip(mRgba, mRgba, 1); // 1 = peilaus vaakatasossa 
 		try {
 			Utils.matToBitmap(mRgba, bmp);
 		} catch (Exception e) {
