@@ -33,12 +33,13 @@ public class FaceDetectView extends SurfaceView implements
 	private final String TAG = "FaceDetectView";
 
 	private final float RELATIVE_FACE_SIZE = 0.3f;
-	private final Scalar FACE_RECT_COLOR = new Scalar(0,255,0,255);
-	
+	private final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
+
 	private int mAbsoluteFaceSize = 0;
-	
+
 	private VideoCapture mCamera;
 	private SurfaceHolder mHolder;
+	private Mat mGrabFrame;
 	private Mat mRgba;
 	private Mat mGray;
 
@@ -133,6 +134,24 @@ public class FaceDetectView extends SurfaceView implements
 		}
 	}
 
+	public Bitmap grabFrame() {
+		synchronized (this) {
+			Bitmap bmp = Bitmap.createBitmap(mGrabFrame.cols(),
+					mGrabFrame.rows(), Bitmap.Config.ARGB_8888);
+
+			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = peilaus vaakatasossa
+			try {
+				Utils.matToBitmap(mRgba, bmp);
+			} catch (Exception e) {
+				Log.d(TAG, "Couldn't map to bitmap: " + e.getMessage());
+				bmp.recycle();
+				bmp = null;
+			}
+			Log.d(TAG, "Captured bitmap");
+			return bmp;
+		}
+	}
+
 	/***
 	 * Vapauttaa kameran
 	 */
@@ -152,8 +171,7 @@ public class FaceDetectView extends SurfaceView implements
 
 		if (mAbsoluteFaceSize == 0) {
 			int height = mGray.rows();
-			if (Math.round(height * RELATIVE_FACE_SIZE) > 0)
-			{
+			if (Math.round(height * RELATIVE_FACE_SIZE) > 0) {
 				mAbsoluteFaceSize = Math.round(height * RELATIVE_FACE_SIZE);
 			}
 		}
@@ -161,22 +179,23 @@ public class FaceDetectView extends SurfaceView implements
 		MatOfRect faces = new MatOfRect();
 
 		if (mDetector != null)
-			mDetector.detectMultiScale(mGray, faces, 1.1, 2,
-					2, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize),
-					new Size());
+			mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(
+					mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
 
-		//TODO: tunnista vain suurin naama
-		
+		// TODO: tunnista vain suurin naama
+
+		mGrabFrame = mRgba.clone(); // laitetaan kuva bufferiin
+
 		Rect[] facesArray = faces.toArray();
-		for (int i = 0; i < facesArray.length; i++)  //tunnistetut naamat k�yd��n l�pi
+		for (int i = 0; i < facesArray.length; i++)
+			// tunnistetut naamat k�yd��n l�pi
 			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
 					FACE_RECT_COLOR, 3);
-		
-		
 
 		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),
 				Bitmap.Config.ARGB_8888);
-		Core.flip(mRgba, mRgba, 1); // 1 = peilaus vaakatasossa 
+
+		Core.flip(mRgba, mRgba, 1); // 1 = peilaus vaakatasossa
 		try {
 			Utils.matToBitmap(mRgba, bmp);
 		} catch (Exception e) {
@@ -225,6 +244,8 @@ public class FaceDetectView extends SurfaceView implements
 				mRgba.release();
 			if (mGray != null)
 				mGray.release();
+			if (mGrabFrame != null)
+				mGrabFrame.release();
 			if (mCascadeFile != null)
 				mCascadeFile.delete();
 
