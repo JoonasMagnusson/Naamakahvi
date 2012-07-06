@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,6 +120,10 @@ public class FaceRecogActivity extends Activity {
 		((EditText)findViewById(R.id.noOfUnits)).setText(Integer.toString(mFastorderUnits));
 	}
 
+	public void captureImg(View v){
+		Bitmap bmp = ((FaceDetectView)findViewById(R.id.faceDetectView1)).grabFrame();		
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST_CONFIRM) {

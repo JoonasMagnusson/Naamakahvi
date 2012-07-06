@@ -3,6 +3,7 @@ package naamakahvi.android;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.IUser;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -24,15 +25,15 @@ public class NewUserActivity extends Activity {
 			String etunimi = ((EditText)findViewById(R.id.editTextEtunimi)).getText().toString();
 			String sukunimi = ((EditText)findViewById(R.id.editTextSukunimi)).getText().toString();
 //			IUser user = client.registerUser(username, etunimi, sukunimi, null);
-			// tarkistetaan onko username varattu. jos on, kirjoitetaan se ja pyydetään uutta else finish()
-			Toast.makeText(getApplicationContext(), "Sinut on rekisteröity onnistuneesti nimellä " + username,
+			// tarkistetaan onko username varattu. jos on, kirjoitetaan se ja pyydetï¿½ï¿½n uutta else finish()
+			Toast.makeText(getApplicationContext(), "Sinut on rekisterï¿½ity onnistuneesti nimellï¿½ " + username,
 					Toast.LENGTH_LONG).show();
 			finish();
 		}
 		catch (Exception ex) {
-			Toast.makeText(getApplicationContext(), "Sinua ei voitu rekisteröidä koska asia x ",
-					Toast.LENGTH_LONG).show();
-			finish();
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("Sinua ei voitu rekisterï¿½idï¿½ koska asia x ");
+			builder.show();
 		}
     }
 }
