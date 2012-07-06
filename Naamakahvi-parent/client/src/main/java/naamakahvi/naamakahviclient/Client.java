@@ -204,6 +204,24 @@ public class Client {
         }
     }
 
+    public List<IProduct> listDefaultProducts() throws ClientException {
+        try {
+            JsonObject obj = doGet("/list_default_products/",
+                                   "station_name", this.station.getName());
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                List<IProduct> ans = new ArrayList();
+                for (JsonElement e : obj.get("default_products").getAsJsonArray()) {
+                    ans.add(new Product(e.getAsString()));
+                }
+                return ans;
+            } else {
+                throw new GeneralClientException("Could not fetch list of defalt products");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+    }
+
     public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",

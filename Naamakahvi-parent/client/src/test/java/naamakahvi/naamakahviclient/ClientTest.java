@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import org.apache.http.entity.mime.MultipartEntity;
 
 public class ClientTest {
     private LocalTestServer server = null;
@@ -77,7 +78,22 @@ public class ClientTest {
         r.setEntity(new StringEntity(s, ContentType.create("text/plain", "UTF-8")));
         r.setStatusCode(200);
     }
+
     private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            JsonArray ar = new JsonArray();
+
+            for (String s : new String[]{"kahvi", "espresso", "tuplaespresso", "megaespresso", "joku harvinainen tuote"}) {
+                ar.add(new JsonPrimitive(s));
+            }
+            ans.add("buyable_products", ar);
+            stringResponse(response, ans.toString());
+        }
+    };
+
+    private HttpRequestHandler listDefaultProductsHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -86,10 +102,11 @@ public class ClientTest {
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso"}) {
                 ar.add(new JsonPrimitive(s));
             }
-            ans.add("buyable_products", ar);
+            ans.add("default_products", ar);
             stringResponse(response, ans.toString());
         }
     };
+
     private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
@@ -130,10 +147,27 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
-    private HttpRequestHandler uploadHandler = new HttpRequestHandler() {
-        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) {
-        }
-    };
+    
+    // private HttpRequestHandler uploadHandler = new HttpRequestHandler() {
+    //     public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+    //         System.out.println("A");
+    //         HttpEntityEnclosingRequest r = (HttpEntityEnclosingRequest) request;
+    //         System.out.println("B");
+    //         try {
+    //             MultipartEntity ent = (MultipartEntity) r.getEntity();
+    //         } catch (Exception e) {
+    //             System.out.println(e);
+    //             throw e;
+    //         }
+    //         System.out.println("C");
+    //         JsonObject ans = new JsonObject();
+    //         System.out.println("D");
+    //         ans.add("status", new JsonPrimitive("ok"));
+    //         System.out.println("E");
+    //         stringResponse(response, ans.toString());
+    //         System.out.println("F");
+    //     }
+    // };
 
     private void makeResponseFromUser(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
@@ -165,11 +199,12 @@ public class ClientTest {
         server.register("/register/*", registrationHandler);
         server.register("/authenticate_text/*", textAuthenticationHandler);
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
+        server.register("/list_default_products/*", listDefaultProductsHandler);        
         server.register("/buy_product/*", buyProductHandler);
         server.register("/list_raw_products/*", listRawProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
         server.register("/bring_product/*", bringProductHandler);
-        server.register("/upload/*", uploadHandler);
+        // server.register("/upload/*", uploadHandler);
 
         try {
             server.start();
@@ -239,8 +274,10 @@ public class ClientTest {
         List<IProduct> ps = c.listBuyableProducts();
 
         assertTrue(ps.get(0).getName().equals("kahvi")
-                && ps.get(1).getName().equals("espresso")
-                && ps.get(2).getName().equals("tuplaespresso"));
+                   && ps.get(1).getName().equals("espresso")
+                   && ps.get(2).getName().equals("tuplaespresso")
+                   && ps.get(3).getName().equals("megaespresso")
+                   && ps.get(4).getName().equals("joku harvinainen tuote"));
     }
 
     @Test
@@ -248,8 +285,26 @@ public class ClientTest {
         Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBuyableProducts();
 
+        assertTrue(ps.size() == 5);
+    }
+
+    @Test
+    public void correctDefaultProductsListed() throws ClientException {
+        Client c = new Client(host, port, station);
+        List<IProduct> ps = c.listDefaultProducts();
+
+        assertTrue(ps.get(0).getName().equals("kahvi")
+                   && ps.get(1).getName().equals("espresso")
+                   && ps.get(2).getName().equals("tuplaespresso"));
+    }
+
+    @Test
+    public void rightDefaultProductsAmount() throws ClientException {
+        Client c = new Client(host, port, station);
+        List<IProduct> ps = c.listDefaultProducts();
         assertTrue(ps.size() == 3);
     }
+        
 
     @Test
     public void buyProduct() throws ClientException {
@@ -308,7 +363,14 @@ public class ClientTest {
     }
 
     
-    public void uploadingFileWorks() {
+    // @Test
+    public void uploadingFileWorks() throws ClientException {
         Client c = new Client(host, port, station);
+        File f = new File("test.filu");
+        if (f.canRead()) {
+            c.uploadImage(f);
+        } else {
+            throw new RuntimeException("Can't read test.filu");
+        }
     }
 }
