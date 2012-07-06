@@ -1,5 +1,6 @@
 package naamakahvi.android;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import naamakahvi.android.R;
@@ -32,6 +33,45 @@ public class FaceRecogActivity extends Activity {
 	private int mFastorderUnits = 1;
 	private Resources mRes;
 
+	
+	
+	private List<IProduct> products(){
+		List<IProduct> products = new ArrayList<IProduct>();
+		products.add(new IProduct() {
+			
+			public String getName() {
+				return "Kahvi";
+			}
+			public String toString(){return getName();}
+		});
+		
+        products.add(new IProduct() {
+			
+			public String getName() {
+				return "Espresso";
+			}
+			public String toString(){return getName();}
+		});
+        
+        products.add(new IProduct() {
+			
+			public String getName() {
+				return "Tuplaespresso";
+			}
+			public String toString(){return getName();}
+		});
+       products.add(new IProduct() {
+			
+			public String getName() {
+				return "Tee";
+			}
+			public String toString(){return getName();}
+		});
+        
+        return products;
+	}
+	
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,30 +80,29 @@ public class FaceRecogActivity extends Activity {
 		mRes=  getResources(); 
 
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
-
-		// Client client = new Client("127.0.0.1", 5000, null);
+        //Client client = new Client("127.0.0.1", 5000, null);
 		// try {
-		// List<IProduct> bestproducts = client.listBuyableProducts();
-		// IProduct bestProduct = bestproducts.get(0);
+		
+		List<IProduct> bestproducts =   products();          ; //client.listBuyableProducts();
 
 		GridView productView = (GridView) findViewById(R.id.gridView1);
 
 		// t�h�n tulee 3? ensimm�ist� / parasta tuotetta
 
-		String[] testiTuotteet = new String[] { "Kahvi", "Espresso",
-				"Tuplaespresso" };
-
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+		ArrayAdapter<IProduct> adapter = new ArrayAdapter<IProduct>(this,
 				android.R.layout.simple_list_item_1, android.R.id.text1,
-				testiTuotteet);
+				bestproducts);
 
 		productView.setAdapter(adapter);
 
 		productView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				String item = (String) parent.getAdapter().getItem(position);
-				Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG)
+				
+				IProduct item = (IProduct) parent.getAdapter().getItem(position);
+				// TODO: osta tuote
+	
+				Toast.makeText(getApplicationContext(), mFastorderUnits + " x " + item, Toast.LENGTH_LONG)
 						.show();
 			}
 		});
