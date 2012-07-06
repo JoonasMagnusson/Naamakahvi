@@ -188,7 +188,8 @@ public class Client {
 
     public List<IProduct> listBuyableProducts() throws ClientException {
         try {
-            JsonObject obj = doGet("/list_buyable_products/");
+            JsonObject obj = doGet("/list_buyable_products/",
+                    "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 List<IProduct> ans = new ArrayList();
                 for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
@@ -207,8 +208,10 @@ public class Client {
         try {
             JsonObject obj = doPost("/buy_product/",
                     "product_name", product.getName(),
+                    "station_name", this.station.getName(),
                     "amount", "" + amount,
                     "username", user.getUserName());
+
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return;
             } else {
@@ -221,7 +224,8 @@ public class Client {
 
     public List<IProduct> listRawProducts() throws ClientException {
         try {
-            JsonObject obj = doGet("/list_raw_products/");
+            JsonObject obj = doGet("/list_raw_products/",
+                    "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 List<IProduct> ans = new ArrayList();
                 for (JsonElement e : obj.get("raw_products").getAsJsonArray()) {
@@ -240,6 +244,7 @@ public class Client {
         try {
             JsonObject obj = doPost("/bring_product/",
                     "product_name", product.getName(),
+                    "station_name", this.station.getName(),
                     "amount", "" + amount,
                     "username=", user.getUserName());
 
@@ -292,10 +297,9 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws AuthenticationException, GeneralClientException {
-        Client c = new Client("0.0.0.0", 5000, null);
-        HttpResponse response = c.uploadImage(new File("pollo.png"));
-        System.out.println(response.getStatusLine().getStatusCode());
-
-    }
+//    public static void main(String[] args) throws AuthenticationException, GeneralClientException {
+//        Client c = new Client("0.0.0.0", 5000, null);
+//        HttpResponse response = c.uploadImage(new File("test.png"));
+//        System.out.println(response.getStatusLine().getStatusCode());
+//    }
 }

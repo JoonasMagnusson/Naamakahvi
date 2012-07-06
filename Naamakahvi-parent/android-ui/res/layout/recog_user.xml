@@ -84,7 +84,7 @@
 
                     <GridView
                         android:id="@+id/gridView1"
-                        android:layout_width="218dp"
+                        android:layout_width="300dp"
                         android:layout_height="187dp"
                         android:layout_gravity="center_vertical"
                         android:numColumns="3" >
@@ -109,14 +109,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.05"
-            android:onClick="tmpOnRegButtonClick"
+            android:onClick="onRegButtonClick"
             android:text="@string/reg_button" />
-
+
         <Button
             android:id="@+id/button1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.05"
+            android:onClick="onUserListButtonClick"
             android:text="@string/user_list" />
 
     </LinearLayout>

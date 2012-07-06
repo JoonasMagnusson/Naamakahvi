@@ -2,4 +2,5 @@
 *.class
 .metadata/
 target/
+libs/
 /Naamakahvi-parent/client/.settings/
