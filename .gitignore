@@ -2,5 +2,6 @@
 *.class
 .metadata/
 target/
-libs/
+*/android-ui/libs/
+bin/
 /Naamakahvi-parent/client/.settings/

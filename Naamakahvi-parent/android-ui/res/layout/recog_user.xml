@@ -3,27 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal" >
-
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:orientation="vertical" >
 
-        <ImageButton
-            android:id="@+id/imageButton1"
+        <naamakahvi.android.components.FaceDetectView
+            android:id="@+id/faceDetectView1"
             android:layout_width="match_parent"
-            android:layout_height="471dp"
-            android:onClick="tmpOnImageButtonClick"
-            android:scaleType="fitCenter"
-            android:src="@android:drawable/ic_menu_camera" />
+            android:layout_height="wrap_content"
+            android:layout_weight="0.69" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.15"
+            android:text="Large Text"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
     </LinearLayout>
-
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="0.47"
         android:orientation="vertical" >
 
         <Space
@@ -62,15 +68,31 @@
                     android:layout_weight="0.04"
                     android:baselineAligned="true" >
 
+                    <Button
+                        android:id="@+id/lessUnits"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:onClick="onLessUnitsClick"
+                        android:text="-" />
+
                     <EditText
-                        android:id="@+id/editText1"
+                        android:id="@+id/noOfUnits"
                         android:layout_width="67dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:inputType="number" >
-
-                        <requestFocus />
+                        android:inputType="number" 
+						android:focusable="false" 
+						android:text="1">
                     </EditText>
+
+                    <Button
+                        android:id="@+id/moreUnits"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:onClick="onMoreUnitsClick"
+                        android:text="+" />
 
                     <TextView
                         android:id="@+id/textView1"
@@ -81,13 +103,18 @@
                         android:layout_weight="0.01"
                         android:text="X"
                         android:textAppearance="?android:attr/textAppearanceLarge" />
-
+
                     <GridView
                         android:id="@+id/gridView1"
-                        android:layout_width="300dp"
-                        android:layout_height="187dp"
+                        android:layout_width="254dp"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:numColumns="3" >
+                        android:gravity="center"
+                        android:horizontalSpacing="2dp"
+                        android:numColumns="3"
+                        android:verticalSpacing="2dp" >
+
+                        <!-- Preview: listitem=@android:layout/simple_list_item_1 -->
 
                     </GridView>
 
