@@ -214,8 +214,8 @@
 
 	<entry key="insertExportProduct">
 		INSERT INTO finalproduct (final_groupid, final_value,
-		final_finname, final_engname, final_swename) VALUES (#?#, #?#,
-		#?#, #?#, #?#)
+		final_finname, final_engname, final_swename) VALUES (%s, %s, %s, %s, %s
+)
 	</entry>
 	<entry key="getLastExportProductInsertId">
 		SELECT currval('finalproduct_final_finalproductid_seq')
@@ -237,7 +237,7 @@
 	<entry key="insertImportProduct">
 		INSERT INTO rawproduct (raw_groupid, raw_value, raw_alert,
 		raw_sizeunit, raw_finname, raw_engname, raw_swename) VALUES
-		(#?#, #?#, FALSE, #?#, #?#, #?#, #?#)
+		(%s, %s, FALSE, %s, %s, %s, %s)
 	</entry>
 	<entry key="updateImportProduct">
 		UPDATE rawproduct SET raw_value = #?#,
@@ -287,7 +287,7 @@
 	
 	<entry key="insertProductGroup">
 		INSERT INTO groupdata (gd_balance, gd_finname, gd_engname,
-		gd_swename) VALUES (0, #?#, #?#, #?#)
+		gd_swename) VALUES (0, %s, %s, %s)
 	</entry>
 	<entry key="updateProductGroup">
 		UPDATE groupdata SET gd_finname = #?#,
@@ -357,10 +357,10 @@
 		WHEN COUNT(ud_username) = 0 THEN 'false'
 		ELSE 'true' 
 		END AS is_registered 
-		FROM userdata WHERE ud_username = :user
+		FROM userdata WHERE ud_username = %s
 	</entry>
 	<entry key="insertUserdata">
-		INSERT INTO userdata ( ud_username, ud_givenname, ud_familyname, ud_regularportion, ud_language,ud_admin) values (?,?,?,?,?,?)
+		INSERT INTO userdata ( ud_username, ud_givenname, ud_familyname, ud_regularportion, ud_language,ud_admin) values (%s,%s,%s,%s,%s,%s)
 	</entry>
 	<entry key="selectUserByAnyName">
 		SELECT ud_username, ud_givenname, ud_familyname FROM userdata 
