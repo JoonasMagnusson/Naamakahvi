@@ -2,12 +2,14 @@ package naamakahvi.naamakahviclient;
 
 import java.util.*;
 import com.google.gson.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import naamakahvi.naamakahviclient.Client.GeneralClientException;
 import org.apache.http.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -21,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 public class ClientTest {
     private LocalTestServer server = null;
@@ -50,7 +53,7 @@ public class ClientTest {
             } else {
                 user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
             }
-            
+
             makeResponseFromUser(user, response);
         }
     };
@@ -70,7 +73,7 @@ public class ClientTest {
         }
     };
 
-    private static void stringResponse(HttpResponse r, String s) throws UnsupportedEncodingException {
+    private void stringResponse(HttpResponse r, String s) throws UnsupportedEncodingException {
         r.setEntity(new StringEntity(s, ContentType.create("text/plain", "UTF-8")));
         r.setStatusCode(200);
     }
@@ -127,6 +130,10 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
+    private HttpRequestHandler uploadHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) {
+        }
+    };
 
     private void makeResponseFromUser(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
@@ -162,6 +169,7 @@ public class ClientTest {
         server.register("/list_raw_products/*", listRawProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
         server.register("/bring_product/*", bringProductHandler);
+        server.register("/upload/*", uploadHandler);
 
         try {
             server.start();
@@ -297,5 +305,10 @@ public class ClientTest {
         List<IStation> ss = Client.listStations(host, port);
 
         assertTrue(ss.size() == 3);
+    }
+
+    
+    public void uploadingFileWorks() {
+        Client c = new Client(host, port, station);
     }
 }
