@@ -43,9 +43,9 @@ class psqldb:
 	def login(self,user):
 		
 		q = self.getQuery("isUserRegistered")
- 
+
 		try:
-			self.cur.execute(q, (user))		
+			self.cur.execute(q,(user,))		
 		except  Exception ,e:
 			print e
 		
@@ -64,10 +64,11 @@ class psqldb:
 		lang = 'eng'
 		try:
 			self.cur.execute(q, (user, given, family, reg, lang, admin))
-		except  Exception ,e:
-			return e
-		self.con.commit()
-		return True
+		except Exception, exc:
+			return exc
+		else:
+			self.con.commit()
+			return True
 	
 	
 	#New importable product
@@ -106,8 +107,33 @@ class psqldb:
 		except  Exception ,e:
 			return e
 		self.con.commit()
-		return True		
+		return True
 	
+	def selectFinProductNames(self):
+		
+		q = self.getQuery("selectEProductNames")		
+
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
+	
+	def selectRawProductNames(self):
+		
+		q = self.getQuery("selectIProductNames")		
+
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
+
+
 	def nukeTable(self,table):
 		
 		q = "TRUNCATE TABLE " + table +" CASCADE;"

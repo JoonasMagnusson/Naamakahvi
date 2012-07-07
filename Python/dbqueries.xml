@@ -11,15 +11,15 @@
 	<entry key="selectOutTable">
 		SELECT out_username, out_finalproductid,
 		date_trunc('second',out_acttime) AS out_acttime, out_value,
-		out_cancelevent FROM productout WHERE out_acttime &gt;= #?# AND
-		out_acttime &lt;= #?# AND out_username IN (#?#) ORDER BY
+		out_cancelevent FROM productout WHERE out_acttime &gt;= %s AND
+		out_acttime &lt;= %s AND out_username IN (%s) ORDER BY
 		out_acttime DESC
 	</entry>
 	<entry key="selectInTable">
 		SELECT in_username, in_rawproductid, in_productsizeid,
 		date_trunc('second',in_acttime) AS in_acttime, in_value,
-		in_cancelevent FROM productin WHERE in_acttime &gt;= #?# AND
-		in_acttime &lt;= #?# AND in_username IN (#?#) ORDER BY
+		in_cancelevent FROM productin WHERE in_acttime &gt;= %s AND
+		in_acttime &lt;= %s AND in_username IN (%s) ORDER BY
 		in_acttime DESC
 	</entry>
 	<entry key="selectEProductNames">
@@ -35,7 +35,7 @@
 	</entry>
 	<entry key="selectNamesByUsername">
 		SELECT ud_username, ud_givenname, ud_familyname FROM userdata
-		WHERE ud_username IN (#?#)
+		WHERE ud_username IN (%s)
 	</entry>
 	
 	<entry key="selectLoggedIProducts">
@@ -45,15 +45,15 @@
 		(raw_rawproductid IN 
 		(SELECT DISTINCT ps_rawproductid from productsize, log 
 		WHERE ps_productsizeid = log_tableid AND log_type = 'size'))) 
-		AND raw_groupid = gd_groupdataid AND log_acttime &gt;= #?# AND
-		log_acttime &lt;= #?# ORDER BY upper(gd_finname);
+		AND raw_groupid = gd_groupdataid AND log_acttime &gt;= %s AND
+		log_acttime &lt;= %s ORDER BY upper(gd_finname);
 	</entry>
 	<entry key="selectLoggedEProducts">
 		SELECT DISTINCT final_finalproductid, final_finname, final_engname, final_swename, 
 		upper(gd_finname) FROM finalproduct, log, groupdata 
 		WHERE final_finalproductid = log_tableid AND log_type = 'final' AND 
-		final_groupid = gd_groupdataid AND log_acttime &gt;= #?# AND
-		log_acttime &lt;= #?# ORDER BY upper(gd_finname);
+		final_groupid = gd_groupdataid AND log_acttime &gt;= %s AND
+		log_acttime &lt;= %s ORDER BY upper(gd_finname);
 	</entry>
 	<entry key="selectImportValueLog">
 		SELECT DISTINCT raw_finname, raw_engname, raw_swename, raw_sizeunit, 
@@ -64,7 +64,7 @@
 		log_oldvalue, log_newvalue, date_trunc('second',log_acttime) as time, log_username 
 		FROM rawproduct, log, productsize WHERE ((raw_rawproductid = log_tableid AND log_type = 'raw') 
 		OR (ps_productsizeid = log_tableid AND log_type = 'size' AND ps_rawproductid = raw_rawproductid)) 
-		AND log_acttime &gt;= #?# AND log_acttime &lt;= #?# ORDER BY time DESC
+		AND log_acttime &gt;= %s AND log_acttime &lt;= %s ORDER BY time DESC
 	</entry>
 	<entry key="selectImportValueLogByProduct">
 		SELECT DISTINCT raw_finname, raw_engname, raw_swename, raw_sizeunit, 
@@ -75,87 +75,87 @@
 		log_oldvalue, log_newvalue, date_trunc('second',log_acttime) as time, log_username 
 		FROM rawproduct, log, productsize WHERE ((raw_rawproductid = log_tableid AND log_type = 'raw') 
 		OR (ps_productsizeid = log_tableid AND log_type = 'size' AND ps_rawproductid = raw_rawproductid)) 
-		AND raw_rawproductid = #?# AND log_acttime &gt;= #?# AND log_acttime &lt;= #?# ORDER BY time DESC
+		AND raw_rawproductid = %s AND log_acttime &gt;= %s AND log_acttime &lt;= %s ORDER BY time DESC
 	</entry>
 	<entry key="selectExportValueLog">
 		SELECT DISTINCT final_finname, final_engname, final_swename, 
 		log_oldvalue, log_newvalue, date_trunc('second',log_acttime) as time, log_username 
 		FROM finalproduct, log WHERE (final_finalproductid = log_tableid AND log_type = 'final') 
-		AND log_acttime &gt;= #?# AND log_acttime &lt;= #?# ORDER BY time DESC
+		AND log_acttime &gt;= %s AND log_acttime &lt;= %s ORDER BY time DESC
 	</entry>
 	<entry key="selectExportValueLogByProduct">
 		SELECT DISTINCT final_finname, final_engname, final_swename, 
 		log_oldvalue, log_newvalue, date_trunc('second',log_acttime) as time, log_username 
 		FROM finalproduct, log WHERE (final_finalproductid = log_tableid AND log_type = 'final') 
-		AND final_finalproductid = #?# AND log_acttime &gt;= #?# 
-		AND log_acttime &lt;= #?# ORDER BY time DESC
+		AND final_finalproductid = %s AND log_acttime &gt;= %s 
+		AND log_acttime &lt;= %s ORDER BY time DESC
 	</entry>
 	
 	
 	<entry key="selectExportCount">
 		SELECT count(out_value) AS count, sum(out_value) AS sum,
-		round((count(out_value) / cast((date #?# - date #?#) AS numeric)),2) AS perday
+		round((count(out_value) / cast((date %s - date %s) AS numeric)),2) AS perday
 		FROM productout WHERE 
-		out_acttime &gt;= #?# AND out_acttime &lt;= #?# AND
+		out_acttime &gt;= %s AND out_acttime &lt;= %s AND
 		out_productoutid NOT IN (select out_cancelevent FROM productout WHERE 
-		out_cancelevent IS NOT NULL) AND out_cancelevent IS NULL AND out_username = #?#
+		out_cancelevent IS NOT NULL) AND out_cancelevent IS NULL AND out_username = %s
 	</entry>
 	<entry key="selectImportCount">
 		SELECT count(in_value) AS count, sum(in_value) AS sum, 
-		round((count(in_value) / cast((date #?# - date #?#) AS numeric)),2) AS perday
+		round((count(in_value) / cast((date %s - date %s) AS numeric)),2) AS perday
 		FROM productin WHERE 
-		in_acttime &gt;= #?# AND in_acttime &lt;= #?# AND 
+		in_acttime &gt;= %s AND in_acttime &lt;= %s AND 
 		in_productinid NOT IN (select in_cancelevent FROM productin WHERE 
-		in_cancelevent IS NOT NULL) AND in_cancelevent IS NULL AND in_username = #?#
+		in_cancelevent IS NOT NULL) AND in_cancelevent IS NULL AND in_username = %s
 	</entry>
 	<entry key="selectExportCountInGroup">
 		SELECT count(out_value) AS count, sum(out_value) AS sum from productout, finalproduct WHERE 
-		out_acttime &gt;= #?# AND out_acttime &lt;= #?# AND 
+		out_acttime &gt;= %s AND out_acttime &lt;= %s AND 
 		out_productoutid NOT IN (select out_cancelevent FROM productout WHERE 
 		out_cancelevent IS NOT NULL) AND out_cancelevent IS NULL AND 
-		final_finalproductid = out_finalproductid AND final_groupid = #?#
+		final_finalproductid = out_finalproductid AND final_groupid = %s
 	</entry>
 	<entry key="selectImportCountInGroup">
 		SELECT count(in_value) AS count, sum(in_value) AS sum from productin, rawproduct WHERE 
-		in_acttime &gt;= #?# AND in_acttime &lt;= #?# AND 
+		in_acttime &gt;= %s AND in_acttime &lt;= %s AND 
 		in_productinid NOT IN (select in_cancelevent FROM productin WHERE 
 		in_cancelevent IS NOT NULL) AND in_cancelevent IS NULL AND 
-		raw_rawproductid = in_rawproductid AND raw_groupid = #?#
+		raw_rawproductid = in_rawproductid AND raw_groupid = %s
 	</entry>
 	<entry key="selectPopularImportInGroup">
 		SELECT raw_finname, raw_engname, raw_swename,
 		count(*) AS count from productin, rawproduct WHERE 
-		in_acttime &gt;= #?# AND in_acttime &lt;= #?# AND 
+		in_acttime &gt;= %s AND in_acttime &lt;= %s AND 
 		in_productinid NOT IN (select in_cancelevent FROM productin WHERE 
 		in_cancelevent IS NOT NULL) AND in_cancelevent IS NULL AND 
-		raw_rawproductid = in_rawproductid AND raw_groupid = #?#
+		raw_rawproductid = in_rawproductid AND raw_groupid = %s
 		GROUP BY raw_finname, raw_engname, raw_swename ORDER BY count DESC
 	</entry>
 	<entry key="selectPopularExportInGroup">
 		SELECT final_finname, final_engname, final_swename,
 		count(*) AS count from productout, finalproduct WHERE 
-		out_acttime &gt;= #?# AND out_acttime &lt;= #?# AND 
+		out_acttime &gt;= %s AND out_acttime &lt;= %s AND 
 		out_productoutid NOT IN (select out_cancelevent FROM productout WHERE 
 		out_cancelevent IS NOT NULL) AND out_cancelevent IS NULL AND 
-		final_finalproductid = out_finalproductid AND final_groupid = #?#
+		final_finalproductid = out_finalproductid AND final_groupid = %s
 		GROUP BY final_finname, final_swename, final_engname ORDER BY count DESC
 	</entry>
 	<entry key="selectImportProductCount">
 		SELECT raw_finname, raw_engname, raw_swename,
 		count(*) AS count, sum(in_value) AS sum from productin, rawproduct WHERE 
-		in_acttime &gt;= #?# AND in_acttime &lt;= #?# AND 
+		in_acttime &gt;= %s AND in_acttime &lt;= %s AND 
 		in_productinid NOT IN (select in_cancelevent FROM productin WHERE 
 		in_cancelevent IS NOT NULL) AND in_cancelevent IS NULL AND 
-		raw_rawproductid = in_rawproductid AND raw_rawproductid = #?#
+		raw_rawproductid = in_rawproductid AND raw_rawproductid = %s
 		GROUP BY raw_finname, raw_engname, raw_swename ORDER BY count DESC
 	</entry>
 	<entry key="selectExportProductCount">
 		SELECT final_finname, final_engname, final_swename,
 		count(*) AS count, sum(out_value) AS sum from productout, finalproduct WHERE 
-		out_acttime &gt;= #?# AND out_acttime &lt;= #?# AND 
+		out_acttime &gt;= %s AND out_acttime &lt;= %s AND 
 		out_productoutid NOT IN (select out_cancelevent FROM productout WHERE 
 		out_cancelevent IS NOT NULL) AND out_cancelevent IS NULL AND 
-		final_finalproductid = out_finalproductid AND final_finalproductid = #?#
+		final_finalproductid = out_finalproductid AND final_finalproductid = %s
 		GROUP BY final_finname, final_swename, final_engname ORDER BY count DESC
 	</entry>
 	
@@ -172,34 +172,34 @@
 	<entry key="selectEProductsByGroup">
 		SELECT final_finalproductid, final_finname, final_engname,
 		final_swename FROM finalproduct WHERE final_deacttime IS NULL
-		AND final_groupid = #?# ORDER BY upper(#?#)
+		AND final_groupid = %s ORDER BY upper(%s)
 	</entry>
 	<entry key="selectIProductsByGroup">
 		SELECT raw_rawproductid, raw_finname, raw_engname, raw_swename
 		FROM rawproduct WHERE raw_deacttime IS NULL AND raw_groupid =
-		#?# ORDER BY upper(#?#)
+		%s ORDER BY upper(%s)
 	</entry>
 	<entry key="selectProductGroups">
 		SELECT gd_groupdataid, gd_finname, gd_engname, gd_swename FROM
-		groupdata WHERE gd_deacttime IS NULL ORDER BY upper(#?#)
+		groupdata WHERE gd_deacttime IS NULL ORDER BY upper(%s)
 	</entry>
 	<entry key="selectExportProductData">
 		SELECT final_finalproductid, final_groupid, final_value,
 		final_finname, final_engname, final_swename, final_deacttime
-		FROM finalproduct WHERE final_finalproductid = #?#
+		FROM finalproduct WHERE final_finalproductid = %s
 	</entry>
 	<entry key="selectImportProductData">
 		SELECT raw_rawproductid, raw_groupid, raw_value, raw_alert,
 		raw_sizeunit, raw_finname, raw_engname, raw_swename,
-		raw_deacttime FROM rawproduct WHERE raw_rawproductid = #?#
+		raw_deacttime FROM rawproduct WHERE raw_rawproductid = %s
 	</entry>
 	<entry key="selectRawProductsInEProduct">
 		SELECT mix_rawproductid FROM productmix WHERE mix_finalproductid
-		= #?#
+		= %s
 	</entry>
 	<entry key="selectSizesInIProduct">
 		SELECT ps_size, ps_value, ps_productsizeid FROM productsize WHERE 
-		ps_rawproductid = #?# AND ps_deacttime IS NULL;
+		ps_rawproductid = %s AND ps_deacttime IS NULL;
 	</entry>
 	
 	<entry key="selectGroupData">
@@ -209,7 +209,7 @@
 		WHEN gd_deacttime IS NULL THEN 'false'
 		ELSE 'true' 
 			END AS is_deactivated
-		FROM groupdata WHERE gd_groupdataid = #?#
+		FROM groupdata WHERE gd_groupdataid = %s
 	</entry>
 
 	<entry key="insertExportProduct">
@@ -221,17 +221,17 @@
 		SELECT currval('finalproduct_final_finalproductid_seq')
 	</entry>
 	<entry key="updateExportProduct">
-		UPDATE finalproduct SET final_value = #?#,
-		final_finname = #?#, final_engname = #?#, final_swename = #?#
-		WHERE final_finalproductid = #?#
+		UPDATE finalproduct SET final_value = %s,
+		final_finname = %s, final_engname = %s, final_swename = %s
+		WHERE final_finalproductid = %s
 	</entry>
 	<entry key="deactivateExportProduct">
 		UPDATE finalproduct SET final_deacttime = localtimestamp WHERE
-		final_finalproductid = #?#
+		final_finalproductid = %s
 	</entry>
 	<entry key="activateExportProduct">
 		UPDATE finalproduct SET final_deacttime = NULL WHERE
-		final_finalproductid = #?#
+		final_finalproductid = %s
 	</entry>
 
 	<entry key="insertImportProduct">
@@ -240,49 +240,49 @@
 		(%s, %s, FALSE, %s, %s, %s, %s)
 	</entry>
 	<entry key="updateImportProduct">
-		UPDATE rawproduct SET raw_value = #?#,
-		raw_sizeunit = #?#, raw_finname = #?#, raw_engname = #?#,
-		raw_swename = #?# WHERE raw_rawproductid = #?#
+		UPDATE rawproduct SET raw_value = %s,
+		raw_sizeunit = %s, raw_finname = %s, raw_engname = %s,
+		raw_swename = %s WHERE raw_rawproductid = %s
 	</entry>
 	<entry key="getLastImportProductInsertId">
 		SELECT currval('rawproduct_raw_rawproductid_seq');
 	</entry>
 	<entry key="deactivateImportProduct">
 		UPDATE rawproduct SET raw_deacttime = localtimestamp WHERE
-		raw_rawproductid = #?#
+		raw_rawproductid = %s
 	</entry>
 	<entry key="activateImportProduct">
 		UPDATE rawproduct SET raw_deacttime = NULL WHERE
-		raw_rawproductid = #?#
+		raw_rawproductid = %s
 	</entry>
 	
 	<entry key="selectSizesInProductIncludingDeactivated">
 		SELECT ps_size, ps_value, ps_productsizeid FROM productsize WHERE 
-		ps_rawproductid = #?#;
+		ps_rawproductid = %s;
 	</entry>	
 	<entry key="insertSize">
 		INSERT INTO productsize (ps_value, ps_size, ps_rawproductid)
-		VALUES (#?#, #?#, #?#)
+		VALUES (%s, %s, %s)
 	</entry>
 	<entry key="deactivateSize">
 		UPDATE productsize SET ps_deacttime = localtimestamp WHERE 
-		ps_productsizeid = #?#
+		ps_productsizeid = %s
 	</entry>
 	<entry key="updateSize">
-		UPDATE productsize SET ps_value = #?#, ps_deacttime = NULL 
-		WHERE ps_productsizeid = #?#
+		UPDATE productsize SET ps_value = %s, ps_deacttime = NULL 
+		WHERE ps_productsizeid = %s
 	</entry>
 
 	<entry key="insertProductMix">
 		INSERT INTO productmix (mix_rawproductid, mix_finalproductid)
-		VALUES (#?#, #?#)
+		VALUES (%s, %s)
 	</entry>
 	<entry key="deleteProductMix">
-		DELETE FROM productmix WHERE mix_rawproductid = #?# AND
-		mix_finalproductid = #?#
+		DELETE FROM productmix WHERE mix_rawproductid = %s AND
+		mix_finalproductid = %s
 	</entry>
 	<entry key="deleteProductMixesFromProduct">
-		DELETE FROM productmix WHERE mix_finalproductid = #?#
+		DELETE FROM productmix WHERE mix_finalproductid = %s
 	</entry>
 	
 	<entry key="insertProductGroup">
@@ -290,37 +290,37 @@
 		gd_swename) VALUES (0, %s, %s, %s)
 	</entry>
 	<entry key="updateProductGroup">
-		UPDATE groupdata SET gd_finname = #?#,
-		gd_engname = #?#, gd_swename = #?# WHERE gd_groupdataid = #?#
+		UPDATE groupdata SET gd_finname = %s,
+		gd_engname = %s, gd_swename = %s WHERE gd_groupdataid = %s
 	</entry>
 	<entry key="deactivateGroup">
 		UPDATE groupdata SET gd_deacttime = localtimestamp WHERE
-		gd_groupdataid = #?#
+		gd_groupdataid = %s
 	</entry>
 	<entry key="activateGroup">
 		UPDATE groupdata SET gd_deacttime = NULL WHERE
-		gd_groupdataid = #?#
+		gd_groupdataid = %s
 	</entry>
 	<entry key="deactivateIProductsInGroup">
 		UPDATE rawproduct SET raw_deacttime = localtimestamp WHERE
-		raw_groupid = #?#
+		raw_groupid = %s
 	</entry>
 	<entry key="deactivateEProductsInGroup">
 		UPDATE finalproduct SET final_deacttime = localtimestamp WHERE
-		final_groupid = #?#
+		final_groupid = %s
 	</entry>
 	<entry key="activateIProductsInGroup">
 		UPDATE rawproduct SET raw_deacttime = NULL WHERE
-		raw_groupid = #?#
+		raw_groupid = %s
 	</entry>
 	<entry key="activateEProductsInGroup">
 		UPDATE finalproduct SET final_deacttime = NULL WHERE
-		final_groupid = #?#
+		final_groupid = %s
 	</entry>
 	
 	<entry key="insertNewGroupBalance">
 		INSERT INTO userbalance SELECT DISTINCT 
-		ub_username, #?#, 0 
+		ub_username, %s, 0 
 		FROM userbalance
 	</entry>
 	<entry key="selectLastGroupId">
@@ -329,7 +329,7 @@
 	
 	<entry key="logSizeValueChange">
 		INSERT INTO log (log_type, log_tableid, log_oldvalue, log_newvalue,
-		log_acttime, log_username) VALUES (#?#, #?#, #?#, #?#, localtimestamp, #?#)
+		log_acttime, log_username) VALUES (%s, %s, %s, %s, localtimestamp, %s)
 	</entry>
 		
 	<!-- Used by usersBean -->
@@ -341,7 +341,7 @@
 	<entry key="selectUserData">
 		SELECT ud_username, ud_givenname, ud_familyname,
 		ud_regularportion, ud_language, ud_admin FROM userdata WHERE
-		ud_username = #?#
+		ud_username = %s
 	</entry>
 	<entry key="isUserAdmin">
 		SELECT 
@@ -349,7 +349,7 @@
 			WHEN COUNT(ud_username) = 0 THEN 'false'
 			ELSE 'true' 
 			END AS is_admin 
-		FROM userdata WHERE ud_username = #?# and ud_admin=TRUE
+		FROM userdata WHERE ud_username = %s and ud_admin=TRUE
 	</entry>
 	<entry key="isUserRegistered">
 		SELECT 
@@ -364,50 +364,50 @@
 	</entry>
 	<entry key="selectUserByAnyName">
 		SELECT ud_username, ud_givenname, ud_familyname FROM userdata 
-		WHERE ud_username LIKE '%#?#%' OR
-		ud_givenname LIKE '%#?#%' OR
-		ud_familyname LIKE '%#?#%'
+		WHERE ud_username LIKE '%%s%' OR
+		ud_givenname LIKE '%%s%' OR
+		ud_familyname LIKE '%%s%'
 		ORDER BY upper(ud_familyname)
 	</entry>
 	<entry key="selectUserBalances">
 		SELECT ub_groupid, gd_finname, gd_engname, gd_swename, 
 		ub_balance FROM userbalance, groupdata 
-		WHERE ub_groupid = gd_groupdataid AND ub_username = #?#
+		WHERE ub_groupid = gd_groupdataid AND ub_username = %s
 		AND gd_deacttime IS NULL ORDER BY upper(gd_finname)
 	</entry>
 	<entry key="updateUserBalances">
-		UPDATE userbalance SET ub_balance = #?# WHERE
-		ub_groupid = #?# AND ub_username = #?#
+		UPDATE userbalance SET ub_balance = %s WHERE
+		ub_groupid = %s AND ub_username = %s
 	</entry>
 	<entry key="deleteUser">
-		DELETE FROM userdata WHERE ud_username = #?#
+		DELETE FROM userdata WHERE ud_username = %s
 	</entry>
 	<entry key="deleteUserBalance">
-		DELETE FROM userbalance WHERE ud_username = #?#
+		DELETE FROM userbalance WHERE ud_username = %s
 	</entry>
 	<entry key="deleteUserFingers">
-		DELETE FROM finger WHERE f_username = #?#
+		DELETE FROM finger WHERE f_username = %s
 	</entry>
 	<entry key="deleteUserFingerprints">
-		DELETE FROM fingerprint WHERE fp_id IN (SELECT f_fpid FROM finger WHERE f_username = #?#)
+		DELETE FROM fingerprint WHERE fp_id IN (SELECT f_fpid FROM finger WHERE f_username = %s)
 	</entry>
 	
 	<entry key="updateUserData">
-		UPDATE userdata SET ud_givenname = #?#, ud_familyname = #?#,
-		ud_admin = #?#, ud_language = #?# WHERE ud_username = #?#
+		UPDATE userdata SET ud_givenname = %s, ud_familyname = %s,
+		ud_admin = %s, ud_language = %s WHERE ud_username = %s
 	</entry>
 	<entry key="selectDeactGroups">
-		select case when gd_deacttime is null then 1 else 0 end as deact, gd_groupdataid, #?# 
+		select case when gd_deacttime is null then 1 else 0 end as deact, gd_groupdataid, %s 
 		from groupdata where gd_deacttime is not NULL 
 		OR gd_groupdataid in (select final_groupid from finalproduct where final_deacttime is not null)
 		OR gd_groupdataid in (select raw_groupid from rawproduct where raw_deacttime is not null) 
-		order by upper(#?#)
+		order by upper(%s)
 	</entry>
 	<entry key="selectDeactFinalProducts">
-		select final_finalproductid as id, #?# from finalproduct where final_deacttime is not null and final_groupid = #?#
+		select final_finalproductid as id, %s from finalproduct where final_deacttime is not null and final_groupid = %s
 	</entry>
 	<entry key="selectDeactRawProducts">
-		select raw_rawproductid as id, #?# from rawproduct where raw_deacttime is not null and raw_groupid = #?#
+		select raw_rawproductid as id, %s from rawproduct where raw_deacttime is not null and raw_groupid = %s
 	</entry>
 
 </properties>
