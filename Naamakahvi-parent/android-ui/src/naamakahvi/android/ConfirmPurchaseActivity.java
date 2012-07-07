@@ -1,5 +1,6 @@
 package naamakahvi.android;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -32,8 +33,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		intent = getIntent();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
-        // TODO: here will be returned list of users from client
-        String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
+        String[] testUsers = intent.getStringArrayExtra("naamakahvi.android.users");
         setListView(possibleUsersListView, testUsers);
         setSaldos(testUsers[0]);
         setRecognizedText(testUsers[0]);
@@ -62,12 +62,12 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setSaldos(String username) {
-		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
 		Basket b = intent.getParcelableExtra("naamakahvi.android.products");
 		Map<IProduct, Integer> itemsBought = b.getItems();
 		int changeInEspresso = 0;
 		int changeInCoffee = 0;
 		
+		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
 		Iterator it = itemsBought.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry pairs = (Map.Entry)it.next();
@@ -88,9 +88,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		int testSaldoCof = -2;
 		int testSaldoEsp = 4;
 		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp + " + " + changeInEspresso;
-		// TODO + amount of espresso bought if any
 		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof + " + " + changeInCoffee;
-		// TODO + amount of coffee bought if any
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
 		
@@ -135,9 +133,18 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void buyProducts() {
-		// TODO: client-koodi ostolle ja tarvittavien infojen otto
-/**		Client client = new Client("127.0.0.1", 5000, null);
-		client.buyProduct(user, product, amount);**/
+		// TODO: usernamen hankinta, clientkoodin toimivuus jne
+		//Client client = new Client("127.0.0.1", 5000, null);
+		//IUser user = TODO: get user jostain tiedoista
+		Basket b = intent.getParcelableExtra("naamakahvi.android.products");
+		Map<IProduct, Integer> itemsBought = b.getItems();
+		Iterator it = itemsBought.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry pairs = (Map.Entry)it.next();
+	        IProduct product = (IProduct) pairs.getKey();
+	        int amount = (Integer) pairs.getValue();
+	        //client.buyProduct(user, product, amount);
+	    }
 	}
 	
 	public void onCPCancelClick(View v) {

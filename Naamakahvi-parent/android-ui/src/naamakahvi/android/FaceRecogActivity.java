@@ -1,6 +1,7 @@
 package naamakahvi.android;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import naamakahvi.android.R;
@@ -138,7 +139,9 @@ public class FaceRecogActivity extends Activity {
 				Basket b = new Basket();
 				b.addProduct(item,mFastorderUnits);
 				i.putExtra("naamakahvi.android.products", b);
-				startActivityForResult(i, 3);
+				String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
+				i.putExtra("naamakahvi.android.users", testUsers);
+				startActivity(i);
 //			    new Thread(new RecogThread(i)).start();   // does server side face recognition, then launches intent
 //				
 //				Toast.makeText(getApplicationContext(), mFastorderUnits + " x " + item, Toast.LENGTH_LONG)
