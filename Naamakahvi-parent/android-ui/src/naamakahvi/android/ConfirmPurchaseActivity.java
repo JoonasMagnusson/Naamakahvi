@@ -16,20 +16,53 @@ import naamakahvi.android.R;
 public class ConfirmPurchaseActivity extends Activity {
 
 	final short COUNTDOWN_LENGTH = 10;
+	private CountDownTimer cd;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.confirm_purchase);
-		
+		setContentView(R.layout.confirm_purchase);		
+		setCountdown();
+        ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
+        // TODO: here will be returned list of users from client
+        String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
+        setListView(possibleUsersListView, testUsers);
+        setSaldos(testUsers[0]);
+        setRecognizedText(testUsers[0]);
+	}
+	
+	private void setListView(ListView listView, String[] list) {
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+            	android.R.layout.simple_list_item_1, android.R.id.text1, list);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new OnItemClickListener() {
+        	public void onItemClick(AdapterView<?> parent, View view,
+        		int position, long id) {
+        		String item = (String) parent.getAdapter().getItem(position);
+        		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
+        		setSaldos(item);
+        		setRecognizedText(item);
+        		cd.cancel();
+        		cd.start();
+        	}
+        }); 
+	}
+	
+	private void setRecognizedText(String username) {
+		TextView recognized = (TextView) findViewById(R.id.cp_nametext);
+		String newRecognizedText = "You were recognized as: " + username;
+		recognized.setText(newRecognizedText);
+	}
+	
+	private void setSaldos(String username) {
 		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
 		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
 		
 		//TODO: get saldos from client, currently testSaldos used instead.
 		int testSaldoCof = -2;
 		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso ="" + saldoEspresso.getText() + testSaldoCof;
+		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp;
 		// TODO + amount of espresso bought if any
-		String newTextForSaldoCoffee = "" + saldoCoffee.getText() + testSaldoEsp;
+		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof;
 		// TODO + amount of coffee bought if any
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
@@ -43,29 +76,14 @@ public class ConfirmPurchaseActivity extends Activity {
 			saldoEspresso.setTextColor(Color.GREEN);
 		else
 			saldoEspresso.setTextColor(Color.RED);
-
-		// here will be returned list of users from client
-        ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
-        String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            	android.R.layout.simple_list_item_1, android.R.id.text1, testUsers);
-        possibleUsersListView.setAdapter(adapter);
-		
-        //User clicking a name from list results in changing into another user
-        possibleUsersListView.setOnItemClickListener(new OnItemClickListener() {
-        	public void onItemClick(AdapterView<?> parent, View view,
-        		int position, long id) {
-        		String item = (String) parent.getAdapter().getItem(position);
-        		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
-        	}
-        }); 
-        
-        //Countdown -code
+	}
+	
+	private void setCountdown() {
 		final TextView countdown = (TextView) findViewById(R.id.cp_rec_countdown);
 		countdown.setText(getString(R.string.countdown_prefix) + " "
 				+ COUNTDOWN_LENGTH + getString(R.string.countdown_suffix));
 		
-		CountDownTimer cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
+		cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
 			
 			public void onTick(long timeLeft) {
 				countdown.setText(getString(R.string.countdown_prefix) + " "
