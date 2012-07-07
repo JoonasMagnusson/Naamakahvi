@@ -5,6 +5,7 @@
     android:orientation="horizontal" >
     <LinearLayout
         android:layout_marginLeft="50dp"
+        android:layout_marginTop="100dp"
         android:layout_width="398dp"
         android:layout_height="match_parent"
         android:layout_gravity="center">
@@ -29,7 +30,7 @@
             android:orientation="vertical" >
             
             <TextView
-                android:id="@+id/cnf_text"
+                android:id="@+id/cp_nametext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="You were recognized as: Firstname Lastname"
@@ -46,7 +47,7 @@
                     android:layout_height="90dp"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:onClick="onOkClick"
+                    android:onClick="onCPOkClick"
                     android:text="Confirm" />
 
 
@@ -57,7 +58,7 @@
                     android:layout_height="92dp"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:onClick="onCancelClick"
+                    android:onClick="onCPCancelClick"
                     android:text="Cancel" />
 
             </LinearLayout>
@@ -66,7 +67,7 @@
 
 
             <TextView
-                android:id="@+id/rec_countdown"
+                android:id="@+id/cp_rec_countdown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

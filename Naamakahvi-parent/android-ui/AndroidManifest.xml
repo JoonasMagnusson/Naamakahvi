@@ -25,6 +25,7 @@
         <activity android:name="naamakahvi.android.MenuActivity" android:screenOrientation="landscape"></activity>
         <activity android:name="naamakahvi.android.NewUserActivity" android:screenOrientation="landscape"></activity>
         <activity android:name="naamakahvi.android.LoginwithusernameActivity" android:screenOrientation="landscape"></activity>
+        <activity android:name="naamakahvi.android.ConfirmPurchaseActivity" android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>
