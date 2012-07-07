@@ -21,6 +21,10 @@ public class Basket implements Parcelable {
 	public Basket() {
 		items = new HashMap<IProduct, Integer>();
 	}
+	
+	public Map<IProduct, Integer> getItems() {
+		return items;
+	}
 
 	/**
 	 * Adds one unit of a product to the cart

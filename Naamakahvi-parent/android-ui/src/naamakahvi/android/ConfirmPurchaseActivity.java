@@ -1,6 +1,7 @@
 package naamakahvi.android;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -18,9 +19,11 @@ public class ConfirmPurchaseActivity extends Activity {
 
 	final short COUNTDOWN_LENGTH = 10;
 	private CountDownTimer cd;
+	private Intent intent;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		intent = getIntent();
 		setContentView(R.layout.confirm_purchase);		
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
