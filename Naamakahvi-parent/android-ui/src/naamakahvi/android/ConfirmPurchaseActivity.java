@@ -16,14 +16,14 @@ import naamakahvi.android.R;
 public class ConfirmPurchaseActivity extends Activity {
 
 	final short COUNTDOWN_LENGTH = 10;
+	CountDownTimer cd;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);		
 		setCountdown();
-
-		// TODO: here will be returned list of users from client
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
+        // TODO: here will be returned list of users from client
         String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
         setListView(possibleUsersListView, testUsers);
         setSaldos(testUsers[0]);
@@ -39,6 +39,8 @@ public class ConfirmPurchaseActivity extends Activity {
         		String item = (String) parent.getAdapter().getItem(position);
         		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
         		setSaldos(item);
+        		cd.cancel();
+        		cd.start();
         	}
         }); 
 	}
@@ -50,9 +52,9 @@ public class ConfirmPurchaseActivity extends Activity {
 		//TODO: get saldos from client, currently testSaldos used instead.
 		int testSaldoCof = -2;
 		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso = "Espressosaldosi on " + testSaldoCof;
+		String newTextForSaldoEspresso = "Espressosaldosi on " + testSaldoEsp;
 		// TODO + amount of espresso bought if any
-		String newTextForSaldoCoffee = "Kahvisaldosi on " + testSaldoEsp;
+		String newTextForSaldoCoffee = "Kahvisaldosi on " + testSaldoCof;
 		// TODO + amount of coffee bought if any
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
@@ -73,7 +75,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		countdown.setText(getString(R.string.countdown_prefix) + " "
 				+ COUNTDOWN_LENGTH + getString(R.string.countdown_suffix));
 		
-		CountDownTimer cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
+		cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
 			
 			public void onTick(long timeLeft) {
 				countdown.setText(getString(R.string.countdown_prefix) + " "

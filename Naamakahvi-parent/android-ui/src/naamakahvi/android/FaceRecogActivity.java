@@ -202,6 +202,11 @@ public class FaceRecogActivity extends Activity {
 		Bitmap bmp = ((FaceDetectView)findViewById(R.id.faceDetectView1)).grabFrame();		
 	}
 	
+	public void onOtherClick(View v) {
+		Intent i = new Intent(this, ConfirmPurchaseActivity.class);
+		startActivityForResult(i, 3);
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST_CONFIRM) {
