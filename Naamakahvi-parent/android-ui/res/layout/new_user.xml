@@ -34,6 +34,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="0dp"
                 android:text="username"
+                android:maxLength="8"
                 android:textSize="20dp" >
 
                 <requestFocus />
@@ -49,6 +50,7 @@
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
                 android:text="first name"
+                android:maxLength="20"
                 android:textSize="20dp" />
             
             <EditText
@@ -61,6 +63,7 @@
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
                 android:text="last name"
+                android:maxLength="20"
                 android:textSize="20dp" />
 
             <Button

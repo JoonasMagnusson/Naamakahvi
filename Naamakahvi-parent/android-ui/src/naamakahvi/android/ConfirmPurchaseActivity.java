@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 
@@ -38,7 +37,6 @@ public class ConfirmPurchaseActivity extends Activity {
         	public void onItemClick(AdapterView<?> parent, View view,
         		int position, long id) {
         		String item = (String) parent.getAdapter().getItem(position);
-        		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
         		setSaldos(item);
         		setRecognizedText(item);
         		cd.cancel();
