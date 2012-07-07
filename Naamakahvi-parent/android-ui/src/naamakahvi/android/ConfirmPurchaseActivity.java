@@ -1,5 +1,8 @@
 package naamakahvi.android;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,7 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
+import naamakahvi.android.utils.Basket;
 import naamakahvi.naamakahviclient.Client;
+import naamakahvi.naamakahviclient.IProduct;
 import naamakahvi.naamakahviclient.IUser;
 
 public class ConfirmPurchaseActivity extends Activity {
@@ -23,8 +28,8 @@ public class ConfirmPurchaseActivity extends Activity {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.confirm_purchase);
 		intent = getIntent();
-		setContentView(R.layout.confirm_purchase);		
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         // TODO: here will be returned list of users from client
@@ -57,15 +62,34 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setSaldos(String username) {
+		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
+		Basket b = intent.getParcelableExtra("naamakahvi.android.products");
+		Map<IProduct, Integer> itemsBought = b.getItems();
+		int changeInEspresso = 0;
+		int changeInCoffee = 0;
+		
+		Iterator it = itemsBought.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry pairs = (Map.Entry)it.next();
+	        IProduct product = (IProduct) pairs.getKey();
+	        int amount = (Integer) pairs.getValue();
+	        if (product.getName().equals("Espresso"))
+	        	changeInEspresso -= amount;
+	        else if (product.getName().equals("Kahvi"))
+	        	changeInCoffee -= amount;
+	        else
+	        	changeInEspresso -= (amount*2);
+	    }
+		
 		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
 		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
 		
 		//TODO: get saldos from client, currently testSaldos used instead.
 		int testSaldoCof = -2;
 		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp;
+		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp + " + " + changeInEspresso;
 		// TODO + amount of espresso bought if any
-		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof;
+		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof + " + " + changeInCoffee;
 		// TODO + amount of coffee bought if any
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);

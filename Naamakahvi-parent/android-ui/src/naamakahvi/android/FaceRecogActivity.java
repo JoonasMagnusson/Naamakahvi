@@ -134,15 +134,15 @@ public class FaceRecogActivity extends Activity {
 				
 				IProduct item = (IProduct) parent.getAdapter().getItem(position);
 				
-				Intent i = new Intent(view.getContext(), CheckoutActivity.class);
+				Intent i = new Intent(view.getContext(), ConfirmPurchaseActivity.class);
 				Basket b = new Basket();
 				b.addProduct(item,mFastorderUnits);
 				i.putExtra("naamakahvi.android.products", b);
-				
-			    new Thread(new RecogThread(i)).start();   // does server side face recognition, then launches intent
-				
-				Toast.makeText(getApplicationContext(), mFastorderUnits + " x " + item, Toast.LENGTH_LONG)
-						.show();
+				startActivityForResult(i, 3);
+//			    new Thread(new RecogThread(i)).start();   // does server side face recognition, then launches intent
+//				
+//				Toast.makeText(getApplicationContext(), mFastorderUnits + " x " + item, Toast.LENGTH_LONG)
+//						.show();
 			}
 		});
 
@@ -200,11 +200,6 @@ public class FaceRecogActivity extends Activity {
 
 	public void captureImg(View v){
 		Bitmap bmp = ((FaceDetectView)findViewById(R.id.faceDetectView1)).grabFrame();		
-	}
-	
-	public void onOtherClick(View v) {
-		Intent i = new Intent(this, ConfirmPurchaseActivity.class);
-		startActivityForResult(i, 3);
 	}
 	
 	@Override
