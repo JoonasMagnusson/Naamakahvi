@@ -64,10 +64,11 @@ class psqldb:
 		lang = 'eng'
 		try:
 			self.cur.execute(q, (user, given, family, reg, lang, admin))
-		except  Exception ,e:
-			return e
-		self.con.commit()
-		return True
+		except Exception, exc:
+			return exc
+		else:
+			self.con.commit()
+			return True
 	
 	
 	#New importable product

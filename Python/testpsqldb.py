@@ -29,7 +29,8 @@ class Testpsqldb(unittest.TestCase):
     def TestInsertExportProduct(self):
         
         r = self.dbmps.insertExportProduct(5,1,"Kahvi1","Coffee1","HejaHeja")
-
+        self.assertTrue(r)
+            
     def TestRegister(self):
         
         #r = self.dbm.register("testuser1","Test0","User")
