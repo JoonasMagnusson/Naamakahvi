@@ -1,7 +1,7 @@
 import unittest
 import logging
 import psqldb
-
+import sys
 
 class Testpsqldb(unittest.TestCase):
     
@@ -35,11 +35,15 @@ class Testpsqldb(unittest.TestCase):
         #r = self.dbm.register("testuser1","Test0","User")
         r = self.dbmps.register("test1","Test0","User",1)
         self.assertTrue(r)
-        
+    
     def TestLogin(self):
         
-        r = self.dbmps.login("test1")
+        r = self.dbmps.login('test1')
         self.assertTrue(r)
+       
+    def TestListFinProducts(self):
+        
+        r = self.dbmps.selectFinProductNames()
         
 
 

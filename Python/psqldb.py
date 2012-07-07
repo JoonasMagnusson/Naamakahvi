@@ -43,9 +43,9 @@ class psqldb:
 	def login(self,user):
 		
 		q = self.getQuery("isUserRegistered")
- 
+
 		try:
-			self.cur.execute(q, (user))		
+			self.cur.execute(q,(user,))		
 		except  Exception ,e:
 			print e
 		
@@ -106,8 +106,23 @@ class psqldb:
 		except  Exception ,e:
 			return e
 		self.con.commit()
-		return True		
+		return True
 	
+	def selectFinProductNames(self):
+		
+		q = self.getQuery("selectEProductNames")		
+
+		print q
+			
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
+
+
 	def nukeTable(self,table):
 		
 		q = "TRUNCATE TABLE " + table +" CASCADE;"
