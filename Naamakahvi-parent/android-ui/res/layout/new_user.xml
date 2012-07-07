@@ -48,7 +48,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
-                android:text="etunimi"
+                android:text="first name"
                 android:textSize="20dp" />
             
             <EditText
@@ -60,7 +60,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
-                android:text="sukunimi"
+                android:text="last name"
                 android:textSize="20dp" />
 
             <Button

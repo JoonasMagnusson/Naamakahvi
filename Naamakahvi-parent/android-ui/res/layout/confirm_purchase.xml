@@ -80,7 +80,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Kahvisaldosi on "
+                android:text="Your coffeesaldo is "
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
             
             <TextView
@@ -88,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Espressosaldosi on "
+                android:text="Your espressosaldo is "
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
         
         </LinearLayout>

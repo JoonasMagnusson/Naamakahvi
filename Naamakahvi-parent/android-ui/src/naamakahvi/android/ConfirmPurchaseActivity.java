@@ -52,9 +52,9 @@ public class ConfirmPurchaseActivity extends Activity {
 		//TODO: get saldos from client, currently testSaldos used instead.
 		int testSaldoCof = -2;
 		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso = "Espressosaldosi on " + testSaldoEsp;
+		String newTextForSaldoEspresso = "Your espressosaldo is" " + testSaldoEsp;
 		// TODO + amount of espresso bought if any
-		String newTextForSaldoCoffee = "Kahvisaldosi on " + testSaldoCof;
+		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof;
 		// TODO + amount of coffee bought if any
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
