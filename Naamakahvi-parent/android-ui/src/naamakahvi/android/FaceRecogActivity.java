@@ -192,9 +192,10 @@ public class FaceRecogActivity extends Activity {
 	}
 
 	public void onLessUnitsClick(View v) {
-		if (mFastorderUnits > 1){
+		if (mFastorderUnits > 1 || mFastorderUnits < 0)
 			mFastorderUnits--;
-		}
+		else
+			mFastorderUnits = -1;
 		((EditText)findViewById(R.id.noOfUnits)).setText(Integer.toString(mFastorderUnits));
 	}
 
