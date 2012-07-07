@@ -33,8 +33,8 @@ public final class R {
         public static final int possibleUsers=0x7f070004;
         public static final int rec_countdown=0x7f070003;
         public static final int regButton=0x7f070017;
+        public static final int saldoCoffee=0x7f070007;
         public static final int saldoEspresso=0x7f070008;
-        public static final int saldoKahvi=0x7f070007;
         public static final int textView1=0x7f07000b;
         public static final int textView2=0x7f070012;
         public static final int userListView=0x7f070009;

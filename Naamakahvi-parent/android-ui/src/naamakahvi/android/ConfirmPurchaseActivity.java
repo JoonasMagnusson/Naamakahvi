@@ -20,6 +20,19 @@ public class ConfirmPurchaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
 		
+		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
+		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
+		
+		//TODO: get saldos from client, currently testSaldos used instead.
+		int testSaldoCof = -2;
+		int testSaldoEsp = 4;
+		String newTextForSaldoEspresso ="" + saldoEspresso.getText() + testSaldoCof;
+		// TODO + amount of espresso bought if any
+		String newTextForSaldoCoffee = "" + saldoCoffee.getText() + testSaldoEsp;
+		// TODO + amount of coffee bought if any
+		saldoCoffee.setText(newTextForSaldoCoffee);
+		saldoEspresso.setText(newTextForSaldoEspresso);
+		
 		// here will be returned list of users from client
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};

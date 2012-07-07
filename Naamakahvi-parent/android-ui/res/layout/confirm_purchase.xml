@@ -75,12 +75,12 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
             
            <TextView
-                android:id="@+id/saldoKahvi"
+                android:id="@+id/saldoCoffee"
                 android:layout_marginTop="150dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Kahvisaldosi on 20 - 2"
+                android:text="Kahvisaldosi on "
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
             
             <TextView
@@ -88,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Espressosaldosi on 20 - 2"
+                android:text="Espressosaldosi on "
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
         
         </LinearLayout>
