@@ -3,15 +3,24 @@ from flask import Flask
 from flask import request, redirect, url_for
 from werkzeug import secure_filename
 import json
-import dbmodule
+import psqldb
 import cvmodule
 
 
 
 app = Flask(__name__)
 
-dbm = dbmodule.dbmodule('test.db','dbqueries.xml')
+dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
 cvm = cvmodule.cvmodule()
+
+
+@app.before_request
+def before_request():
+    dbm.dbconnect()
+    
+@app.teardown_request
+def teardown_request(exception):
+    dbm.dbclose()
 
 #Returns available products and other useful stuff. (not yet implemented,obviously)
 @app.route('/')
@@ -69,7 +78,7 @@ def register():
         given = request.form['given']
         family = request.form['family']
         if(not dbm.login(user)):
-            dbm.register(user,given,family)
+            dbm.register(user,given,family,5)
             return json.dumps({'status':'ok','username':user})
         else:
             return json.dumps({'status':'UserAlreadyExistsError'})
