@@ -21,28 +21,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
 		
-		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
-		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
-		
-		//TODO: get saldos from client, currently testSaldos used instead.
-		int testSaldoCof = -2;
-		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso ="" + saldoEspresso.getText() + testSaldoCof;
-		// TODO + amount of espresso bought if any
-		String newTextForSaldoCoffee = "" + saldoCoffee.getText() + testSaldoEsp;
-		// TODO + amount of coffee bought if any
-		saldoCoffee.setText(newTextForSaldoCoffee);
-		saldoEspresso.setText(newTextForSaldoEspresso);
-		
-		if (testSaldoCof >= 0) // TODO: plus amount of coffee bought if any
-			saldoCoffee.setTextColor(Color.GREEN);
-		else
-			saldoCoffee.setTextColor(Color.RED);
-		
-		if (testSaldoEsp >= 0) // TODO: plus amount of espresso bought if any
-			saldoEspresso.setTextColor(Color.GREEN);
-		else
-			saldoEspresso.setTextColor(Color.RED);
+		setSaldos("username");
 
 		// here will be returned list of users from client
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
@@ -57,6 +36,7 @@ public class ConfirmPurchaseActivity extends Activity {
         		int position, long id) {
         		String item = (String) parent.getAdapter().getItem(position);
         		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
+        		setSaldos(item);
         	}
         }); 
         
@@ -81,6 +61,31 @@ public class ConfirmPurchaseActivity extends Activity {
 			}
 		};
 		cd.start();
+	}
+	
+	private void setSaldos(String username) {
+		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
+		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
+		
+		//TODO: get saldos from client, currently testSaldos used instead.
+		int testSaldoCof = -2;
+		int testSaldoEsp = 4;
+		String newTextForSaldoEspresso ="" + saldoEspresso.getText() + testSaldoCof;
+		// TODO + amount of espresso bought if any
+		String newTextForSaldoCoffee = "" + saldoCoffee.getText() + testSaldoEsp;
+		// TODO + amount of coffee bought if any
+		saldoCoffee.setText(newTextForSaldoCoffee);
+		saldoEspresso.setText(newTextForSaldoEspresso);
+		
+		if (testSaldoCof >= 0) // TODO: plus amount of coffee bought if any
+			saldoCoffee.setTextColor(Color.GREEN);
+		else
+			saldoCoffee.setTextColor(Color.RED);
+		
+		if (testSaldoEsp >= 0) // TODO: plus amount of espresso bought if any
+			saldoEspresso.setTextColor(Color.GREEN);
+		else
+			saldoEspresso.setTextColor(Color.RED);
 	}
 	
 	public void onCPOkClick(View v) {
