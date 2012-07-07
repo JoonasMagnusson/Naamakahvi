@@ -1,6 +1,7 @@
 package naamakahvi.android;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -33,6 +34,16 @@ public class ConfirmPurchaseActivity extends Activity {
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
 		
+		if (testSaldoCof >= 0) // TODO: plus amount of coffee bought if any
+			saldoCoffee.setTextColor(Color.GREEN);
+		else
+			saldoCoffee.setTextColor(Color.RED);
+		
+		if (testSaldoEsp >= 0) // TODO: plus amount of espresso bought if any
+			saldoEspresso.setTextColor(Color.GREEN);
+		else
+			saldoEspresso.setTextColor(Color.RED);
+
 		// here will be returned list of users from client
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
