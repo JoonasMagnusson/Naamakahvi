@@ -100,11 +100,15 @@ def login():
 
 @app.route('/list_buyable_products/',methods=['POST','GET'])
 def buyableProducts():
-    return json.dumps({'status':'NotImplementedError'})
+    
+    rslt = dbm.selectFinProductNames()
+    return json.dumps(rslt)
 
 @app.route('/list_bringable_products/',methods=['POST','GET'])
 def bringableProducts():
-    return json.dumps({'status':'NotImplementedError'})
+    
+    rslt = dbm.selectRawProductNames()
+    return json.dumps(rslt)
 
 
 #Allows the user to buy products.

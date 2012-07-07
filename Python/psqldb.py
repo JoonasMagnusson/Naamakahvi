@@ -113,8 +113,18 @@ class psqldb:
 		
 		q = self.getQuery("selectEProductNames")		
 
-		print q
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
 			
+		result = self.cur.fetchall()
+		return result
+	
+	def selectRawProductNames(self):
+		
+		q = self.getQuery("selectIProductNames")		
+
 		try:
 			self.cur.execute(q)		
 		except  Exception ,e:
