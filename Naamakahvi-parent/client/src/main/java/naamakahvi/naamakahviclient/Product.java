@@ -17,4 +17,19 @@ class Product implements IProduct {
         return this.name;
     }
 
+	@Override
+	public boolean equals(Object arg0) {
+		if (!(arg0 instanceof IProduct)){
+			return false;
+		}
+		IProduct p2 = (IProduct) arg0;
+		return this.getName() == p2.getName();
+	}
+
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
+	}
+
+    
 }

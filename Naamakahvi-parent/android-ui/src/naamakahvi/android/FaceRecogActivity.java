@@ -5,9 +5,11 @@ import java.util.List;
 
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
+import naamakahvi.android.utils.Basket;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
+import naamakahvi.naamakahviclient.IUser;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,6 +36,37 @@ public class FaceRecogActivity extends Activity {
 	private Resources mRes;
 
 	
+	private class RecogThread implements Runnable {
+		private Intent mAction;
+
+		public RecogThread(Intent i){
+			mAction = i;
+		}
+		
+		public void run() {
+		  IUser u = doFaceRecog();
+		  mAction.putExtra("naamakahvi.android.username", u.getUserName());
+		  startActivity(mAction);
+		}
+	}	
+	
+	private IUser doFaceRecog(){
+		//TODO: server side face recognition
+		IUser u = new IUser() {
+			public String getUserName() {
+				return "Test";
+			}
+			
+			public String getGivenName() {
+				return "Senor";
+			}
+			
+			public String getFamilyName() {
+				return "Testman";
+			}
+		   };
+		   return u;
+	}
 	
 	private List<IProduct> products(){
 		List<IProduct> products = new ArrayList<IProduct>();
@@ -63,7 +96,7 @@ public class FaceRecogActivity extends Activity {
        products.add(new IProduct() {
 			
 			public String getName() {
-				return "Tee";
+				return "Tee?";
 			}
 			public String toString(){return getName();}
 		});
@@ -94,14 +127,20 @@ public class FaceRecogActivity extends Activity {
 				bestproducts);
 
 		productView.setAdapter(adapter);
-
+		
 		productView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				
 				IProduct item = (IProduct) parent.getAdapter().getItem(position);
-				// TODO: osta tuote
-	
+				
+				Intent i = new Intent(view.getContext(), CheckoutActivity.class);
+				Basket b = new Basket();
+				b.addProduct(item,mFastorderUnits);
+				i.putExtra("naamakahvi.android.products", b);
+				
+			    new Thread(new RecogThread(i)).start();   // does server side face recognition, then launches intent
+				
 				Toast.makeText(getApplicationContext(), mFastorderUnits + " x " + item, Toast.LENGTH_LONG)
 						.show();
 			}
