@@ -16,7 +16,7 @@ import naamakahvi.android.R;
 public class ConfirmPurchaseActivity extends Activity {
 
 	final short COUNTDOWN_LENGTH = 10;
-	CountDownTimer cd;
+	private CountDownTimer cd;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -27,6 +27,7 @@ public class ConfirmPurchaseActivity extends Activity {
         String[] testUsers = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
         setListView(possibleUsersListView, testUsers);
         setSaldos(testUsers[0]);
+        setRecognizedText(testUsers[0]);
 	}
 	
 	private void setListView(ListView listView, String[] list) {
@@ -39,10 +40,17 @@ public class ConfirmPurchaseActivity extends Activity {
         		String item = (String) parent.getAdapter().getItem(position);
         		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
         		setSaldos(item);
+        		setRecognizedText(item);
         		cd.cancel();
         		cd.start();
         	}
         }); 
+	}
+	
+	private void setRecognizedText(String username) {
+		TextView recognized = (TextView) findViewById(R.id.cp_nametext);
+		String newRecognizedText = "You were recognized as: " + username;
+		recognized.setText(newRecognizedText);
 	}
 	
 	private void setSaldos(String username) {
@@ -52,7 +60,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		//TODO: get saldos from client, currently testSaldos used instead.
 		int testSaldoCof = -2;
 		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso = "Your espressosaldo is" + testSaldoEsp;
+		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp;
 		// TODO + amount of espresso bought if any
 		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof;
 		// TODO + amount of coffee bought if any
