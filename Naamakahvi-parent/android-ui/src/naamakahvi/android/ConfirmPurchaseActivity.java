@@ -11,6 +11,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
+import naamakahvi.naamakahviclient.Client;
+import naamakahvi.naamakahviclient.IUser;
 
 public class ConfirmPurchaseActivity extends Activity {
 
@@ -91,7 +93,7 @@ public class ConfirmPurchaseActivity extends Activity {
 			}
 			
 			public void onFinish() {
-				// TODO: tänne client-koodi ostolle
+				buyProducts();
 				setResult(RESULT_OK);
 				finish();
 			}
@@ -100,9 +102,15 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	public void onCPOkClick(View v) {
-		//TODO: client-koodi ostolle
+		buyProducts();
 		setResult(RESULT_OK);
 		finish();
+	}
+	
+	private void buyProducts() {
+		// TODO: client-koodi ostolle ja tarvittavien infojen otto
+/**		Client client = new Client("127.0.0.1", 5000, null);
+		client.buyProduct(user, product, amount);**/
 	}
 	
 	public void onCPCancelClick(View v) {
