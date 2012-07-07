@@ -94,12 +94,12 @@ public class ConfirmPurchaseActivity extends Activity {
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
 		
-		if (testSaldoCof >= 0) // TODO: plus amount of coffee bought if any
+		if ((testSaldoCof + changeInCoffee) >= 0) // TODO: plus amount of coffee bought if any
 			saldoCoffee.setTextColor(Color.GREEN);
 		else
 			saldoCoffee.setTextColor(Color.RED);
 		
-		if (testSaldoEsp >= 0) // TODO: plus amount of espresso bought if any
+		if ((testSaldoEsp + changeInEspresso) >= 0) // TODO: plus amount of espresso bought if any
 			saldoEspresso.setTextColor(Color.GREEN);
 		else
 			saldoEspresso.setTextColor(Color.RED);
