@@ -185,7 +185,9 @@ public class FaceRecogActivity extends Activity {
 	}
 
 	public void onMoreUnitsClick(View v) {
-		if (mFastorderUnits < mRes.getInteger(R.integer.MAX_FASTORDER_UNITS)){
+		if (mFastorderUnits == -1)
+			mFastorderUnits = 1;
+		else if (mFastorderUnits < mRes.getInteger(R.integer.MAX_FASTORDER_UNITS)){
 			mFastorderUnits++;
 		}
 		((EditText)findViewById(R.id.noOfUnits)).setText(Integer.toString(mFastorderUnits));
