@@ -105,6 +105,12 @@ public class Basket implements Parcelable {
 	public int describeContents() {
 		return 0; 
 	}
+	
+	public int getCount(IProduct product){
+		Integer n = items.get(product);
+		if (n == null) return 0;
+		return n;
+	}
 
 	public void writeToParcel(Parcel dest, int flags) {
 		for (IProduct i : items.keySet()) {
@@ -122,5 +128,9 @@ public class Basket implements Parcelable {
 			return new Basket[size];
 		}
 	};
+
+	public int size() {
+		return items.size();
+	}
 
 }

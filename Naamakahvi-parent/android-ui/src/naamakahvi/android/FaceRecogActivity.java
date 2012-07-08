@@ -32,7 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class FaceRecogActivity extends Activity {
 
-	private final short REQUEST_CONFIRM = 1;
+	public static final short USERNAME_SELECTED = 1;
 	private int mFastorderUnits = 1;
 	private Resources mRes;
 
@@ -174,7 +174,7 @@ public class FaceRecogActivity extends Activity {
 		Intent i = new Intent(this, ConfirmActivity.class);
 		i.putExtra("prompt_text", getString(R.string.rec_string_prefix)
 				+ " Test Name\n" + getString(R.string.rec_string_suffix));
-		startActivityForResult(i, REQUEST_CONFIRM);
+		startActivityForResult(i, USERNAME_SELECTED);
 	}
 
 	public void onRegButtonClick(View v) {
@@ -210,10 +210,11 @@ public class FaceRecogActivity extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == REQUEST_CONFIRM) {
+		if (requestCode == USERNAME_SELECTED) {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent(this, MenuActivity.class);
+				i.putExtra("naamakahvi.android.selectedUser", data.getExtras().getString("naamakahvi.android.selectedUser"));
 				startActivity(i);
 				break;
 			case RESULT_CANCELED:
