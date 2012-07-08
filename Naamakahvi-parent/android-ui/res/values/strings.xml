@@ -11,5 +11,6 @@
     <string name="reg_button">New user</string>
     <string name="user_list">User List</string>
     <string name="other_order">Other order</string>
+    <string name="shopping_cart">Shopping cart:</string>
 
 </resources>
