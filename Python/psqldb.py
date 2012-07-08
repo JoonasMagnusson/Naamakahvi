@@ -132,7 +132,42 @@ class psqldb:
 			
 		result = self.cur.fetchall()
 		return result
+	
+	
+	def selectUserBalances(self,user):
+		
+		q = self.getQuery("selectUserBalances")		
 
+		try:
+			self.cur.execute(q,(user,))		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
+	
+	def insertUserBalances(self,balance,group,user):
+			
+		q = self.getQuery("insertUserBalances")
+
+		try:
+			self.cur.execute(q, (balance,group,user))
+		except  Exception ,e:
+			return e
+		self.con.commit()
+		return True	
+	
+	
+	def updateUserBalances(self,balance,group,user):
+			
+		q = self.getQuery("updateUserBalances")
+
+		try:
+			self.cur.execute(q, (balance,group,user))
+		except  Exception ,e:
+			return e
+		self.con.commit()
+		return True
 
 	def nukeTable(self,table):
 		
