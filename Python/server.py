@@ -131,7 +131,9 @@ def bring():
 
 @app.route('/list_stations/',methods=['POST','GET'])
 def stations():
-    return json.dumps({'status':'NotImplementedError'})
+    
+    stations = ["Station1"]
+    return json.dumps({'status':'ok','stations':stations})
 
 
 
