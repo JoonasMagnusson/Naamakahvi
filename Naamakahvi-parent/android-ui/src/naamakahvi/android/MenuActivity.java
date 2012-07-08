@@ -25,175 +25,199 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class MenuActivity extends Activity {
-	
+
 	private Basket mBasket = new Basket();
-	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.product_gridview);
-        ((GridView)findViewById(R.id.product_grid)).setAdapter(new ProductAdapter(this, products()));
-        ((GridView)findViewById(R.id.payproduct_grid)).setAdapter(new ProductAdapter(this, pay_products()));
-        ((ListView)findViewById(R.id.cart_list)).setAdapter(new CartAdapter(this, mBasket));
-    }
-   
-    private ArrayList<IProduct> products(){
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.product_gridview);
+		((GridView) findViewById(R.id.product_grid))
+				.setAdapter(new ProductAdapter(this, products()));
+		((GridView) findViewById(R.id.payproduct_grid))
+				.setAdapter(new ProductAdapter(this, pay_products()));
+		((ListView) findViewById(R.id.cart_list)).setAdapter(new CartAdapter(
+				this, mBasket));
+	}
+
+	private ArrayList<IProduct> products() {
 		ArrayList<IProduct> products = new ArrayList<IProduct>();
 		products.add(new IProduct() {
-			
+
 			public String getName() {
 				return "Kahvi";
 			}
-			public String toString(){return getName();}
+
+			public String toString() {
+				return getName();
+			}
 		});
-		
-        products.add(new IProduct() {
-			
+
+		products.add(new IProduct() {
+
 			public String getName() {
 				return "Espresso";
 			}
-			public String toString(){return getName();}
+
+			public String toString() {
+				return getName();
+			}
 		});
-        
-        products.add(new IProduct() {
-			
+
+		products.add(new IProduct() {
+
 			public String getName() {
 				return "Tuplaespresso";
 			}
-			public String toString(){return getName();}
+
+			public String toString() {
+				return getName();
+			}
 		});
-       products.add(new IProduct() {
-			
+		products.add(new IProduct() {
+
 			public String getName() {
 				return "Tee?";
 			}
-			public String toString(){return getName();}
+
+			public String toString() {
+				return getName();
+			}
 		});
-        
-        return products;
+
+		return products;
 	}
-    
-    private ArrayList<IProduct> pay_products(){
-    	final RandomString r = new RandomString(20);
+
+	private ArrayList<IProduct> pay_products() {
+		final RandomString r = new RandomString(20);
 		ArrayList<IProduct> products = new ArrayList<IProduct>();
-		
-		for (int i = 0; i < 30; ++i){
+
+		for (int i = 0; i < 30; ++i) {
 			products.add(new IProduct() {
-				
+
 				public String getName() {
 					return r.nextString();
 				}
 			});
-			
+
 		}
-        return products;
+		return products;
 	}
-    
-    
-   
-    
-    private void refreshCart(){
-    	ListView cart = (ListView)findViewById(R.id.cart_list);
-    	((CartAdapter)cart.getAdapter()).notifyDataSetChanged();
-    }
-    
-    public class ProductAdapter extends BaseAdapter {
-        private LayoutInflater inflater;
-        private ArrayList<IProduct> data;
 
-        public ProductAdapter(Context context, ArrayList<IProduct> data){
-        this.inflater = LayoutInflater.from(context);
-        this.data= data;
-        }
+	private void refreshCart() {
+		ListView cart = (ListView) findViewById(R.id.cart_list);
+		((CartAdapter) cart.getAdapter()).notifyDataSetChanged();
+	}
+	
+	public void doCheckout(View v){
+		Intent i = new Intent(this,ConfirmPurchaseActivity.class);
+		i.putExtra("naamakahvi.android.users", new String[]{getIntent().getExtras().getString("naamakahvi.android.selectedUser")}); //TODO: actual username
+		i.putExtra("naamakahvi.android.products", mBasket);
+		startActivity(i);
+	}
 
-        public int getCount() {
-            return this.data.size();
-        }
+	public class ProductAdapter extends BaseAdapter {
+		private LayoutInflater inflater;
+		private ArrayList<IProduct> data;
 
-        public IProduct getItem(int position) throws IndexOutOfBoundsException{
-            return this.data.get(position);
-        }
+		public ProductAdapter(Context context, ArrayList<IProduct> data) {
+			this.inflater = LayoutInflater.from(context);
+			this.data = data;
+		}
 
-        public long getItemId(int position) throws IndexOutOfBoundsException{
-            if(position < getCount() && position >= 0 ){
-                return position;
-            }
-            return -1;
-        }
+		public int getCount() {
+			return this.data.size();
+		}
 
-        public int getViewTypeCount(){
-            return 1;
-        }
+		public IProduct getItem(int position) throws IndexOutOfBoundsException {
+			return this.data.get(position);
+		}
 
-        public View getView(int position, View convertView, ViewGroup parent){
-            final IProduct product = getItem(position);           
+		public long getItemId(int position) throws IndexOutOfBoundsException {
+			if (position < getCount() && position >= 0) {
+				return position;
+			}
+			return -1;
+		}
 
-            if(convertView == null){
-                convertView = this.inflater.inflate(R.layout.product_single_view, null);
-            }
+		public int getViewTypeCount() {
+			return 1;
+		}
 
-            ((TextView)convertView.findViewById(R.id.product_name)).setText(product.getName());
-            ((Button)convertView.findViewById(R.id.button_add)).setOnClickListener(new View.OnClickListener() {
-				
-				public void onClick(View v) {
-					mBasket.addProduct(product);
-					refreshCart();
-				}
-			});
-            
-            return convertView;
-        }
-    }
-    
-    public class CartAdapter extends BaseAdapter {
-        private LayoutInflater inflater;
-        private Basket data;
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final IProduct product = getItem(position);
 
-        public CartAdapter(Context context, Basket data){
-        this.inflater = LayoutInflater.from(context);
-        this.data= data;
-        }
-        
-        public int getCount() {
-            return this.data.size();
-        }
+			if (convertView == null) {
+				convertView = this.inflater.inflate(
+						R.layout.product_single_view, null);
+			}
 
-        public IProduct getItem(int position) throws IndexOutOfBoundsException{
-            return ((IProduct)(data.getItems().keySet().toArray()[position]));
-        }
+			((TextView) convertView.findViewById(R.id.product_name))
+					.setText(product.getName());
+			((Button) convertView.findViewById(R.id.button_add))
+					.setOnClickListener(new View.OnClickListener() {
 
-        public long getItemId(int position) throws IndexOutOfBoundsException{
-            if(position < getCount() && position >= 0 ){
-                return position;
-            }
-            return -1;
-        }
+						public void onClick(View v) {
+							mBasket.addProduct(product);
+							refreshCart();
+						}
+					});
 
-        public int getViewTypeCount(){
-            return 1;
-        }
+			return convertView;
+		}
+	}
 
-        public View getView(int position, View convertView, ViewGroup parent){
-            final IProduct product = getItem(position);           
+	public class CartAdapter extends BaseAdapter {
+		private LayoutInflater inflater;
+		private Basket data;
 
-            if(convertView == null){
-                convertView = this.inflater.inflate(R.layout.product_cart_view, null);
-            }
+		public CartAdapter(Context context, Basket data) {
+			this.inflater = LayoutInflater.from(context);
+			this.data = data;
+		}
 
-            ((TextView)convertView.findViewById(R.id.product_name)).setText(product.getName());
-            ((TextView)convertView.findViewById(R.id.numberOfUnits)).setText(data.getCount(product) +" x");
-            ((Button)convertView.findViewById(R.id.button_add)).setOnClickListener(new View.OnClickListener() {
-				
-				public void onClick(View v) {
-					mBasket.removeProduct(product, 1);
-					refreshCart();
-				}
-			});
-            
-            
-            
-            return convertView;
-        }
-    }
+		public int getCount() {
+			return this.data.size();
+		}
+
+		public IProduct getItem(int position) throws IndexOutOfBoundsException {
+			return ((IProduct) (data.getItems().keySet().toArray()[position]));
+		}
+
+		public long getItemId(int position) throws IndexOutOfBoundsException {
+			if (position < getCount() && position >= 0) {
+				return position;
+			}
+			return -1;
+		}
+
+		public int getViewTypeCount() {
+			return 1;
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final IProduct product = getItem(position);
+
+			if (convertView == null) {
+				convertView = this.inflater.inflate(R.layout.product_cart_view,
+						null);
+			}
+
+			((TextView) convertView.findViewById(R.id.product_name))
+					.setText(product.getName());
+			((TextView) convertView.findViewById(R.id.numberOfUnits))
+					.setText(data.getCount(product) + " x");
+			((Button) convertView.findViewById(R.id.button_add))
+					.setOnClickListener(new View.OnClickListener() {
+
+						public void onClick(View v) {
+							mBasket.removeProduct(product, 1);
+							refreshCart();
+						}
+					});
+
+			return convertView;
+		}
+	}
 }

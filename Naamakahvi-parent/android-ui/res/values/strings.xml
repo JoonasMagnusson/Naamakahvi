@@ -12,5 +12,6 @@
     <string name="user_list">User List</string>
     <string name="other_order">Other order</string>
     <string name="shopping_cart">Shopping cart:</string>
+    <string name="checkout">Checkout</string>
 
 </resources>

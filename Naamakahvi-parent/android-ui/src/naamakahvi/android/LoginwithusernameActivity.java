@@ -18,7 +18,7 @@ public class LoginwithusernameActivity extends Activity {
         setContentView(R.layout.loginwithusername);
         
         ListView userlistView = (ListView) findViewById(R.id.userListView);
-        // tähän string-taulukkoon importataan clientistä käyttäjälista Varautuminen: ei käyttäjiä / ei yhteyttä
+        // tï¿½hï¿½n string-taulukkoon importataan clientistï¿½ kï¿½yttï¿½jï¿½lista Varautuminen: ei kï¿½yttï¿½jiï¿½ / ei yhteyttï¿½
         String[] testiKayttajat = new String[] {"aapeli", "kahvikonkari", "moikkaaja", "testi"};
         
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -30,8 +30,9 @@ public class LoginwithusernameActivity extends Activity {
         		int position, long id) {
         		String item = (String) parent.getAdapter().getItem(position);
         		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
-        		
-        		setResult(RESULT_OK);
+        		Intent i = new Intent();
+        		i.putExtra("naamakahvi.android.selectedUser", item);
+        		setResult(RESULT_OK,i);
     			finish();
         	}
         }); 

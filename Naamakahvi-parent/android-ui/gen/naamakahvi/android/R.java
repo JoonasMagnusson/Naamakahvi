@@ -71,6 +71,7 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f070001;
+        public static final int checkout=0x7f07000b;
         public static final int chk_order=0x7f070004;
         public static final int countdown_prefix=0x7f070005;
         public static final int countdown_suffix=0x7f070006;
