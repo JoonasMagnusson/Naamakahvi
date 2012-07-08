@@ -23,18 +23,21 @@ class Testpsqldb(unittest.TestCase):
     
     def TestInsertImportProduct(self):
         
+        #self.dbmps.nukeTable("rawproduct")
         r = self.dbmps.insertImportProduct(5,2.0,"1 dl","Naamakahvi","FaceCafe","LOLWUT")
         self.assertTrue(r)
 
     def TestInsertExportProduct(self):
         
+        #self.dbmps.nukeTable("finalproduct")
         r = self.dbmps.insertExportProduct(5,1,"Kahvi1","Coffee1","HejaHeja")
         self.assertTrue(r)
             
     def TestRegister(self):
         
+        #self.dbmps.nukeTable("userdata")
         #r = self.dbm.register("testuser1","Test0","User")
-        r = self.dbmps.register("test1","Test0","User",1)
+        r = self.dbmps.register("test1","Test0","User",60)
         self.assertTrue(r)
     
     def TestLogin(self):
@@ -46,6 +49,16 @@ class Testpsqldb(unittest.TestCase):
         
         r = self.dbmps.selectFinProductNames()
         
+    def TestInsertUserBalances(self):
+        
+        #self.dbmps.nukeTable("userbalance")
+        r = self.dbmps.insertUserBalances("test1",5,3.0)
+        self.assertTrue(r)    
+        
+    def TestUpdateUserBalances(self):
+        
+        r = self.dbmps.updateUserBalances(7.0,5,"test1")
+        self.assertTrue(r)
 
 
 if __name__ == '__main__':
