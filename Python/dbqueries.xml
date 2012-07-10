@@ -331,7 +331,10 @@
 		INSERT INTO log (log_type, log_tableid, log_oldvalue, log_newvalue,
 		log_acttime, log_username) VALUES (%s, %s, %s, %s, localtimestamp, %s)
 	</entry>
-		
+	<entry key="getFinalproducts">
+		SELECT final.final_finalproductid, final.final_finname, final.final_engname, final.final_swename, groupx.gd_finname, groupx.gd_engname, groupx.gd_swename, 			groupx.gd_groupdataid, final.final_value, final.final_picture FROM finalproduct final, groupdata groupx 
+		WHERE final.final_deacttime IS NULL AND groupx.gd_deacttime IS NULL AND final.final_groupid = groupx.gd_groupdataid;
+	</entry>		
 	<!-- Used by usersBean -->
 	
 	<entry key="selectUsers">

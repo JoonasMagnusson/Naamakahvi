@@ -104,11 +104,40 @@ def buyableProducts():
     rslt = dbm.selectFinProductNames()
     return json.dumps(rslt)
 
-@app.route('/list_bringable_products/',methods=['POST','GET'])
+@app.route('/list_raw_products/',methods=['POST','GET'])
 def bringableProducts():
     
     rslt = dbm.selectRawProductNames()
     return json.dumps(rslt)
+
+@app.route('/list_usernames/',methods=['POST','GET'])
+def listUsernames():
+    
+    rslt = dbm.listUsernames()
+    return json.dumps(rslt)
+
+
+@app.route('/list_product_prices/',methods=['POST','GET'])
+def bringableProducts():
+    
+    rslt = dbm.getFinalproducts()
+    return json.dumps(rslt)
+
+
+
+@app.route('/list_user_balances/',methods=['POST','GET'])
+def listUserBalances():
+    
+    if request.method == 'POST':
+        
+        user = request.form['username']
+        print user
+    
+        rslt = dbm.selectUserBalances(user)
+        return json.dumps(rslt)
+    
+    else:
+        return json.dumps({'status':'Error'})
 
 
 #Allows the user to buy products.
@@ -132,7 +161,7 @@ def bring():
 @app.route('/list_stations/',methods=['POST','GET'])
 def stations():
     
-    stations = ["Station1"]
+    stations = ["Station1","Station2"]
     return json.dumps({'status':'ok','stations':stations})
 
 
