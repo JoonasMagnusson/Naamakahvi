@@ -100,7 +100,7 @@ class CvModule:
 			
 			for i,val in enumerate(self.userlist):
 				g[i][trainmap[val]] = 1
-			#print g
+			
 			
 			shape = numpy.array([self.SAMPLES,40,(self.ANN_persons+2),self.ANN_persons]) #40,35
 			#print shape
@@ -110,6 +110,22 @@ class CvModule:
 			net.create(shape)
 			net.train(self.projection,g,None,params = self.ANN_params)
 			self.ANN = net
+			
+			
+			
+			
+			for i in range(0, g.shape[1]):
+				print i
+				shape = numpy.array([self.SAMPLES,40,(self.ANN_persons+2),1])
+				net = cv2.ANN_MLP()
+				net.create(shape)
+				net.train(self.projection,g[:,i],None,params = self.ANN_params)
+				if (i >= len(self.PANN)):
+					self.PANN.append(net)
+				else:
+					self.PANN[i] = net
+		#print "l",len(self.PANN)	
+			
 		#	print "Done training neural network, shape is:",shape
 		#else:
 		#	print "One sample, skipping"
@@ -145,6 +161,14 @@ class CvModule:
 		nil,result = self.ANN.predict(pre)
 		#print result
 		
+		major = []
+		for i in range(0,len(self.PANN)):
+			net = self.PANN[i]
+			nil, res = net.predict(pre)
+			major.append(res[0].flatten()[0])
+			
+		print major
+		
 		#print "Identifying: Euclidean"
 	
 		for i in range(0, self.SAMPLES):
@@ -171,7 +195,7 @@ def main():
 		#print "Started"
 		cvmod = CvModule()
 		
-		sets = 20
+		sets = 3
 		timages = 5
 		
 		for i in range(0,sets):
