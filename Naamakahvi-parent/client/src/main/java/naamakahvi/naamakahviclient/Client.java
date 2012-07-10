@@ -80,7 +80,7 @@ public class Client {
     }
 
     private JsonObject doPost(String path, String... params) throws Exception {
-        if (0 != (params.length % 2)) {
+        if ((params.length % 2) != 0) {
             throw new RuntimeException("Odd number of parameters");
         }
 
@@ -133,18 +133,18 @@ public class Client {
             throw new GeneralClientException("Server returned HTTP-status code " + status);
         }
     }
-    
+
     public String[] listUsernames() throws ClientException {
         try {
             JsonObject obj = doGet("/list_usernames/");
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 JsonArray jarr = obj.get("usernames").getAsJsonArray();
                 String[] ans = new String[jarr.size()];
-                
+
                 for (int i = 0; i < jarr.size(); i++) {
                     ans[i] = jarr.get(i).getAsString();
                 }
-                
+
                 return ans;
             } else {
                 throw new GeneralClientException("asdf");
@@ -152,7 +152,7 @@ public class Client {
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
         }
-        
+
     }
 
     public IUser registerUser(String username, String givenName, String familyName, ImageData imagedata) throws RegistrationException {
@@ -230,7 +230,7 @@ public class Client {
     public List<IProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
-                                   "station_name", this.station.getName());
+                    "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 List<IProduct> ans = new ArrayList();
                 for (JsonElement e : obj.get("default_products").getAsJsonArray()) {
@@ -301,23 +301,24 @@ public class Client {
 
     /*
      * Tälle jutulle annetaan OpenCV:ltä/kameralta kuvadataa, pusketaan se
-     * serverille joka antaa tuloksena joukon käyttäjiä joita kuva
+     * serverille joka antaa tuloksena joukon käyttäjänimiä joita kuva
      * vastaa.
      */
-    public List<IUser> authenticateImage(File file) throws AuthenticationException {
+    public String[] identifyImage(File file) throws GeneralClientException {
         try {
-            HttpResponse response = uploadImage(file);
-            int status = response.getStatusLine().getStatusCode();
-            if (status == 200) {
-                Type listType = new TypeToken<ArrayList<IUser>>() {
+            uploadImage(file);
+            JsonObject obj = doPost("/identify/", "filename", file.getName());
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                Type listType = new TypeToken<List<String>>() {
                 }.getType();
-                List<IUser> userList = new Gson().fromJson(responseToJson(response), listType);
-                return userList;
+
+                List<String> users = new Gson().fromJson(obj, listType);
+                return (String[]) users.toArray();
             } else {
-                throw new AuthenticationException("Authentication failed, server status code: " + status);
-            }
+                throw new GeneralClientException("Failed to identify anyone");
+            }           
         } catch (Exception ex) {
-            throw new AuthenticationException(ex.toString());
+            throw new GeneralClientException(ex.toString());
         }
     }
 
@@ -327,10 +328,15 @@ public class Client {
             HttpPost post = new HttpPost(buildURI("/upload/"));
 
             MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-            entity.addPart("file", new FileBody(file,"application/octect-stream"));
+            entity.addPart("file", new FileBody(file, "application/octect-stream"));
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
-            return response;
+
+            if (responseToJson(response).get("status").getAsString().equalsIgnoreCase("ok")) {
+                return response;
+            } else {
+                throw new GeneralClientException("Failed to upload image");
+            }
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
