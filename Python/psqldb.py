@@ -168,6 +168,18 @@ class psqldb:
 			return e
 		self.con.commit()
 		return True
+	
+	def listUsernames(self):
+		
+		q = self.getQuery("selectUsers")		
+
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
 
 	def nukeTable(self,table):
 		
