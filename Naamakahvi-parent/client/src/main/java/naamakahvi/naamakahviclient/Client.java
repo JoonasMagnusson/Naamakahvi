@@ -18,6 +18,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.protocol.HTTP;
@@ -303,11 +304,9 @@ public class Client {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/upload/"));
 
-            MultipartEntity entity = new MultipartEntity();
-            entity.addPart("file", new FileBody(file));
+            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            entity.addPart("file", new FileBody(file,"application/octect-stream"));
             post.setEntity(entity);
-            post.addHeader("Content-Type", "multipart/form-data");
-
             HttpResponse response = httpClient.execute(post);
             return response;
         } catch (Exception ex) {
@@ -315,9 +314,9 @@ public class Client {
         }
     }
 
-//    public static void main(String[] args) throws AuthenticationException, GeneralClientException {
-//        Client c = new Client("0.0.0.0", 5000, null);
-//        HttpResponse response = c.uploadImage(new File("test.png"));
-//        System.out.println(response.getStatusLine().getStatusCode());
-//    }
+    public static void main(String[] args) throws AuthenticationException, GeneralClientException {
+        Client c = new Client("127.0.0.1", 5000, null);
+        HttpResponse response = c.uploadImage(new File("lol.png"));
+        System.out.println(response.getStatusLine().getStatusCode());
+    }
 }
