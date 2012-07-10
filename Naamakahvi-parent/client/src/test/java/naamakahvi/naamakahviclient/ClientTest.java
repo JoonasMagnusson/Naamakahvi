@@ -1,15 +1,17 @@
 package naamakahvi.naamakahviclient;
 
-import java.util.*;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import naamakahvi.naamakahviclient.Client.GeneralClientException;
 import org.apache.http.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -18,13 +20,12 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-import org.apache.http.entity.mime.MultipartEntity;
 
 public class ClientTest {
     private LocalTestServer server = null;
@@ -78,6 +79,21 @@ public class ClientTest {
         r.setEntity(new StringEntity(s, ContentType.create("text/plain", "UTF-8")));
         r.setStatusCode(200);
     }
+    
+    private HttpRequestHandler listUsernamesHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest hr, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            JsonArray ar = new JsonArray();
+
+            for (String s : new String[]{"user1", "user2", "user3", "user4"}) {
+                ar.add(new JsonPrimitive(s));
+            }
+
+            ans.add("usernames", ar);
+            stringResponse(response, ans.toString());
+        }
+    };
 
     private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
@@ -198,6 +214,7 @@ public class ClientTest {
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
         server.register("/authenticate_text/*", textAuthenticationHandler);
+        server.register("/list_usernames/*", listUsernamesHandler);
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
         server.register("/list_default_products/*", listDefaultProductsHandler);        
         server.register("/buy_product/*", buyProductHandler);
@@ -267,6 +284,25 @@ public class ClientTest {
         Client c = new Client(host, port, station);
         IUser u = c.authenticateText("Matti");
     }
+    
+    @Test
+    public void listUsernamesCorrectAmount() throws ClientException {
+        Client c = new Client(host, port, station);
+        String[] usernames = c.listUsernames();
+        assert(usernames.length == 4);
+    }
+    
+    @Test
+    public void listUsernamesCorrectNames() throws ClientException {
+        Client c = new Client(host, port, station);
+        String[] usernames = c.listUsernames();
+        assert(usernames[0].equals("user1") 
+                && usernames[1].equals("user2")
+                && usernames[2].equals("user3")
+                && usernames[3].equals("user4"));
+                
+    }
+    
 
     @Test
     public void correctBuyableProductsListed() throws ClientException {

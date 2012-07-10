@@ -1,26 +1,24 @@
 package naamakahvi.naamakahviclient;
 
-import java.util.*;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 public class Client {
@@ -75,7 +73,7 @@ public class Client {
     }
 
     private URI buildURI(String path) throws Exception {
-        return new URIBuilder().setScheme("http").setHost(this.host).setPort(this.port).setPath(path).build();
+        return new URI("http://" + this.host + ":" + this.port + path);
     }
 
     private JsonObject doPost(String path, String... params) throws Exception {
@@ -112,13 +110,13 @@ public class Client {
 
         final HttpClient c = new DefaultHttpClient();
 
-        final URIBuilder ub = new URIBuilder().setScheme("http").setHost(this.host).setPort(this.port).setPath(path);
+        String suri = "http://" + this.host + ":" + this.port + path + "?";
 
         for (int i = 0; i < params.length; i += 2) {
-            ub.setParameter(params[i], params[i + 1]);
+            suri = suri + params[i] + "=" + params[i+1] + "&";
         }
 
-        final URI uri = ub.build();
+        final URI uri = new URI(suri);
         final HttpGet get = new HttpGet(uri);
 
         get.addHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -131,6 +129,27 @@ public class Client {
         } else {
             throw new GeneralClientException("Server returned HTTP-status code " + status);
         }
+    }
+    
+    public String[] listUsernames() throws ClientException {
+        try {
+            JsonObject obj = doGet("/list_usernames/");
+            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
+                JsonArray jarr = obj.get("usernames").getAsJsonArray();
+                String[] ans = new String[jarr.size()];
+                
+                for (int i = 0; i < jarr.size(); i++) {
+                    ans[i] = jarr.get(i).getAsString();
+                }
+                
+                return ans;
+            } else {
+                throw new GeneralClientException("asdf");
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
+        
     }
 
     public IUser registerUser(String username, String givenName, String familyName, ImageData imagedata) throws RegistrationException {
