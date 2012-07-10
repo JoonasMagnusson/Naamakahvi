@@ -116,6 +116,19 @@ def listUsernames():
     rslt = dbm.listUsernames()
     return json.dumps(rslt)
 
+@app.route('/list_user_balances/',methods=['POST','GET'])
+def listUserBalances():
+    
+    if request.method == 'POST':
+        
+        user = request.form['username']
+        print user
+    
+        rslt = dbm.selectUserBalances(user)
+        return json.dumps(rslt)
+    
+    else:
+        return json.dumps({'status':'Error'})
 
 
 #Allows the user to buy products.
