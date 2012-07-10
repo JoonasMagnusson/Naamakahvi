@@ -284,7 +284,7 @@ public class Client {
                     "product_name", product.getName(),
                     "station_name", this.station.getName(),
                     "amount", "" + amount,
-                    "username=", user.getUserName());
+                    "username", user.getUserName());
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return;
