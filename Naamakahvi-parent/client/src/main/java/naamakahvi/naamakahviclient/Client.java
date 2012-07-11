@@ -8,6 +8,8 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -152,7 +154,7 @@ public class Client {
 
     }
 
-    public IUser registerUser(String username, String givenName, String familyName, ImageData imagedata) throws RegistrationException {
+    public IUser registerUser(String username, String givenName, String familyName, File file) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
                     "username", username,
@@ -165,6 +167,11 @@ public class Client {
                 if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
+                
+                if (file != null) {
+                    uploadImage(file);
+                    train(username, file.getName());
+                }
 
                 return responseUser;
             } else {
@@ -175,6 +182,21 @@ public class Client {
         } catch (Exception e) {
             throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
         }
+    }
+
+    private void train(String username, String filename) throws ClientException {
+        try {
+            JsonObject obj = doPost("/train/", "username", username, "filename", filename);
+            String status = obj.get("status").getAsString();
+
+            if (!status.equalsIgnoreCase("ok")) {
+                throw new GeneralClientException("Failed to train image");
+            }
+
+        } catch (Exception ex) {
+            throw new GeneralClientException(ex.toString());
+        }
+
     }
 
     public IUser authenticateText(String username) throws AuthenticationException {
@@ -235,7 +257,7 @@ public class Client {
                 }
                 return ans;
             } else {
-                throw new GeneralClientException("Could not fetch list of defalt products");
+                throw new GeneralClientException("Could not fetch list of default products");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
@@ -304,10 +326,11 @@ public class Client {
     public String[] identifyImage(File file) throws GeneralClientException {
         try {
             uploadImage(file);
-            JsonObject obj = doPost("/identify/", "filename", file.getName());
+            JsonObject obj = doPost("/identify/", "filename", file.getName(), "username", "sad");
+            
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 JsonArray jarr = obj.get("idlist").getAsJsonArray();
-                
+
                 String[] ans = new String[jarr.size()];
 
                 for (int i = 0; i < jarr.size(); i++) {
@@ -316,7 +339,7 @@ public class Client {
 
                 return ans;
             } else {
-                throw new GeneralClientException("Failed to identify anyone");
+                throw new GeneralClientException("Failed to identify user");
             }
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
@@ -341,9 +364,13 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws AuthenticationException, GeneralClientException {
+    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
         Client c = new Client("naama.zerg.fi", 5001, null);
-        c.identifyImage(new File("1.pgm"));
-        System.out.println(":3");
+       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
+       // System.out.println("registered user " + u.getUserName());
+        String[] identifyImage = c.identifyImage(new File("1.pgm"));
+        for (String name : identifyImage) {
+            System.out.println(name);
+        }
     }
 }
