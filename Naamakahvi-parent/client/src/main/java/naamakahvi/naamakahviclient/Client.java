@@ -67,7 +67,7 @@ public class Client {
         this.station = station;
     }
 
-    private static JsonObject responseToJson(HttpResponse response) throws IOException {
+    private JsonObject responseToJson(HttpResponse response) throws IOException {
         String s = Util.readStream(response.getEntity().getContent());
         return new JsonParser().parse(s).getAsJsonObject();
     }
@@ -113,7 +113,7 @@ public class Client {
         String suri = "http://" + this.host + ":" + this.port + path + "?";
 
         for (int i = 0; i < params.length; i += 2) {
-            suri = suri + params[i] + "=" + params[i+1] + "&";
+            suri = suri + params[i] + "=" + params[i + 1] + "&";
         }
 
         final URI uri = new URI(suri);
@@ -306,20 +306,24 @@ public class Client {
             uploadImage(file);
             JsonObject obj = doPost("/identify/", "filename", file.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                Type listType = new TypeToken<List<String>>() {
-                }.getType();
+                JsonArray jarr = obj.get("idlist").getAsJsonArray();
+                
+                String[] ans = new String[jarr.size()];
 
-                List<String> users = new Gson().fromJson(obj, listType);
-                return (String[]) users.toArray();
+                for (int i = 0; i < jarr.size(); i++) {
+                    ans[i] = jarr.get(i).getAsString();
+                }
+
+                return ans;
             } else {
                 throw new GeneralClientException("Failed to identify anyone");
-            }           
+            }
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
     }
 
-    public HttpResponse uploadImage(File file) throws GeneralClientException {
+    public void uploadImage(File file) throws GeneralClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/upload/"));
@@ -328,10 +332,8 @@ public class Client {
             entity.addPart("file", new FileBody(file, "application/octect-stream"));
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
-
-            if (responseToJson(response).get("status").getAsString().equalsIgnoreCase("ok")) {
-                return response;
-            } else {
+            String r = responseToJson(response).get("status").getAsString();
+            if (!r.equalsIgnoreCase("ok")) {
                 throw new GeneralClientException("Failed to upload image");
             }
         } catch (Exception ex) {
@@ -340,8 +342,8 @@ public class Client {
     }
 
     public static void main(String[] args) throws AuthenticationException, GeneralClientException {
-        Client c = new Client("127.0.0.1", 5000, null);
-        HttpResponse response = c.uploadImage(new File("lol.png"));
-        System.out.println(response.getStatusLine().getStatusCode());
+        Client c = new Client("naama.zerg.fi", 5001, null);
+        c.identifyImage(new File("1.pgm"));
+        System.out.println(":3");
     }
 }
