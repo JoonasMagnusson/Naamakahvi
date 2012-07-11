@@ -1,26 +1,58 @@
-Naamakahvi-serverin HTTP-rajapinta (luonnos)
+Naamakahvi-serverin HTTP-rajapinta
 
-- rekistöröinti
-  - url: /register
-    - POST-parametrit
-      - username: merkkijono
-      - imagedata: muoto määritellään myöhemmin
-  - palautusarvo
-    - jos onnistui, palauta HTTP-koodi 200
-    - jos epäonnistui, palauta joku muu (ei 200-299)
+* URL: /list_stations/
+  - HTTP-metodi: GET
+  - parameterit: -
+  - clientin metodi: listStations
+
+* URL: /list_usernames/
+  - HTTP-metodi: GET
+  - parametrit: -
+  - clientin metodi: listUsernames
+
+* URL: /register/
+  - HTTP-metodi: POST
+  - parametrit: username, given, family
+  - clientin metodi: registerUser
+
+* URL: /authenticate_text/
+  - HTTP-metodi: POST (pitäisi tosin kai olla GET?)
+  - parametrit: username
+  - clientin metodi: authenticateText
+
+* URL: /list_buyable_products/
+  - HTTP-metodi: GET
+  - parametrit: station_name
+  - clientin metodi: listBuyableProducts
+
+* URL: /list_default_products/
+  - HTTP-metodi: GET
+  - parametrit: station_name
+  - clientin metodi: listDefaultProducts
+
+* URL: /buy_product/
+  - HTTP-metodi: POST
+  - parametrit: product_name, station_name, amount, username
+  - clientin metodi: buyProduct
+
+* URL: /list_raw_products/
+  - HTTP-metodi: GET
+  - parametrit: station_name
+  - clientin metodi: listRawProducts
+
+* URL: /bring_product/
+  - HTTP-metodi: POST
+  - parametrit: product_name, station_name, amount, username
+  - clientin metodi: bringProduct
+
+* URL: /upload/
+  - HTTP-metodi: POST
+  - parametrit: file (multipart/mime/joku)
+  - clientin metodi: uploadImage/authenticateImage
+
     
-- kirjautuminen
-  - url: /authenticate-image
-    - POST-parametrit
-      - imagedata: myöhemmin määritelty muoto
-  - palautusarvo
-    - jos tunnistus epävarma: palauta lista mahdollisista käyttäjänimistä ja HTTP-koodi joka "epäonnistunut" (oisko 300?)
-    - jos tunnistus varma: palauta yksi nimi ja HTTP-koodi joka "onnistunut"
-  - url: /authenticate-text
-    - POST-parametrit
-      - username: merkkijono
-    - palautusarvo
-      - jos onnistui, palauta HTTP-koodi 200
-      - jos epäonnistui, jotain muuta (404?)
+    
 
-  
+    
+
+    

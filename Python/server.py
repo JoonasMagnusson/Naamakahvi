@@ -116,6 +116,15 @@ def listUsernames():
     rslt = dbm.listUsernames()
     return json.dumps(rslt)
 
+
+@app.route('/list_product_prices/',methods=['POST','GET'])
+def bringableProducts():
+    
+    rslt = dbm.getFinalproducts()
+    return json.dumps(rslt)
+
+
+
 @app.route('/list_user_balances/',methods=['POST','GET'])
 def listUserBalances():
     

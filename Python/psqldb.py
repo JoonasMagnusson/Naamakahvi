@@ -191,6 +191,18 @@ class psqldb:
 			
 		result = self.cur.fetchall()
 		return result
+	
+	def getFinalproducts(self):
+		
+		q = self.getQuery("getFinalproducts")		
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
+		
 		
 
 	def nukeTable(self,table):
