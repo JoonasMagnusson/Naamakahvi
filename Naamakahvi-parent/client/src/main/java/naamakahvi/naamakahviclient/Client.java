@@ -352,7 +352,7 @@ public class Client {
             HttpPost post = new HttpPost(buildURI("/upload/"));
 
             MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-            entity.addPart("file", new FileBody(file, "application/octect-stream"));
+            entity.addPart("file", new FileBody(file, "application/octet-stream"));
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
             String r = responseToJson(response).get("status").getAsString();
@@ -364,13 +364,13 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
-        Client c = new Client("naama.zerg.fi", 5001, null);
-       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
-       // System.out.println("registered user " + u.getUserName());
-        String[] identifyImage = c.identifyImage(new File("1.pgm"));
-        for (String name : identifyImage) {
-            System.out.println(name);
-        }
-    }
+//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
+//        Client c = new Client("naama.zerg.fi", 5001, null);
+//       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
+//       // System.out.println("registered user " + u.getUserName());
+//        String[] identifyImage = c.identifyImage(new File("1.pgm"));
+//        for (String name : identifyImage) {
+//            System.out.println(name);
+//        }
+//    }
 }
