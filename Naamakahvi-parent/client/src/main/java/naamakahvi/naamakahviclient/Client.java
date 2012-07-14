@@ -1,10 +1,8 @@
 package naamakahvi.naamakahviclient;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,17 +16,20 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 public class Client {
+
     private String host;
     private int port;
     private IStation station;
 
     private static class Station implements IStation {
+
         private String name;
 
         Station(String name) {
@@ -167,7 +168,7 @@ public class Client {
                 if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
-                
+
                 if (file != null) {
                     uploadImage(file);
                     train(username, file.getName());
@@ -223,6 +224,7 @@ public class Client {
     }
 
     static class GeneralClientException extends ClientException {
+
         public GeneralClientException(String s) {
             super(s);
         }
@@ -320,16 +322,23 @@ public class Client {
 
     /*
      * Tälle jutulle annetaan OpenCV:ltä/kameralta kuvadataa, pusketaan se
-     * serverille joka antaa tuloksena joukon käyttäjänimiä joita kuva
-     * vastaa.
+     * serverille joka antaa tuloksena joukon käyttäjänimiä joita kuva vastaa.
      */
-    public String[] identifyImage(File file) throws GeneralClientException {
+    public String[] identifyImage(byte[] imagedata) throws ClientException {
         try {
-            uploadImage(file);
-            JsonObject obj = doPost("/identify/", "filename", file.getName(), "username", "sad");
-            
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                JsonArray jarr = obj.get("idlist").getAsJsonArray();
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/identify/"));
+
+            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
+            post.setEntity(entity);
+            HttpResponse response = httpClient.execute(post);
+
+            JsonObject jsonResponse = responseToJson(response);
+            String status = jsonResponse.get("status").getAsString();
+            if (status.equalsIgnoreCase("ok")) {
+
+                JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
 
                 String[] ans = new String[jarr.size()];
 
@@ -339,14 +348,14 @@ public class Client {
 
                 return ans;
             } else {
-                throw new GeneralClientException("Failed to identify user");
+                throw new AuthenticationException("Failed to identify user");
             }
         } catch (Exception ex) {
-            throw new GeneralClientException(ex.toString());
+            throw new AuthenticationException(ex.toString());
         }
     }
 
-    public void uploadImage(File file) throws GeneralClientException {
+    public void uploadImage(File file) throws ClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/upload/"));
@@ -363,7 +372,6 @@ public class Client {
             throw new GeneralClientException(ex.toString());
         }
     }
-
 //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
 //        Client c = new Client("naama.zerg.fi", 5001, null);
 //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
