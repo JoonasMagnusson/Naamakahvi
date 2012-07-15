@@ -1,13 +1,13 @@
 package naamakahvi.naamakahviclient;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -16,17 +16,20 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 public class Client {
+
     private String host;
     private int port;
     private IStation station;
 
     private static class Station implements IStation {
+
         private String name;
 
         Station(String name) {
@@ -67,7 +70,7 @@ public class Client {
         this.station = station;
     }
 
-    private static JsonObject responseToJson(HttpResponse response) throws IOException {
+    private JsonObject responseToJson(HttpResponse response) throws IOException {
         String s = Util.readStream(response.getEntity().getContent());
         return new JsonParser().parse(s).getAsJsonObject();
     }
@@ -77,7 +80,7 @@ public class Client {
     }
 
     private JsonObject doPost(String path, String... params) throws Exception {
-        if (0 != (params.length % 2)) {
+        if ((params.length % 2) != 0) {
             throw new RuntimeException("Odd number of parameters");
         }
 
@@ -113,7 +116,7 @@ public class Client {
         String suri = "http://" + this.host + ":" + this.port + path + "?";
 
         for (int i = 0; i < params.length; i += 2) {
-            suri = suri + params[i] + "=" + params[i+1] + "&";
+            suri = suri + params[i] + "=" + params[i + 1] + "&";
         }
 
         final URI uri = new URI(suri);
@@ -130,18 +133,18 @@ public class Client {
             throw new GeneralClientException("Server returned HTTP-status code " + status);
         }
     }
-    
+
     public String[] listUsernames() throws ClientException {
         try {
             JsonObject obj = doGet("/list_usernames/");
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 JsonArray jarr = obj.get("usernames").getAsJsonArray();
                 String[] ans = new String[jarr.size()];
-                
+
                 for (int i = 0; i < jarr.size(); i++) {
                     ans[i] = jarr.get(i).getAsString();
                 }
-                
+
                 return ans;
             } else {
                 throw new GeneralClientException("asdf");
@@ -149,10 +152,10 @@ public class Client {
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
         }
-        
+
     }
 
-    public IUser registerUser(String username, String givenName, String familyName, ImageData imagedata) throws RegistrationException {
+    public IUser registerUser(String username, String givenName, String familyName, File file) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
                     "username", username,
@@ -166,6 +169,11 @@ public class Client {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
 
+                if (file != null) {
+                    uploadImage(file);
+                    train(username, file.getName());
+                }
+
                 return responseUser;
             } else {
                 throw new RegistrationException("Registration failed: Try another username");
@@ -175,6 +183,21 @@ public class Client {
         } catch (Exception e) {
             throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
         }
+    }
+
+    private void train(String username, String filename) throws ClientException {
+        try {
+            JsonObject obj = doPost("/train/", "username", username, "filename", filename);
+            String status = obj.get("status").getAsString();
+
+            if (!status.equalsIgnoreCase("ok")) {
+                throw new GeneralClientException("Failed to train image");
+            }
+
+        } catch (Exception ex) {
+            throw new GeneralClientException(ex.toString());
+        }
+
     }
 
     public IUser authenticateText(String username) throws AuthenticationException {
@@ -201,6 +224,7 @@ public class Client {
     }
 
     static class GeneralClientException extends ClientException {
+
         public GeneralClientException(String s) {
             super(s);
         }
@@ -227,7 +251,7 @@ public class Client {
     public List<IProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
-                                   "station_name", this.station.getName());
+                    "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 List<IProduct> ans = new ArrayList();
                 for (JsonElement e : obj.get("default_products").getAsJsonArray()) {
@@ -235,7 +259,7 @@ public class Client {
                 }
                 return ans;
             } else {
-                throw new GeneralClientException("Could not fetch list of defalt products");
+                throw new GeneralClientException("Could not fetch list of default products");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
@@ -298,44 +322,63 @@ public class Client {
 
     /*
      * Tälle jutulle annetaan OpenCV:ltä/kameralta kuvadataa, pusketaan se
-     * serverille joka antaa tuloksena joukon käyttäjiä joita kuva
-     * vastaa.
+     * serverille joka antaa tuloksena joukon käyttäjänimiä joita kuva vastaa.
      */
-    public List<IUser> authenticateImage(File file) throws AuthenticationException {
+    public String[] identifyImage(byte[] imagedata) throws ClientException {
         try {
-            HttpResponse response = uploadImage(file);
-            int status = response.getStatusLine().getStatusCode();
-            if (status == 200) {
-                Type listType = new TypeToken<ArrayList<IUser>>() {
-                }.getType();
-                List<IUser> userList = new Gson().fromJson(responseToJson(response), listType);
-                return userList;
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(buildURI("/identify/"));
+
+            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
+            post.setEntity(entity);
+            HttpResponse response = httpClient.execute(post);
+
+            JsonObject jsonResponse = responseToJson(response);
+            String status = jsonResponse.get("status").getAsString();
+            if (status.equalsIgnoreCase("ok")) {
+
+                JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
+
+                String[] ans = new String[jarr.size()];
+
+                for (int i = 0; i < jarr.size(); i++) {
+                    ans[i] = jarr.get(i).getAsString();
+                }
+
+                return ans;
             } else {
-                throw new AuthenticationException("Authentication failed, server status code: " + status);
+                throw new AuthenticationException("Failed to identify user");
             }
         } catch (Exception ex) {
             throw new AuthenticationException(ex.toString());
         }
     }
 
-    public HttpResponse uploadImage(File file) throws GeneralClientException {
+    public void uploadImage(File file) throws ClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/upload/"));
 
             MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-            entity.addPart("file", new FileBody(file,"application/octect-stream"));
+            entity.addPart("file", new FileBody(file, "application/octet-stream"));
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
-            return response;
+            String r = responseToJson(response).get("status").getAsString();
+            if (!r.equalsIgnoreCase("ok")) {
+                throw new GeneralClientException("Failed to upload image");
+            }
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
     }
-
-    public static void main(String[] args) throws AuthenticationException, GeneralClientException {
-        Client c = new Client("127.0.0.1", 5000, null);
-        HttpResponse response = c.uploadImage(new File("lol.png"));
-        System.out.println(response.getStatusLine().getStatusCode());
-    }
+//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
+//        Client c = new Client("naama.zerg.fi", 5001, null);
+//       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
+//       // System.out.println("registered user " + u.getUserName());
+//        String[] identifyImage = c.identifyImage(new File("1.pgm"));
+//        for (String name : identifyImage) {
+//            System.out.println(name);
+//        }
+//    }
 }

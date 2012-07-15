@@ -2,6 +2,7 @@ package naamakahvi.android;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
@@ -14,11 +15,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.naamakahviclient.Client;
+import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
+import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 
 public class ConfirmPurchaseActivity extends Activity {
@@ -26,15 +30,25 @@ public class ConfirmPurchaseActivity extends Activity {
 	final short COUNTDOWN_LENGTH = 10;
 	private CountDownTimer cd;
 	private Intent intent;
+	private String username;
+	private Client client;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
+//		try {
+//			List<IStation> stations = Client.listStations("naama.zerg.fi", 5001);
+//			client = new Client("naama.zerg.fi", 5001, stations.get(0));
+//		} catch (ClientException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		intent = getIntent();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         String[] testUsers = intent.getStringArrayExtra("naamakahvi.android.users");
         setListView(possibleUsersListView, testUsers);
+        username = testUsers[0];
         setSaldos(testUsers[0]);
         setRecognizedText(testUsers[0]);
 	}
@@ -49,6 +63,7 @@ public class ConfirmPurchaseActivity extends Activity {
         		String item = (String) parent.getAdapter().getItem(position);
         		setSaldos(item);
         		setRecognizedText(item);
+        		username = item;
         		cd.cancel();
         		cd.start();
         	}
@@ -92,12 +107,12 @@ public class ConfirmPurchaseActivity extends Activity {
 		saldoCoffee.setText(newTextForSaldoCoffee);
 		saldoEspresso.setText(newTextForSaldoEspresso);
 		
-		if ((testSaldoCof + changeInCoffee) >= 0) // TODO: plus amount of coffee bought if any
+		if ((testSaldoCof + changeInCoffee) >= 0)
 			saldoCoffee.setTextColor(Color.GREEN);
 		else
 			saldoCoffee.setTextColor(Color.RED);
 		
-		if ((testSaldoEsp + changeInEspresso) >= 0) // TODO: plus amount of espresso bought if any
+		if ((testSaldoEsp + changeInEspresso) >= 0)
 			saldoEspresso.setTextColor(Color.GREEN);
 		else
 			saldoEspresso.setTextColor(Color.RED);
@@ -134,7 +149,6 @@ public class ConfirmPurchaseActivity extends Activity {
 	
 	private void buyProducts() {
 		// TODO: usernamen hankinta, clientkoodin toimivuus jne
-		//Client client = new Client("127.0.0.1", 5000, null);
 		//IUser user = TODO: get user jostain tiedoista
 		Basket b = intent.getParcelableExtra("naamakahvi.android.products");
 		Map<IProduct, Integer> itemsBought = b.getItems();
@@ -143,7 +157,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	        Map.Entry pairs = (Map.Entry)it.next();
 	        IProduct product = (IProduct) pairs.getKey();
 	        int amount = (Integer) pairs.getValue();
-	        //client.buyProduct(user, product, amount);
+	        //TODO: osto
 	    }
 	}
 	
