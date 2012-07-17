@@ -104,12 +104,15 @@ def buyableProducts():
     rslt = dbm.selectFinProductNames()
     return json.dumps(rslt)
 
+
+#Lists raw products
 @app.route('/list_raw_products/',methods=['POST','GET'])
 def bringableProducts():
     
     rslt = dbm.selectRawProductNames()
     return json.dumps(rslt)
 
+#Lists all usernames
 @app.route('/list_usernames/',methods=['POST','GET'])
 def listUsernames():
     
@@ -124,7 +127,8 @@ def bringableProducts():
     return json.dumps(rslt)
 
 
-
+#List all balances of a user
+#input: username
 @app.route('/list_user_balances/',methods=['POST','GET'])
 def listUserBalances():
     
@@ -141,16 +145,21 @@ def listUserBalances():
 
 
 #Allows the user to buy products.
-#input : username,product,amount
+#input : username,productid,amount
 @app.route('/buy_product/',methods=['POST','GET'])
 def buy():
     if request.method == 'POST':
-        product = request.form['product_name']
+        product = request.form['product_id']
         user = request.form['username']
         amount = request.form['amount']
-        #dbm.buy(product,amount,user)
+        r = dbm.buy(product,amount,user)
         print product,amount,user
-        return json.dumps({'status':'ok'})
+        
+        if r:
+            return json.dumps({'status':'ok'})
+        else:
+            return json.dumps({'status':'Error'})
+        
     else:
         return json.dumps({'status':'Error'})
 

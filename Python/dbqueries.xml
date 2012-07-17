@@ -293,6 +293,10 @@
 		UPDATE groupdata SET gd_finname = %s,
 		gd_engname = %s, gd_swename = %s WHERE gd_groupdataid = %s
 	</entry>
+
+	<entry key="decGroupbalanceById">
+		UPDATE groupdata SET gd_balance = gd_balance - %s WHERE gd_groupdataid = %s;
+	</entry>
 	<entry key="deactivateGroup">
 		UPDATE groupdata SET gd_deacttime = localtimestamp WHERE
 		gd_groupdataid = %s
@@ -382,6 +386,12 @@
 		UPDATE userbalance SET ub_balance = %s WHERE
 		ub_groupid = %s AND ub_username = %s
 	</entry>
+
+	<entry key="updateUserBalancesDeduct">
+		UPDATE userbalance SET ub_balance = ub_balance - %s WHERE
+		ub_groupid = %s AND ub_username = %s
+	</entry>
+
 	<entry key="deleteUser">
 		DELETE FROM userdata WHERE ud_username = %s
 	</entry>

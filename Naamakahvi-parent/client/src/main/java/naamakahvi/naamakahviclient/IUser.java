@@ -1,7 +1,7 @@
 package naamakahvi.naamakahviclient;
 
 public interface IUser {
-    public String getUserName();
-    public String getGivenName();
-    public String getFamilyName();
+    String getUserName();
+    String getGivenName();
+    String getFamilyName();
 }
