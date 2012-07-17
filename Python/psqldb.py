@@ -169,6 +169,18 @@ class psqldb:
 		self.con.commit()
 		return True
 	
+	
+	def updateUserBalancesDeduct(self,balance,group,user):
+			
+		q = self.getQuery("updateUserBalancesDeduct")
+
+		try:
+			self.cur.execute(q, (balance,group,user))
+		except  Exception ,e:
+			return e
+		self.con.commit()
+		return True
+	
 	def listUsernames(self):
 		
 		q = self.getQuery("selectUsers")		
@@ -202,7 +214,30 @@ class psqldb:
 			
 		result = self.cur.fetchall()
 		return result
+	
+	def decGroupBalanceById(self,group,dec):
 		
+		q = self.getQuery("decGroupbalanceById")
+		print q
+
+		try:
+			self.cur.execute(q, (dec,group,))
+		except  Exception ,e:
+			return e
+		self.con.commit()
+		return True
+		
+	
+		
+	def buy(self,group,amount,user):
+		
+		if(not self.login(user)):
+			return False
+		
+		self.decGroupBalanceById(group, amount)
+		self.updateUserBalancesDeduct(amount, group, user)
+		
+		return True
 		
 
 	def nukeTable(self,table):
