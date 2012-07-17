@@ -203,20 +203,6 @@ public class Client {
         }
     }
 
-//    private void train(String username, String filename) throws ClientException {
-//        try {
-//            JsonObject obj = doPost("/train/", "username", username, "filename", filename);
-//            String status = obj.get("status").getAsString();
-//
-//            if (!status.equalsIgnoreCase("ok")) {
-//                throw new GeneralClientException("Failed to train image");
-//            }
-//
-//        } catch (Exception ex) {
-//            throw new GeneralClientException(ex.toString());
-//        }
-//
-//    }
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
             JsonObject obj = doPost("/authenticate_text/",
@@ -364,24 +350,6 @@ public class Client {
             throw new AuthenticationException(ex.toString());
         }
     }
-//
-//    public void uploadImage(File file) throws ClientException {
-//        try {
-//            HttpClient httpClient = new DefaultHttpClient();
-//            HttpPost post = new HttpPost(buildURI("/upload/"));
-//
-//            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-//            entity.addPart("file", new FileBody(file, "application/octet-stream"));
-//            post.setEntity(entity);
-//            HttpResponse response = httpClient.execute(post);
-//            String r = responseToJson(response).get("status").getAsString();
-//            if (!r.equalsIgnoreCase("ok")) {
-//                throw new GeneralClientException("Failed to upload image");
-//            }
-//        } catch (Exception ex) {
-//            throw new GeneralClientException(ex.toString());
-//        }
-//    }
 //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
 //        Client c = new Client("naama.zerg.fi", 5001, null);
 //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
