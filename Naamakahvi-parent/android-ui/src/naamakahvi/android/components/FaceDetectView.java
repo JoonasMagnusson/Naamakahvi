@@ -167,6 +167,7 @@ public class FaceDetectView extends SurfaceView implements
 
 	public Bitmap processFrame(VideoCapture vc) {
 		vc.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+		vc.retrieve(mGrabFrame, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		vc.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
 
 		if (mAbsoluteFaceSize == 0) {
@@ -183,8 +184,6 @@ public class FaceDetectView extends SurfaceView implements
 					mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
 
 		// TODO: tunnista vain suurin naama
-
-		mGrabFrame = mRgba.clone(); // laitetaan kuva bufferiin
 
 		Rect[] facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
@@ -266,6 +265,7 @@ public class FaceDetectView extends SurfaceView implements
 		synchronized (this) {
 			mRgba = new Mat();
 			mGray = new Mat();
+			mGrabFrame = new Mat();
 		}
 		(new Thread(this)).start();
 	}

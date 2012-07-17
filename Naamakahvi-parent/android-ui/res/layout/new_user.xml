@@ -33,8 +33,8 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="0dp"
-                android:text="username"
                 android:maxLength="8"
+                android:text="username"
                 android:textSize="20dp" >
 
                 <requestFocus />
@@ -49,10 +49,10 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
-                android:text="first name"
                 android:maxLength="20"
+                android:text="first name"
                 android:textSize="20dp" />
-            
+
             <EditText
                 android:id="@+id/editTextSukunimi"
                 android:layout_width="match_parent"
@@ -62,9 +62,23 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
                 android:inputType="textPersonName"
-                android:text="last name"
                 android:maxLength="20"
+                android:text="last name"
                 android:textSize="20dp" />
+
+            <naamakahvi.android.components.NoScrollGridView
+                android:id="@+id/thumbGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:numColumns="3" >
+            </naamakahvi.android.components.NoScrollGridView>
+
+            <TextView
+                android:id="@+id/touchText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Medium Text"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Button
                 android:id="@+id/clientRegisterButton"
@@ -79,23 +93,21 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="0.03"
             android:orientation="vertical" >
 
-            <ImageButton
-                android:id="@+id/imageButton1"
-                android:layout_width="match_parent"
+            <naamakahvi.android.components.FaceDetectView
+                android:id="@+id/faceDetectView1"
+                android:layout_width="642dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.74"
-                android:src="@android:drawable/ic_menu_camera" />
+                android:layout_weight="0.93" />
 
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/takePictureButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.05"
+                android:onClick="addPicture"
                 android:text="Button" />
-
         </LinearLayout>
 
     </LinearLayout>
