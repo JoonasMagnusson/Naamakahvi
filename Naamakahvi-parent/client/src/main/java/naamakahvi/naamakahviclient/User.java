@@ -19,19 +19,6 @@ class User implements IUser {
     public String toString() {
         return this.username;
     }
-    
-    
-
-    /*
-     * // Varsinainen osto ja tuonti tapahtuvat näillä metodeilla public void
-     * osta(tuote, määrä) throws JokuException {
-     *
-     * }
-     *
-     * public void tuo(tuote, määrä) throws JokuException {
-     *
-     * }
-     */
 
     public String getFamilyName() {
         return familyName;
