@@ -105,7 +105,11 @@ public class ClientTest {
             JsonArray ar = new JsonArray();
 
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso", "megaespresso", "joku harvinainen tuote"}) {
-                ar.add(new JsonPrimitive(s));
+                JsonObject product = new JsonObject();
+                final int price = 1;
+                product.add("product_name", new JsonPrimitive(s));
+                product.add("product_price", new JsonPrimitive(price));
+                ar.add(product);
             }
             ans.add("buyable_products", ar);
             stringResponse(response, ans.toString());
@@ -119,7 +123,11 @@ public class ClientTest {
             JsonArray ar = new JsonArray();
 
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso"}) {
-                ar.add(new JsonPrimitive(s));
+                JsonObject product = new JsonObject();
+                final int price = 1;
+                product.add("product_name", new JsonPrimitive(s));
+                product.add("product_price", new JsonPrimitive(price));
+                ar.add(product);
             }
             ans.add("default_products", ar);
             stringResponse(response, ans.toString());
@@ -141,7 +149,11 @@ public class ClientTest {
             JsonArray ar = new JsonArray();
 
             for (String s : new String[]{"suodatinkahvi", "espressopavut", "kahvisuodatin", "sokeri", "puhdistuspilleri"}) {
-                ar.add(new JsonPrimitive(s));
+                JsonObject product = new JsonObject();
+                final int price = 1;
+                product.add("product_name", new JsonPrimitive(s));
+                product.add("product_price", new JsonPrimitive(price));
+                ar.add(product);
             }
             ans.add("raw_products", ar);
             stringResponse(response, ans.toString());
