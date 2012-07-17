@@ -203,20 +203,6 @@ public class Client {
         }
     }
 
-//    private void train(String username, String filename) throws ClientException {
-//        try {
-//            JsonObject obj = doPost("/train/", "username", username, "filename", filename);
-//            String status = obj.get("status").getAsString();
-//
-//            if (!status.equalsIgnoreCase("ok")) {
-//                throw new GeneralClientException("Failed to train image");
-//            }
-//
-//        } catch (Exception ex) {
-//            throw new GeneralClientException(ex.toString());
-//        }
-//
-//    }
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
             JsonObject obj = doPost("/authenticate_text/",
@@ -246,16 +232,23 @@ public class Client {
         }
     }
 
+    private List<IProduct> jsonToProductList(JsonArray ar) {
+        List<IProduct> ans = new ArrayList();
+        for (JsonElement e : ar) {
+            JsonObject product = e.getAsJsonObject();
+            String product_name = product.get("product_name").getAsString();
+            double product_price = product.get("product_price").getAsDouble();
+            ans.add(new Product(product_name, product_price));
+        }
+        return ans;
+    }
+
     public List<IProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                List<IProduct> ans = new ArrayList();
-                for (JsonElement e : obj.get("buyable_products").getAsJsonArray()) {
-                    ans.add(new Product(e.getAsString()));
-                }
-                return ans;
+                return jsonToProductList(obj.get("buyable_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of buyable products");
             }
@@ -269,11 +262,7 @@ public class Client {
             JsonObject obj = doGet("/list_default_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                List<IProduct> ans = new ArrayList();
-                for (JsonElement e : obj.get("default_products").getAsJsonArray()) {
-                    ans.add(new Product(e.getAsString()));
-                }
-                return ans;
+                return jsonToProductList(obj.get("default_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of default products");
             }
@@ -305,11 +294,7 @@ public class Client {
             JsonObject obj = doGet("/list_raw_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                List<IProduct> ans = new ArrayList();
-                for (JsonElement e : obj.get("raw_products").getAsJsonArray()) {
-                    ans.add(new Product(e.getAsString()));
-                }
-                return ans;
+                return jsonToProductList(obj.get("raw_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }
@@ -364,24 +349,56 @@ public class Client {
             throw new AuthenticationException(ex.toString());
         }
     }
-//
-//    public void uploadImage(File file) throws ClientException {
-//        try {
-//            HttpClient httpClient = new DefaultHttpClient();
-//            HttpPost post = new HttpPost(buildURI("/upload/"));
-//
-//            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-//            entity.addPart("file", new FileBody(file, "application/octet-stream"));
-//            post.setEntity(entity);
-//            HttpResponse response = httpClient.execute(post);
-//            String r = responseToJson(response).get("status").getAsString();
-//            if (!r.equalsIgnoreCase("ok")) {
-//                throw new GeneralClientException("Failed to upload image");
-//            }
-//        } catch (Exception ex) {
-//            throw new GeneralClientException(ex.toString());
-//        }
-//    }
+
+    public class SaldoItem {
+
+        private String groupName;
+        private double saldo;
+
+        private SaldoItem(String groupName, double saldo) {
+            this.groupName = groupName;
+            this.saldo = saldo;
+        }
+        
+        public String getGroupName() {
+            return this.groupName;
+        }
+
+        public double getSaldo() {
+            return this.saldo;
+        }
+
+    }
+
+     private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
+         List<SaldoItem> ans = new ArrayList();
+         for (JsonElement e : ar) {
+             JsonObject saldoitem = e.getAsJsonObject();
+             String group_name = saldoitem.get("group_name").getAsString();
+             double saldo = saldoitem.get("saldo").getAsDouble();
+             ans.add(new SaldoItem(group_name, saldo));
+         }
+         return ans;
+     }
+
+
+    public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
+        try {
+            JsonObject obj = doGet("/list_user_saldos/",
+                                   "username", user.getUserName());
+
+            String status = obj.get("status").getAsString();
+
+            if (status.equalsIgnoreCase("ok")) {
+                return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
+            } else {
+                throw new GeneralClientException("Failed to get user saldos: " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }        
+    }
+
 //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
 //        Client c = new Client("naama.zerg.fi", 5001, null);
 //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));

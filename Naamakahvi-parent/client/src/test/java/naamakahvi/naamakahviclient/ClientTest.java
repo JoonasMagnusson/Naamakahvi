@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class ClientTest {
-
     private LocalTestServer server = null;
     private HashMap<String, IUser> users = new HashMap<String, IUser>();
     private int port;
@@ -37,41 +36,38 @@ public class ClientTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private class ResponseUser extends User {
-
         private final String status;
 
-        private ResponseUser(String uname, String given, String family, ImageData id, String success) {
-            super(uname, given, family, id);
+        private ResponseUser(String uname, String given, String family, String success) {
+            super(uname, given, family);
             this.status = success;
         }
     }
     private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
             String username = userData.get("username");
             IUser user;
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "fail");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "fail");
             } else {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "ok");
             }
 
             makeResponseFromUser(user, response);
         }
     };
     private HttpRequestHandler textAuthenticationHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
             String username = userData.get("username");
             IUser user;
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "ok");
             } else {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "fail");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "fail");
             }
 
             makeResponseFromUser(user, response);
@@ -83,7 +79,6 @@ public class ClientTest {
         r.setStatusCode(200);
     }
     private HttpRequestHandler listUsernamesHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest hr, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -98,35 +93,40 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
 
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso", "megaespresso", "joku harvinainen tuote"}) {
-                ar.add(new JsonPrimitive(s));
+                JsonObject product = new JsonObject();
+                final int price = 1;
+                product.add("product_name", new JsonPrimitive(s));
+                product.add("product_price", new JsonPrimitive(price));
+                ar.add(product);
             }
             ans.add("buyable_products", ar);
             stringResponse(response, ans.toString());
         }
     };
     private HttpRequestHandler listDefaultProductsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
 
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso"}) {
-                ar.add(new JsonPrimitive(s));
+                JsonObject product = new JsonObject();
+                final int price = 1;
+                product.add("product_name", new JsonPrimitive(s));
+                product.add("product_price", new JsonPrimitive(price));
+                ar.add(product);
             }
             ans.add("default_products", ar);
             stringResponse(response, ans.toString());
         }
     };
     private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -134,21 +134,23 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listRawProductsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
 
             for (String s : new String[]{"suodatinkahvi", "espressopavut", "kahvisuodatin", "sokeri", "puhdistuspilleri"}) {
-                ar.add(new JsonPrimitive(s));
+                JsonObject product = new JsonObject();
+                final int price = 1;
+                product.add("product_name", new JsonPrimitive(s));
+                product.add("product_price", new JsonPrimitive(price));
+                ar.add(product);
             }
             ans.add("raw_products", ar);
             stringResponse(response, ans.toString());
         }
     };
     private HttpRequestHandler listStationsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -162,7 +164,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler bringProductHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -190,7 +191,6 @@ public class ClientTest {
     //     }
     // };
     private HttpRequestHandler identifyImageHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -201,6 +201,29 @@ public class ClientTest {
             }
 
             ans.add("idlist", ar);
+            stringResponse(response, ans.toString());
+        }
+    };
+    
+    private HttpRequestHandler listUserSaldosHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            
+            JsonArray ar = new JsonArray();
+
+            JsonObject s1 = new JsonObject();
+            s1.add("group_name", new JsonPrimitive("kahvi"));
+            s1.add("saldo", new JsonPrimitive(-30));
+            ar.add(s1);
+
+            JsonObject s2 = new JsonObject();
+            s2.add("group_name", new JsonPrimitive("espresso"));
+            s2.add("saldo", new JsonPrimitive(7));
+            ar.add(s2);
+
+            ans.add("saldo_list", ar);
+
             stringResponse(response, ans.toString());
         }
     };
@@ -229,7 +252,7 @@ public class ClientTest {
 
     @Before
     public void setUp() {
-        users.put("Teemu", new User("Teemu", "Teemu", "Lahti", null));
+        users.put("Teemu", new User("Teemu", "Teemu", "Lahti"));
 
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
@@ -243,6 +266,7 @@ public class ClientTest {
         server.register("/bring_product/*", bringProductHandler);
         // server.register("/upload/*", uploadHandler);
         server.register("/identify/*", identifyImageHandler);
+        server.register("/list_user_saldos/*", listUserSaldosHandler);
 
         try {
             server.start();
@@ -423,9 +447,18 @@ public class ClientTest {
         byte[] bytes = new byte[2];
         String[] usernames = c.identifyImage(bytes);
 
-        assertTrue (usernames[0].equals("user1")
+        assertTrue(usernames[0].equals("user1")
                 && usernames[1].equals("user2")
                 && usernames[2].equals("user3")
                 && usernames[3].equals("user4"));
     }
+
+    @Test
+    public void saldoTest() throws ClientException {
+        Client c = new Client(host, port, station);
+        IUser u = c.authenticateText("Teemu");
+        List<Client.SaldoItem> saldos = c.listUserSaldos(u);
+        assertTrue(saldos.size() == 2);
+    }
+
 }
