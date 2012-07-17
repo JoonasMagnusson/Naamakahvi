@@ -349,6 +349,56 @@ public class Client {
             throw new AuthenticationException(ex.toString());
         }
     }
+
+    public class SaldoItem {
+
+        private String groupName;
+        private double saldo;
+
+        private SaldoItem(String groupName, double saldo) {
+            this.groupName = groupName;
+            this.saldo = saldo;
+        }
+        
+        public String getGroupName() {
+            return this.groupName;
+        }
+
+        public double getSaldo() {
+            return this.saldo;
+        }
+
+    }
+
+     private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
+         List<SaldoItem> ans = new ArrayList();
+         for (JsonElement e : ar) {
+             JsonObject saldoitem = e.getAsJsonObject();
+             String group_name = saldoitem.get("group_name").getAsString();
+             double saldo = saldoitem.get("saldo").getAsDouble();
+             ans.add(new SaldoItem(group_name, saldo));
+         }
+         return ans;
+     }
+
+
+    public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
+        try {
+            JsonObject obj = doGet("/list_user_saldos/",
+                                   "username", user.getUserName());
+
+            String status = obj.get("status").getAsString();
+
+            if (status.equalsIgnoreCase("ok")) {
+                return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
+            } else {
+                throw new GeneralClientException("Failed to get user saldos: " + status);
+            }
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }        
+    }
+
 //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
 //        Client c = new Client("naama.zerg.fi", 5001, null);
 //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
