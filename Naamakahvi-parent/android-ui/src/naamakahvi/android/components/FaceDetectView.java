@@ -141,7 +141,7 @@ public class FaceDetectView extends SurfaceView implements
 
 			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = peilaus vaakatasossa
 			try {
-				Utils.matToBitmap(mRgba, bmp);
+				Utils.matToBitmap(mGrabFrame, bmp);
 			} catch (Exception e) {
 				Log.d(TAG, "Couldn't map to bitmap: " + e.getMessage());
 				bmp.recycle();
@@ -167,9 +167,10 @@ public class FaceDetectView extends SurfaceView implements
 
 	public Bitmap processFrame(VideoCapture vc) {
 		vc.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
-		vc.retrieve(mGrabFrame, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		vc.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
 
+		mRgba.copyTo(mGrabFrame);
+		
 		if (mAbsoluteFaceSize == 0) {
 			int height = mGray.rows();
 			if (Math.round(height * RELATIVE_FACE_SIZE) > 0) {
