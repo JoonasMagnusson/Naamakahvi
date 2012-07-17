@@ -5,7 +5,7 @@ class User implements IUser {
     private String givenName;
     private String familyName;
 
-    User(String username, String givenName, String familyName, ImageData imagedata) {
+    User(String username, String givenName, String familyName) {
         this.username = username;
         this.givenName = givenName;
         this.familyName = familyName;
