@@ -4,6 +4,7 @@ import com.google.gson.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,6 +19,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
@@ -155,7 +157,7 @@ public class Client {
 
     }
 
-    public IUser registerUser(String username, String givenName, String familyName, File file) throws RegistrationException {
+    public IUser registerUser(String username, String givenName, String familyName, byte[] imagedata) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
                     "username", username,
@@ -164,14 +166,13 @@ public class Client {
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
-                User responseUser = new Gson().fromJson(obj, User.class);
+                User responseUser = new Gson().fromJson(obj, User.class);                              
                 if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
-
-                if (file != null) {
-                    uploadImage(file);
-                    train(username, file.getName());
+                
+                if (imagedata != null) {
+                    addImage(username, imagedata);
                 }
 
                 return responseUser;
@@ -184,21 +185,36 @@ public class Client {
             throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
         }
     }
-
-    private void train(String username, String filename) throws ClientException {
+    
+    private void addImage(String username, byte[] imagedata) throws GeneralClientException {
         try {
-            JsonObject obj = doPost("/train/", "username", username, "filename", filename);
-            String status = obj.get("status").getAsString();
+            HttpClient httpClient = new DefaultHttpClient();
+                HttpPost post = new HttpPost(buildURI("/upload/"));
 
-            if (!status.equalsIgnoreCase("ok")) {
-                throw new GeneralClientException("Failed to train image");
-            }
-
+                MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
+                entity.addPart("username", new StringBody(username, "text/plain", Charset.forName("UTF-8")));
+                post.setEntity(entity);
+                httpClient.execute(post);                                
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
-
     }
+
+//    private void train(String username, String filename) throws ClientException {
+//        try {
+//            JsonObject obj = doPost("/train/", "username", username, "filename", filename);
+//            String status = obj.get("status").getAsString();
+//
+//            if (!status.equalsIgnoreCase("ok")) {
+//                throw new GeneralClientException("Failed to train image");
+//            }
+//
+//        } catch (Exception ex) {
+//            throw new GeneralClientException(ex.toString());
+//        }
+//
+//    }
 
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
@@ -354,24 +370,24 @@ public class Client {
             throw new AuthenticationException(ex.toString());
         }
     }
-
-    public void uploadImage(File file) throws ClientException {
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost(buildURI("/upload/"));
-
-            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-            entity.addPart("file", new FileBody(file, "application/octet-stream"));
-            post.setEntity(entity);
-            HttpResponse response = httpClient.execute(post);
-            String r = responseToJson(response).get("status").getAsString();
-            if (!r.equalsIgnoreCase("ok")) {
-                throw new GeneralClientException("Failed to upload image");
-            }
-        } catch (Exception ex) {
-            throw new GeneralClientException(ex.toString());
-        }
-    }
+//
+//    public void uploadImage(File file) throws ClientException {
+//        try {
+//            HttpClient httpClient = new DefaultHttpClient();
+//            HttpPost post = new HttpPost(buildURI("/upload/"));
+//
+//            MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+//            entity.addPart("file", new FileBody(file, "application/octet-stream"));
+//            post.setEntity(entity);
+//            HttpResponse response = httpClient.execute(post);
+//            String r = responseToJson(response).get("status").getAsString();
+//            if (!r.equalsIgnoreCase("ok")) {
+//                throw new GeneralClientException("Failed to upload image");
+//            }
+//        } catch (Exception ex) {
+//            throw new GeneralClientException(ex.toString());
+//        }
+//    }
 //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
 //        Client c = new Client("naama.zerg.fi", 5001, null);
 //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
