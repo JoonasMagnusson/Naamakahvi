@@ -30,6 +30,7 @@ public class Client {
     private IStation station;
 
     private static class Station implements IStation {
+
         private String name;
 
         Station(String name) {
@@ -39,6 +40,7 @@ public class Client {
         public String getName() {
             return this.name;
         }
+
     }
 
     public static List<IStation> listStations(String host, int port) throws ClientException {
@@ -162,9 +164,9 @@ public class Client {
     public IUser registerUser(String username, String givenName, String familyName, byte[] imagedata) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
-                    "username", username,
-                    "given", givenName,
-                    "family", familyName);
+                                    "username", username,
+                                    "given", givenName,
+                                    "family", familyName);
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
@@ -206,7 +208,7 @@ public class Client {
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
             JsonObject obj = doPost("/authenticate_text/",
-                    "username", username);
+                                    "username", username);
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
@@ -246,7 +248,7 @@ public class Client {
     public List<IProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
-                    "station_name", this.station.getName());
+                                   "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return jsonToProductList(obj.get("buyable_products").getAsJsonArray());
             } else {
@@ -260,7 +262,7 @@ public class Client {
     public List<IProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
-                    "station_name", this.station.getName());
+                                   "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return jsonToProductList(obj.get("default_products").getAsJsonArray());
             } else {
@@ -274,10 +276,10 @@ public class Client {
     public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
-                    "product_name", product.getName(),
-                    "station_name", this.station.getName(),
-                    "amount", "" + amount,
-                    "username", user.getUserName());
+                                    "product_name", product.getName(),
+                                    "station_name", this.station.getName(),
+                                    "amount", "" + amount,
+                                    "username", user.getUserName());
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return;
@@ -292,7 +294,7 @@ public class Client {
     public List<IProduct> listRawProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_raw_products/",
-                    "station_name", this.station.getName());
+                                   "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return jsonToProductList(obj.get("raw_products").getAsJsonArray());
             } else {
@@ -306,10 +308,10 @@ public class Client {
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/bring_product/",
-                    "product_name", product.getName(),
-                    "station_name", this.station.getName(),
-                    "amount", "" + amount,
-                    "username", user.getUserName());
+                                    "product_name", product.getName(),
+                                    "station_name", this.station.getName(),
+                                    "amount", "" + amount,
+                                    "username", user.getUserName());
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return;
@@ -370,17 +372,16 @@ public class Client {
 
     }
 
-     private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
-         List<SaldoItem> ans = new ArrayList();
-         for (JsonElement e : ar) {
-             JsonObject saldoitem = e.getAsJsonObject();
-             String group_name = saldoitem.get("group_name").getAsString();
-             double saldo = saldoitem.get("saldo").getAsDouble();
-             ans.add(new SaldoItem(group_name, saldo));
-         }
-         return ans;
-     }
-
+    private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
+        List<SaldoItem> ans = new ArrayList();
+        for (JsonElement e : ar) {
+            JsonObject saldoitem = e.getAsJsonObject();
+            String group_name = saldoitem.get("group_name").getAsString();
+            double saldo = saldoitem.get("saldo").getAsDouble();
+            ans.add(new SaldoItem(group_name, saldo));
+        }
+        return ans;
+    }
 
     public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
         try {
@@ -399,13 +400,13 @@ public class Client {
         }        
     }
 
-//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
-//        Client c = new Client("naama.zerg.fi", 5001, null);
-//       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
-//       // System.out.println("registered user " + u.getUserName());
-//        String[] identifyImage = c.identifyImage(new File("1.pgm"));
-//        for (String name : identifyImage) {
-//            System.out.println(name);
-//        }
-//    }
+    //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
+    //        Client c = new Client("naama.zerg.fi", 5001, null);
+    //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
+    //       // System.out.println("registered user " + u.getUserName());
+    //        String[] identifyImage = c.identifyImage(new File("1.pgm"));
+    //        for (String name : identifyImage) {
+    //            System.out.println(name);
+    //        }
+    //    }
 }
