@@ -13,17 +13,17 @@ import java.io.InputStreamReader;
  *
  * @author jronkone
  */
-public class Util {
-    public static String readStream(InputStream is) throws IOException {        
- 
-        
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String ans = new String();
-            String tmp;
-            while (null != (tmp = reader.readLine())) {               
-                ans += tmp + '\n';
-            }
-            return ans.trim();        
-        
+public final class Util {
+    private Util() {
+    }
+
+    public static String readStream(InputStream is) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String ans = new String();
+        String tmp;
+        while (null != (tmp = reader.readLine())) {
+            ans += tmp + '\n';
+        }
+        return ans.trim();
     }
 }
