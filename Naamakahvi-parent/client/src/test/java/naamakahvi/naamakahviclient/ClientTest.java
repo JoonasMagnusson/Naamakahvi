@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class ClientTest {
-
     private LocalTestServer server = null;
     private HashMap<String, IUser> users = new HashMap<String, IUser>();
     private int port;
@@ -37,41 +36,38 @@ public class ClientTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private class ResponseUser extends User {
-
         private final String status;
 
-        private ResponseUser(String uname, String given, String family, ImageData id, String success) {
-            super(uname, given, family, id);
+        private ResponseUser(String uname, String given, String family, String success) {
+            super(uname, given, family);
             this.status = success;
         }
     }
     private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
             String username = userData.get("username");
             IUser user;
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "fail");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "fail");
             } else {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "ok");
             }
 
             makeResponseFromUser(user, response);
         }
     };
     private HttpRequestHandler textAuthenticationHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
             String username = userData.get("username");
             IUser user;
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "ok");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "ok");
             } else {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), null, "fail");
+                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "fail");
             }
 
             makeResponseFromUser(user, response);
@@ -83,7 +79,6 @@ public class ClientTest {
         r.setStatusCode(200);
     }
     private HttpRequestHandler listUsernamesHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest hr, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -98,7 +93,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -116,7 +110,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listDefaultProductsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -134,7 +127,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -142,7 +134,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listRawProductsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -160,7 +151,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listStationsHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -174,7 +164,6 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler bringProductHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -202,7 +191,6 @@ public class ClientTest {
     //     }
     // };
     private HttpRequestHandler identifyImageHandler = new HttpRequestHandler() {
-
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -241,7 +229,7 @@ public class ClientTest {
 
     @Before
     public void setUp() {
-        users.put("Teemu", new User("Teemu", "Teemu", "Lahti", null));
+        users.put("Teemu", new User("Teemu", "Teemu", "Lahti"));
 
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
@@ -435,7 +423,7 @@ public class ClientTest {
         byte[] bytes = new byte[2];
         String[] usernames = c.identifyImage(bytes);
 
-        assertTrue (usernames[0].equals("user1")
+        assertTrue(usernames[0].equals("user1")
                 && usernames[1].equals("user2")
                 && usernames[2].equals("user3")
                 && usernames[3].equals("user4"));
