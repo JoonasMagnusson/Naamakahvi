@@ -6,6 +6,7 @@ import java.util.List;
 
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
+import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.android.utils.RandomString;
 import naamakahvi.naamakahviclient.IProduct;
 
@@ -52,6 +53,11 @@ public class MenuActivity extends Activity {
 			public String toString() {
 				return getName();
 			}
+
+			public double getPrice() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
 		});
 
 		products.add(new IProduct() {
@@ -62,6 +68,11 @@ public class MenuActivity extends Activity {
 
 			public String toString() {
 				return getName();
+			}
+
+			public double getPrice() {
+				// TODO Auto-generated method stub
+				return 0;
 			}
 		});
 
@@ -74,6 +85,11 @@ public class MenuActivity extends Activity {
 			public String toString() {
 				return getName();
 			}
+
+			public double getPrice() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
 		});
 		products.add(new IProduct() {
 
@@ -83,6 +99,11 @@ public class MenuActivity extends Activity {
 
 			public String toString() {
 				return getName();
+			}
+
+			public double getPrice() {
+				// TODO Auto-generated method stub
+				return 0;
 			}
 		});
 
@@ -99,6 +120,11 @@ public class MenuActivity extends Activity {
 				public String getName() {
 					return r.nextString();
 				}
+
+				public double getPrice() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
 			});
 
 		}
@@ -112,8 +138,8 @@ public class MenuActivity extends Activity {
 	
 	public void doCheckout(View v){
 		Intent i = new Intent(this,ConfirmPurchaseActivity.class);
-		i.putExtra("naamakahvi.android.users", new String[]{getIntent().getExtras().getString("naamakahvi.android.selectedUser")}); //TODO: actual username
-		i.putExtra("naamakahvi.android.products", mBasket);
+		i.putExtra(ExtraNames.USERS, new String[]{getIntent().getExtras().getString(ExtraNames.SELECTED_USER)}); //TODO: actual username
+		i.putExtra(ExtraNames.PRODUCTS, mBasket);
 		startActivity(i);
 	}
 

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
+import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
@@ -46,7 +47,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		intent = getIntent();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
-        String[] testUsers = intent.getStringArrayExtra("naamakahvi.android.users");
+        String[] testUsers = intent.getStringArrayExtra(ExtraNames.USERS);
         setListView(possibleUsersListView, testUsers);
         username = testUsers[0];
         setSaldos(testUsers[0]);
@@ -77,7 +78,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setSaldos(String username) {
-		Basket b = intent.getParcelableExtra("naamakahvi.android.products");
+		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> itemsBought = b.getItems();
 		int changeInEspresso = 0;
 		int changeInCoffee = 0;
@@ -150,7 +151,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	private void buyProducts() {
 		// TODO: usernamen hankinta, clientkoodin toimivuus jne
 		//IUser user = TODO: get user jostain tiedoista
-		Basket b = intent.getParcelableExtra("naamakahvi.android.products");
+		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> itemsBought = b.getItems();
 		Iterator it = itemsBought.entrySet().iterator();
 	    while (it.hasNext()) {

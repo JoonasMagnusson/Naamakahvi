@@ -1,6 +1,7 @@
 package naamakahvi.android;
 
 import naamakahvi.android.R;
+import naamakahvi.android.utils.ExtraNames;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,7 +32,7 @@ public class LoginwithusernameActivity extends Activity {
         		String item = (String) parent.getAdapter().getItem(position);
         		Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
         		Intent i = new Intent();
-        		i.putExtra("naamakahvi.android.selectedUser", item);
+        		i.putExtra(ExtraNames.SELECTED_USER, item);
         		setResult(RESULT_OK,i);
     			finish();
         	}
