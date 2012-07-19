@@ -22,7 +22,6 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 
 public class Client {
     private String host;
@@ -41,6 +40,16 @@ public class Client {
         }
     }
 
+    /**
+     * Gets all stations as a json object from server using the specified host name and port 
+     * number and makes a list of IStation objects. The server response should contain fields:
+     * "status" - a string
+     * "stations" - an array of station names
+     * 
+     * @param host server host name
+     * @param port server port number
+     * @return list of stations
+     */
     public static List<IStation> listStations(String host, int port) throws ClientException {
         try {
             JsonObject obj = new Client(host, port, null).doGet("/list_stations/");
@@ -59,10 +68,13 @@ public class Client {
         }
     }
 
-    /*
-     * Konstruktori ainoastaan tallentaa hostin nimen ja portin, joita se
-     * käyttää myöhemmissä metodikutsuissaan, jotka muodostavat aina uuden
-     * HTTP-yhteyden.
+    /**
+     * Creates a new Client object that uses the specified host name and
+     * port number and is located at the given station.
+     * 
+     * @param host server host name
+     * @param port server port number
+     * @param station coffee syndicate location
      */
     public Client(String host, int port, IStation station) {
         this.host = host;
@@ -70,11 +82,11 @@ public class Client {
         this.station = station;
     }
 
-    private String[] jsonArrayToStringArray(JsonArray jarr) {
-        String[] ans = new String[jarr.size()];
+    private String[] jsonArrayToStringArray(JsonArray jsonArray) {
+        String[] ans = new String[jsonArray.size()];
 
-        for (int i = 0; i < jarr.size(); i++) {
-            ans[i] = jarr.get(i).getAsString();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            ans[i] = jsonArray.get(i).getAsString();
         }
 
         return ans;
@@ -103,7 +115,7 @@ public class Client {
             plist.add(new BasicNameValuePair(params[i], params[i + 1]));
         }
 
-        post.setEntity(new UrlEncodedFormEntity(plist, HTTP.UTF_8));
+        post.setEntity(new UrlEncodedFormEntity(plist, Charset.forName("UTF-8")));
         post.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
         final HttpResponse resp = c.execute(post);
@@ -144,6 +156,14 @@ public class Client {
         }
     }
 
+    /**
+     * Gets all usernames from server and creates a string array. The server response should
+     * be a json object that contains fields:
+     * "status" - a string, "ok" when the operation is successful
+     * "usernames" - an array of usernames
+     * 
+     * @return list of all usernames
+     */
     public String[] listUsernames() throws ClientException {
         try {
             JsonObject obj = doGet("/list_usernames/");
@@ -156,10 +176,25 @@ public class Client {
         } catch (Exception e) {
             throw new GeneralClientException(e.toString());
         }
-
     }
 
-    public IUser registerUser(String username, String givenName, String familyName, byte[] imagedata) throws RegistrationException {
+    /**
+     * Sends new user's user data and optional image data to server and creates a User object 
+     * that represents the registered user. The server response should be a json object that
+     * contains fields:
+     * "status" - a string, "ok" when the operation is successful
+     * "username" - 
+     * "given" -
+     * "family" - 
+     * 
+     * @param username new user's username
+     * @param givenName new user's given name
+     * @param familyName new user's family name
+     * @param imagedata image of the new user (optional)
+     * @return the newly registered user
+     */
+    public IUser registerUser(String username, String givenName,
+            String familyName, byte[] imagedata) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
                     "username", username,
@@ -188,7 +223,13 @@ public class Client {
         }
     }
 
-    private void addImage(String username, byte[] imagedata) throws GeneralClientException {
+    /**
+     * Sends an image of a user to server. 
+     * 
+     * @param username 
+     * @param imagedata the image data
+     */
+    public void addImage(String username, byte[] imagedata) throws GeneralClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/upload/"));
@@ -203,6 +244,17 @@ public class Client {
         }
     }
 
+    /**
+     * Gets user data related to given username from server and creates a User instance.
+     * The server response should have a json object that contains fields:
+     * "status" - a string, "ok" when the operation is successful
+     * "username" - the user's username as a string
+     * "given" - the user's given name as a string
+     * "family" - the user's family name as a string
+     * 
+     * @param username the username
+     * @return the user instance
+     */
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
             JsonObject obj = doPost("/authenticate_text/",
@@ -236,13 +288,18 @@ public class Client {
         List<IProduct> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
-            String product_name = product.get("product_name").getAsString();
-            double product_price = product.get("product_price").getAsDouble();
-            ans.add(new Product(product_name, product_price));
+            String productName = product.get("product_name").getAsString();
+            double productPrice = product.get("product_price").getAsDouble();
+            ans.add(new Product(productName, productPrice));
         }
         return ans;
     }
 
+    /**
+     * Fetches all buyable products from server and makes a list of IProduct objects from them.
+     * 
+     * @return list of all buyable products
+     */
     public List<IProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
@@ -257,6 +314,12 @@ public class Client {
         }
     }
 
+    /**
+     * Fetches default buyable products that are shown on main view from server and makes
+     * a list of IProduct objects from them.
+     * 
+     * @return list of default products
+     */
     public List<IProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
@@ -271,6 +334,13 @@ public class Client {
         }
     }
 
+    /**
+     * 
+     * 
+     * @param user the buying user
+     * @param product bought product
+     * @param amount amount of bought product
+     */
     public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
@@ -289,6 +359,11 @@ public class Client {
         }
     }
 
+    /**
+     * 
+     * 
+     * @return list of raw product objects
+     */
     public List<IProduct> listRawProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_raw_products/",
@@ -303,6 +378,13 @@ public class Client {
         }
     }
 
+    /**
+     * 
+     * 
+     * @param user the user bringing the product
+     * @param product the product to be brought
+     * @param amount the amount of the brought product
+     */
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/bring_product/",
@@ -321,9 +403,10 @@ public class Client {
         }
     }
 
-    /*
-     * Tälle jutulle annetaan OpenCV:ltä/kameralta kuvadataa, pusketaan se
-     * serverille joka antaa tuloksena joukon käyttäjänimiä joita kuva vastaa.
+    /**
+     * 
+     * @param imagedata the image
+     * @return list of identified usernames 
      */
     public String[] identifyImage(byte[] imagedata) throws ClientException {
         try {
