@@ -6,13 +6,22 @@ import json
 import psqldb
 import cvmodule
 
-
-
 app = Flask(__name__)
 
 dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
 cvm = cvmodule.cvmodule()
 
+def resp_success(**kwargs):
+    ans = {'status' : 'ok'}
+    for k, v in kwargs.iteritems():
+        ans[k] = v
+    return ans
+
+def resp_failure(status_msg, **kwargs):
+    ans = {'status' : status_msg}
+    for k, v in kwargs.iteritems():
+        ans[k] = v
+    return ans
 
 @app.before_request
 def before_request():
@@ -35,10 +44,10 @@ def train():
         user = request.form['username']
         filename = request.form['filename']
         cvm.train(filename,user)
-        return json.dumps({'status':'ok'})
+        return resp_ok()
 
     else:
-        return json.dumps({'status':'Error'})
+        return resp_failure()
 
 
 #Identifies user in input image
@@ -50,9 +59,9 @@ def identify():
         user = request.form['username']
         filename = request.form['filename']
         idlist = cvm.identify(filename)
-        return json.dumps({'status':'ok','idlist':idlist})
+        return resp_ok(idlist=idlist)
     else:
-        return json.dumps({'status':'Error'})
+        return resp_failure('Error')
 
 #Handles file (image) uploads.
 @app.route('/upload/', methods=['GET', 'POST'])
@@ -62,12 +71,12 @@ def upload():
         if file:
             print file
             file.save(secure_filename(file.filename))
-            return json.dumps({'status':'ok'})
+            return resp_ok()
         else:
-            return json.dumps({'status':'NoFileInRequestError'})
+            return resp_failure('NoFileInRequestError')
 
     else:
-        return json.dumps({'status':'Error'})
+        return resp_failure('Error')
 
 
 #Creates new user, required fields are username,first name and surname.
@@ -79,11 +88,11 @@ def register():
         family = request.form['family']
         if(not dbm.login(user)):
             dbm.register(user,given,family,5)
-            return json.dumps({'status':'ok','username':user})
+            return resp_ok(username=user)
         else:
-            return json.dumps({'status':'UserAlreadyExistsError'})
+            return resp_failure('UserAlreadyExistsError')
     else:
-        return json.dumps({'status':'Error'})
+        return resp_failure('Error')
 
 
 #Logs user in. Good for checking if user exists.
@@ -92,56 +101,47 @@ def login():
     if request.method == 'POST':
         user = request.form['username']
         if(dbm.login(user)):
-            return json.dumps({'status':'ok','username':user})
+            return resp_ok(username=user)
         else:
-            return json.dumps({'status':'NoSuchUserError'})
+            return resp_failure('NoSuchUserError')
     else:
-        return json.dumps({'status':'Error'})
+        return resp_failure('Error')
 
 @app.route('/list_buyable_products/',methods=['POST','GET'])
 def buyableProducts():
-    
     rslt = dbm.selectFinProductNames()
-    return json.dumps(rslt)
+    return resp_ok(buyable_products=rslt)
 
 
 #Lists raw products
 @app.route('/list_raw_products/',methods=['POST','GET'])
 def bringableProducts():
-    
     rslt = dbm.selectRawProductNames()
-    return json.dumps(rslt)
+    return resp_ok(buyable_products=rslt)
 
 #Lists all usernames
 @app.route('/list_usernames/',methods=['POST','GET'])
 def listUsernames():
-    
     rslt = dbm.listUsernames()
-    return json.dumps(rslt)
+    return resp_ok(usernames=rslt)
 
 
 @app.route('/list_product_prices/',methods=['POST','GET'])
 def bringableProducts():
-    
     rslt = dbm.getFinalproducts()
-    return json.dumps(rslt)
+    return resp_ok(product_prices=rslt)
 
 
 #List all balances of a user
 #input: username
-@app.route('/list_user_balances/',methods=['POST','GET'])
+@app.route('/list_user_saldos/',methods=['POST','GET'])
 def listUserBalances():
-    
     if request.method == 'POST':
-        
         user = request.form['username']
-        print user
-    
         rslt = dbm.selectUserBalances(user)
-        return json.dumps(rslt)
-    
+        return resp_ok(saldo_list=rslt)
     else:
-        return json.dumps({'status':'Error'})
+        return resp_failure('Error')
 
 
 #Allows the user to buy products.
@@ -156,25 +156,21 @@ def buy():
         print product,amount,user
         
         if r:
-            return json.dumps({'status':'ok'})
+            return resp_ok()
         else:
-            return json.dumps({'status':'Error'})
+            return resp_failure('Error')
         
     else:
         return json.dumps({'status':'Error'})
 
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
-    return json.dumps({'status':'NotImplementedError'})
+    return resp_failure('Not implemented')
 
 @app.route('/list_stations/',methods=['POST','GET'])
 def stations():
-    
     stations = ["Station1","Station2"]
-    return json.dumps({'status':'ok','stations':stations})
-
-
-
+    return resp_ok(stations=stations)
 
 if __name__ == '__main__':
     app.debug = True
