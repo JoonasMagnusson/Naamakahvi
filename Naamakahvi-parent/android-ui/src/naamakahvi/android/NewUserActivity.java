@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -36,8 +37,22 @@ public class NewUserActivity extends Activity {
 		setContentView(R.layout.new_user);
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
 		mPics = new ArrayList<Bitmap>();
-		((GridView) findViewById(R.id.thumbGrid)).setAdapter(new ThumbAdapter(
-				this, mPics));
+		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
+		thumbs.setAdapter(new ThumbAdapter(this, mPics));
+
+		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				ThumbAdapter a = (ThumbAdapter) parent.getAdapter();
+				if (a.getItem(position) != null) {
+
+					Bitmap b = mPics.remove(position);
+					b.recycle();
+					a.notifyDataSetChanged();
+				}
+
+			}
+		});
 	}
 
 	@Override
@@ -90,11 +105,13 @@ public class NewUserActivity extends Activity {
 	}
 
 	public void addPicture(View v) {
-		Bitmap bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
-				.grabFrame();
-		mPics.add(bmp);
-		GridView g = (GridView) findViewById(R.id.thumbGrid);
-		((BaseAdapter) g.getAdapter()).notifyDataSetChanged();
+		if (mPics.size() < 6) {
+			Bitmap bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
+					.grabFrame();
+			mPics.add(bmp);
+			GridView g = (GridView) findViewById(R.id.thumbGrid);
+			((BaseAdapter) g.getAdapter()).notifyDataSetChanged();
+		}
 	}
 
 	public class ThumbAdapter extends BaseAdapter {
@@ -108,10 +125,12 @@ public class NewUserActivity extends Activity {
 		private List<Bitmap> mBitmaps;
 
 		public int getCount() {
-			return mBitmaps.size();
+			return 6;
 		}
 
 		public Bitmap getItem(int position) {
+			if (position < 0 || position >= mBitmaps.size())
+				return null;
 			return mBitmaps.get(position);
 		}
 
