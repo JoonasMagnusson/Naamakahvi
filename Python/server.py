@@ -54,14 +54,17 @@ def identify():
     else:
         return json.dumps({'status':'Error'})
 
-#Handles file (image) uploads.
+#Handles file (image) uploads and trains cvmodule
 @app.route('/upload/', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
         file = request.files['file']
+        user = request.form['username']
         if file:
             print file
+            print user
             file.save(secure_filename(file.filename))
+            cvm.train(secure_filename(file.filename),user)
             return json.dumps({'status':'ok'})
         else:
             return json.dumps({'status':'NoFileInRequestError'})
