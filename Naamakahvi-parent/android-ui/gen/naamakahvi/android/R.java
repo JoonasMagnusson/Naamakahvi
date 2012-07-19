@@ -15,40 +15,44 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
+        public static final int thumb_img_bg=0x7f020001;
     }
     public static final class id {
         public static final int button1=0x7f080001;
         public static final int button2=0x7f080002;
         public static final int button3=0x7f08000b;
-        public static final int button_add=0x7f080014;
-        public static final int cart_list=0x7f080015;
-        public static final int clientRegisterButton=0x7f080010;
+        public static final int button_add=0x7f080017;
+        public static final int cart_list=0x7f080018;
+        public static final int clientRegisterButton=0x7f080012;
         public static final int cnf_text=0x7f080000;
         public static final int cp_nametext=0x7f080004;
         public static final int cp_rec_countdown=0x7f080009;
         public static final int editTextEtunimi=0x7f08000e;
         public static final int editTextSukunimi=0x7f08000f;
         public static final int editTextUsername=0x7f08000d;
-        public static final int faceDetectView1=0x7f08001b;
-        public static final int gridView1=0x7f08001f;
-        public static final int imageButton1=0x7f080011;
-        public static final int lessUnits=0x7f08001c;
-        public static final int moreUnits=0x7f08001e;
-        public static final int noOfUnits=0x7f08001d;
-        public static final int numberOfUnits=0x7f080012;
-        public static final int payproduct_grid=0x7f08001a;
+        public static final int faceDetectView1=0x7f080013;
+        public static final int gridView1=0x7f080021;
+        public static final int imageView1=0x7f080023;
+        public static final int lessUnits=0x7f08001e;
+        public static final int moreUnits=0x7f080020;
+        public static final int noOfUnits=0x7f08001f;
+        public static final int numberOfUnits=0x7f080015;
+        public static final int payproduct_grid=0x7f08001d;
         public static final int possibleUsers=0x7f080006;
         public static final int possibleUsersHeader=0x7f080005;
-        public static final int product_grid=0x7f080018;
-        public static final int product_name=0x7f080013;
+        public static final int product_grid=0x7f08001b;
+        public static final int product_name=0x7f080016;
         public static final int rec_countdown=0x7f080003;
-        public static final int regButton=0x7f080020;
+        public static final int regButton=0x7f080022;
         public static final int saldoCoffee=0x7f080007;
         public static final int saldoEspresso=0x7f080008;
-        public static final int scrollView1=0x7f080016;
+        public static final int scrollView1=0x7f080019;
+        public static final int takePictureButton=0x7f080014;
         public static final int textView1=0x7f08000c;
-        public static final int textView2=0x7f080017;
-        public static final int textView3=0x7f080019;
+        public static final int textView2=0x7f08001a;
+        public static final int textView3=0x7f08001c;
+        public static final int thumbGrid=0x7f080010;
+        public static final int touchText=0x7f080011;
         public static final int userListView=0x7f08000a;
     }
     public static final class integer {
@@ -65,6 +69,7 @@ public final class R {
         public static final int product_gridview=0x7f030007;
         public static final int product_single_view=0x7f030008;
         public static final int recog_user=0x7f030009;
+        public static final int thumb_layout=0x7f03000a;
     }
     public static final class raw {
         public static final int lbpcascade_frontalface=0x7f040000;

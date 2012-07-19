@@ -204,6 +204,29 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
+    
+    private HttpRequestHandler listUserSaldosHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            
+            JsonArray ar = new JsonArray();
+
+            JsonObject s1 = new JsonObject();
+            s1.add("group_name", new JsonPrimitive("kahvi"));
+            s1.add("saldo", new JsonPrimitive(-30));
+            ar.add(s1);
+
+            JsonObject s2 = new JsonObject();
+            s2.add("group_name", new JsonPrimitive("espresso"));
+            s2.add("saldo", new JsonPrimitive(7));
+            ar.add(s2);
+
+            ans.add("saldo_list", ar);
+
+            stringResponse(response, ans.toString());
+        }
+    };
 
     private void makeResponseFromUser(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
@@ -243,6 +266,7 @@ public class ClientTest {
         server.register("/bring_product/*", bringProductHandler);
         // server.register("/upload/*", uploadHandler);
         server.register("/identify/*", identifyImageHandler);
+        server.register("/list_user_saldos/*", listUserSaldosHandler);
 
         try {
             server.start();
@@ -428,4 +452,13 @@ public class ClientTest {
                 && usernames[2].equals("user3")
                 && usernames[3].equals("user4"));
     }
+
+    @Test
+    public void saldoTest() throws ClientException {
+        Client c = new Client(host, port, station);
+        IUser u = c.authenticateText("Teemu");
+        List<Client.SaldoItem> saldos = c.listUserSaldos(u);
+        assertTrue(saldos.size() == 2);
+    }
+
 }
