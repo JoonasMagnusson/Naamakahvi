@@ -17,5 +17,6 @@
     <string name="qty">Quantity</string>
     <string name="other_payment">Other payment...</string>
     <string name="thumb_rm_instruction">Touch to remove picture</string>
+    <string name="pleasewait">Please Wait...</string>
 
 </resources>
