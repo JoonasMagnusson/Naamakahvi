@@ -83,9 +83,10 @@ public class NewUserActivity extends Activity {
 			IUser user = client.registerUser(username, etunimi, sukunimi, null);
 			// tarkistetaan onko username varattu. jos on, kirjoitetaan se ja
 			// pyydet��n uutta else finish()
-			Toast.makeText(getApplicationContext(),
-					"Sinut on rekister�ity onnistuneesti nimell� " + username,
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(
+					getApplicationContext(),
+					"Sinut on rekister�ity onnistuneesti nimell� "
+							+ username, Toast.LENGTH_LONG).show();
 			finish();
 		} catch (Exception ex) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -106,8 +107,26 @@ public class NewUserActivity extends Activity {
 
 	public void addPicture(View v) {
 		if (mPics.size() < 6) {
-			Bitmap bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
-					.grabFrame();
+			Bitmap bmp;
+			try {
+				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
+						.grabFrame();
+			} catch (Exception e) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				Log.d(TAG, "Exception: " + e.getMessage());
+				e.printStackTrace();
+				
+				builder.setMessage("Error: " + e.getMessage())
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int which) {
+										dialog.dismiss();
+									}
+								});
+				builder.show();
+				return;
+			}
 			mPics.add(bmp);
 			GridView g = (GridView) findViewById(R.id.thumbGrid);
 			((BaseAdapter) g.getAdapter()).notifyDataSetChanged();

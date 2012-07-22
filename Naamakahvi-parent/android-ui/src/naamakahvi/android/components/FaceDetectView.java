@@ -17,6 +17,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 import android.content.Context;
@@ -30,6 +31,8 @@ import android.view.SurfaceView;
 public class FaceDetectView extends SurfaceView implements
 		SurfaceHolder.Callback, Runnable {
 
+	public static final int GRAB_IMAGE_SIDE = 200;
+	
 	private final String TAG = "FaceDetectView";
 
 	private final float RELATIVE_FACE_SIZE = 0.3f;
@@ -52,19 +55,26 @@ public class FaceDetectView extends SurfaceView implements
 		mHolder.addCallback(this);
 
 		try {
-			InputStream is = context.getResources().openRawResource(
-					R.raw.lbpcascade_frontalface);
+
+			// get the cascade file as a file object
+			// this is stupid
 			File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
 			mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-			FileOutputStream os = new FileOutputStream(mCascadeFile);
 
-			byte[] buffer = new byte[4096];
-			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				os.write(buffer, 0, bytesRead);
+			if (!mCascadeFile.exists()) {
+				InputStream is = context.getResources().openRawResource(
+						R.raw.lbpcascade_frontalface);
+
+				FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+				byte[] buffer = new byte[4096];
+				int bytesRead;
+				while ((bytesRead = is.read(buffer)) != -1) {
+					os.write(buffer, 0, bytesRead);
+				}
+				is.close();
+				os.close();
 			}
-			is.close();
-			os.close();
 
 			mDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
 			if (mDetector.empty()) {
@@ -84,12 +94,12 @@ public class FaceDetectView extends SurfaceView implements
 	}
 
 	/**
-	 * Asettaa kameran koon
+	 * Sets the camera size
 	 * 
 	 * @param w
-	 *            Esikatselun toivottu leveys
+	 *            Preferred width of preview
 	 * @param h
-	 *            Esikatselun toivottu korkeus
+	 *            Preferred height of preview
 	 */
 	public void setupCamera(int w, int h) {
 		synchronized (this) {
@@ -99,7 +109,7 @@ public class FaceDetectView extends SurfaceView implements
 				int fHeight = h;
 				double minDelta = Double.MAX_VALUE;
 
-				// valitaan haluttua kokoa l�hinn� oleva tuettu koko
+				// use the available size closest to the preferred size
 				for (Size s : sizelist) {
 					double tmp = Math.abs(s.height - h);
 					if (tmp < minDelta) {
@@ -117,7 +127,7 @@ public class FaceDetectView extends SurfaceView implements
 	}
 
 	/**
-	 * Varaa kameran k�ytt��n
+	 * Open the camera for use
 	 */
 	public boolean openCamera() {
 		synchronized (this) {
@@ -134,12 +144,40 @@ public class FaceDetectView extends SurfaceView implements
 		}
 	}
 
-	public Bitmap grabFrame() {
+	public Bitmap grabFrame() throws Exception {
 		synchronized (this) {
-			Bitmap bmp = Bitmap.createBitmap(mGrabFrame.cols(),
-					mGrabFrame.rows(), Bitmap.Config.ARGB_8888);
 
-			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = peilaus vaakatasossa
+			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE,
+					GRAB_IMAGE_SIDE, Bitmap.Config.ARGB_8888);
+
+			MatOfRect faces = new MatOfRect();
+
+			if (mDetector != null)
+				mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(
+						mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+
+			Rect[] facesArray = faces.toArray();
+
+			if (facesArray.length != 1) {
+				bmp.recycle();
+				if (facesArray.length < 1) {
+					throw new Exception("No faces detected");
+				} else {
+					throw new Exception("More than one face detected");
+				}
+			}
+			
+			Rect face = facesArray[0];			
+			
+			if (face.width > face.height){
+				face = new Rect(face.x, face.y-((face.width-face.height)/2), face.width,face.width);
+			} else if (face.width!=face.height) {
+				face = new Rect(face.x-((face.height-face.width)/2), face.y , face.height,face.height);
+			}
+			
+			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = mirror the image
+			Imgproc.resize(mGrabFrame.submat(face),mGrabFrame , new Size(200,200)); //resize
+			
 			try {
 				Utils.matToBitmap(mGrabFrame, bmp);
 			} catch (Exception e) {
@@ -169,8 +207,8 @@ public class FaceDetectView extends SurfaceView implements
 		vc.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		vc.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
 
-		mRgba.copyTo(mGrabFrame);
-		
+		mGray.copyTo(mGrabFrame);
+
 		if (mAbsoluteFaceSize == 0) {
 			int height = mGray.rows();
 			if (Math.round(height * RELATIVE_FACE_SIZE) > 0) {
@@ -183,8 +221,6 @@ public class FaceDetectView extends SurfaceView implements
 		if (mDetector != null)
 			mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(
 					mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-
-		// TODO: tunnista vain suurin naama
 
 		Rect[] facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
