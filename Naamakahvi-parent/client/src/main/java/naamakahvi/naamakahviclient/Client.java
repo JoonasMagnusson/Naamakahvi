@@ -115,7 +115,7 @@ public class Client {
             plist.add(new BasicNameValuePair(params[i], params[i + 1]));
         }
 
-        post.setEntity(new UrlEncodedFormEntity(plist, Charset.forName("UTF-8")));
+        post.setEntity(new UrlEncodedFormEntity(plist, "UTF-8"));
         post.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
         final HttpResponse resp = c.execute(post);
@@ -174,7 +174,7 @@ public class Client {
                 throw new GeneralClientException("asdf");
             }
         } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
+            throw new GeneralClientException(e.getMessage());
         }
     }
 
@@ -310,7 +310,7 @@ public class Client {
                 throw new GeneralClientException("Could not fetch list of buyable products");
             }
         } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
+            throw new GeneralClientException(e.getMessage());
         }
     }
 
@@ -330,7 +330,7 @@ public class Client {
                 throw new GeneralClientException("Could not fetch list of default products");
             }
         } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
+            throw new GeneralClientException(e.getMessage());
         }
     }
 

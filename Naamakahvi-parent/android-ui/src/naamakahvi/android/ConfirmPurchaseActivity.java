@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,18 +35,11 @@ public class ConfirmPurchaseActivity extends Activity {
 	private CountDownTimer cd;
 	private Intent intent;
 	private String username;
-	private Client client;
+	public static final String TAG = "ConfirmPurchaseActivity";
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
-//		try {
-//			List<IStation> stations = Client.listStations("naama.zerg.fi", 5001);
-//			client = new Client("naama.zerg.fi", 5001, stations.get(0));
-//		} catch (ClientException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		intent = getIntent();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
@@ -53,6 +49,7 @@ public class ConfirmPurchaseActivity extends Activity {
         setSaldos(testUsers[0]);
         setRecognizedText(testUsers[0]);
 	}
+
 	
 	private void setListView(ListView listView, String[] list) {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -149,18 +146,31 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void buyProducts() {
-		// TODO: usernamen hankinta, clientkoodin toimivuus jne
-		//IUser user = TODO: get user jostain tiedoista
 		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> itemsBought = b.getItems();
-		Iterator it = itemsBought.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry pairs = (Map.Entry)it.next();
-	        IProduct product = (IProduct) pairs.getKey();
-	        int amount = (Integer) pairs.getValue();
-	        //TODO: osto
-	    }
+		final Iterator it = itemsBought.entrySet().iterator();
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					List<IStation> s = Client.listStations("naama.zerg.fi",
+							5001);
+					Client c = new Client("naama.zerg.fi", 5001, s.get(0));
+					while (it.hasNext()) {
+				        Map.Entry pairs = (Map.Entry)it.next();
+				        IProduct product = (IProduct) pairs.getKey();
+				        int amount = (Integer) pairs.getValue();
+				        IUser buyer = c.authenticateText(username);
+				        c.buyProduct(buyer, product, amount);
+				    }
+				}
+				catch (final ClientException ex) {
+					Log.d(TAG, ex.getMessage());
+					ex.printStackTrace();
+				}
+			}			
+		}).start();
 	}
+	
 	
 	public void onCPCancelClick(View v) {
 		setResult(RESULT_CANCELED);

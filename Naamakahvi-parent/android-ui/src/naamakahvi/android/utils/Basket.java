@@ -95,6 +95,11 @@ public class Basket implements Parcelable {
 					return getName().hashCode();
 				}
 
+				public double getPrice() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
 			};
 			
 			
