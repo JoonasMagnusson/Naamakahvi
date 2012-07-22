@@ -18,22 +18,21 @@ public class StationSelect extends JPanel implements ActionListener{
 		this.master = master;
 		this.stations = stations;
 		
-		helptext = new JLabel("Valitse sijainti:");
-		helptext.setPreferredSize(new Dimension(CafeUI.X_RES, CafeUI.Y_RES/10));
-		helptext.setFont(CafeUI.UI_FONT);
+		helptext = new JLabel("Select Location:");
+		helptext.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/10));
+		helptext.setFont(master.UI_FONT);
 		add(helptext);
 		
 		stationButtons = new JButton[stations.size()];
 		for (int i = 0; i < stations.size(); i++){
 			if (stations.get(i) != null){
 				stationButtons[i] = new JButton(stations.get(i).getName());
-				stationButtons[i].setFont(CafeUI.UI_FONT);
+				stationButtons[i].setFont(master.UI_FONT);
 				stationButtons[i].addActionListener(this);
 				add(stationButtons[i]);
 			}
 		}
 	}
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		for (int i = 0; i < stationButtons.length; i++){

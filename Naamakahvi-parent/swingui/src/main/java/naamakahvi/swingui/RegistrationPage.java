@@ -1,96 +1,156 @@
 package naamakahvi.swingui;
 
 import javax.swing.*;
+
+import naamakahvi.swingui.FaceCapture.FaceCanvas;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 public class RegistrationPage extends JPanel implements ActionListener{
 	private JTextField userName, firstName, lastName;
-	private JButton takePic, noPic, cancel;
+	private JButton takePic, register, cancel;
 	private JLabel header, help, unLabel, fnLabel, lnLabel;
 	private CafeUI master;
-	private static final String defaultHelp = "Syötä käyttäjätiedot";
+	private static final String defaultHelp = "Please enter the following information:";
+	private JPanel actionPanel, thumbPanel;
+	private FaceCanvas canvas;
+	private Thumbnail[] thumbs;
+	private BufferedImage[] images;
+	private int thumbCount = 0;
+	private static int MAX_THUMBCOUNT = 5;
 	
 	public RegistrationPage(CafeUI master){
 		this.master = master;
-		header = new JLabel("Rekisteröityminen", SwingConstants.CENTER);
-		header.setFont(CafeUI.UI_FONT_BIG);
-		header.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/8));
+		
+		header = new JLabel("Register New User", SwingConstants.CENTER);
+		header.setFont(master.UI_FONT_BIG);
+		header.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/10));
+		add(header);
 		
 		help = new JLabel(defaultHelp, SwingConstants.CENTER);
-		help.setFont(CafeUI.UI_FONT_SMALL);
-		help.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/8));
+		help.setFont(master.UI_FONT_SMALL);
+		help.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/10));
+		add(help);
 		
-		unLabel = new JLabel("Käyttäjätunnus:", SwingConstants.CENTER);
-		unLabel.setFont(CafeUI.UI_FONT);
-		unLabel.setPreferredSize(new Dimension(CafeUI.X_RES/3-10, CafeUI.Y_RES/8));
+		canvas = master.getCanvas();
+		canvas.setPreferredSize(new Dimension(master.X_RES/3, master.Y_RES/3));
+		add(canvas);
+		
+		actionPanel = new JPanel();
+		actionPanel.setPreferredSize(new Dimension(master.X_RES/3*2-20, master.Y_RES/8*3+20));
+		add(actionPanel);
+		
+		unLabel = new JLabel("Username:", SwingConstants.CENTER);
+		unLabel.setFont(master.UI_FONT);
+		unLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/8));
+		actionPanel.add(unLabel);
 		
 		userName = new JTextField();
-		userName.setFont(CafeUI.UI_FONT_BIG);
-		userName.setPreferredSize(new Dimension(CafeUI.X_RES/3*2-10, CafeUI.Y_RES/8));
+		userName.setFont(master.UI_FONT_BIG);
+		userName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/8));
+		actionPanel.add(userName);
 		
-		fnLabel = new JLabel("Etunimi:", SwingConstants.CENTER);
-		fnLabel.setFont(CafeUI.UI_FONT);
-		fnLabel.setPreferredSize(new Dimension(CafeUI.X_RES/3-10, CafeUI.Y_RES/8));
+		fnLabel = new JLabel("Given Name:", SwingConstants.CENTER);
+		fnLabel.setFont(master.UI_FONT);
+		fnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/8));
+		actionPanel.add(fnLabel);
 		
 		firstName = new JTextField();
-		firstName.setFont(CafeUI.UI_FONT_BIG);
-		firstName.setPreferredSize(new Dimension(CafeUI.X_RES/3*2-10, CafeUI.Y_RES/8));
+		firstName.setFont(master.UI_FONT_BIG);
+		firstName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/8));
+		actionPanel.add(firstName);
 		
-		lnLabel = new JLabel("Sukunimi:", SwingConstants.CENTER);
-		lnLabel.setFont(CafeUI.UI_FONT);
-		lnLabel.setPreferredSize(new Dimension(CafeUI.X_RES/3-10, CafeUI.Y_RES/8));
+		lnLabel = new JLabel("Family Name:", SwingConstants.CENTER);
+		lnLabel.setFont(master.UI_FONT);
+		lnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/8));
+		actionPanel.add(lnLabel);
 		
 		lastName = new JTextField();
-		lastName.setFont(CafeUI.UI_FONT_BIG);
-		lastName.setPreferredSize(new Dimension(CafeUI.X_RES/3*2-10, CafeUI.Y_RES/8));
+		lastName.setFont(master.UI_FONT_BIG);
+		lastName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/8));
+		actionPanel.add(lastName);
 		
-		takePic = new JButton("Rekisteröidy");
-		takePic.setFont(CafeUI.UI_FONT);
-		takePic.setPreferredSize(new Dimension(CafeUI.X_RES/2-10, CafeUI.Y_RES/8));
+		thumbPanel = new JPanel();
+		thumbPanel.setPreferredSize(new Dimension(master.X_RES/2, master.Y_RES/10));
+		add(thumbPanel);
+		
+		resetPage();
+		
+		takePic = new JButton("Take Picture");
+		takePic.setFont(master.UI_FONT);
+		takePic.setPreferredSize(new Dimension(master.X_RES/4-30, master.Y_RES/8));
 		takePic.addActionListener(this);
 		
-		noPic = new JButton("Rekisteröidy ilman kuvaa");
-		noPic.setFont(CafeUI.UI_FONT);
-		noPic.setPreferredSize(new Dimension(CafeUI.X_RES/2-10, CafeUI.Y_RES/8));
-		noPic.addActionListener(this);
+		register = new JButton("Register");
+		register.setFont(master.UI_FONT);
+		register.setPreferredSize(new Dimension(master.X_RES/4-30, master.Y_RES/8));
+		register.addActionListener(this);
 		
-		cancel = new JButton("Peruuta");
-		cancel.setFont(CafeUI.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/8));
+		cancel = new JButton("Cancel");
+		cancel.setFont(master.UI_FONT_BIG);
+		cancel.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/8));
 		cancel.addActionListener(this);
 		
-		add(header);
-		add(help);
-		add(unLabel);
-		add(userName);
-		add(fnLabel);
-		add(firstName);
-		add(lnLabel);
-		add(lastName);
 		add(takePic);
-		add(noPic);
+		add(register);
 		add(cancel);
+	}
+	
+	private void resetPage(){
+		thumbPanel.removeAll();
+		thumbs = new Thumbnail[MAX_THUMBCOUNT];
+		for (int i=0; i < thumbs.length; i++){
+			thumbs[i] = new Thumbnail(master.X_RES/10, master.X_RES/10);
+			thumbPanel.add(thumbs[i]);
+		}
+		images = new BufferedImage[MAX_THUMBCOUNT];
+		thumbPanel.revalidate();
 	}
 	
 	protected void setHelpText(String text){
 		help.setText(text);
 	}
+	
+	protected void activate(){
+		canvas.activate();
+	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
-		if (s == takePic || s == noPic){
+		
+		if (s == takePic){
+			BufferedImage i = master.takePic();
+			
+			if (i == null){
+				setHelpText("No faces detected");
+				return;
+			}
+			images[thumbCount] = i;
+			thumbs[thumbCount].drawImage(i);
+			thumbCount++;
+			if (thumbCount == thumbs.length){
+				thumbCount = 0;
+			}
+			setHelpText(defaultHelp);
+		}
+		
+		if (s == register){
 			if (master.RegisterUser(userName.getText(),
-					firstName.getText(), lastName.getText())){
+					firstName.getText(), lastName.getText(), images)){
 				setHelpText(defaultHelp);
 				master.switchPage(CafeUI.VIEW_MENU_PAGE);
+				canvas.deactivate();
+				resetPage();
 			}
 		}
 		if (s == cancel){
 			setHelpText(defaultHelp);
 			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
+			canvas.deactivate();
+			resetPage();
 		}
 		
 	}

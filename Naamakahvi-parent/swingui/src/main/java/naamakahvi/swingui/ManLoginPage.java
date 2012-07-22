@@ -11,31 +11,31 @@ public class ManLoginPage extends JPanel implements ActionListener{
 	private JButton ok, cancel;
 	private JLabel header, help;
 	private CafeUI master;
-	private static final String defaultHelp = "Syötä käyttäjätunnus:";
+	private static final String defaultHelp = "Please enter your username:";
 	
 	public ManLoginPage(CafeUI master){
 		this.master = master;
 		
-		header = new JLabel("Manuaalinen kirjautuminen", SwingConstants.CENTER);
-		header.setFont(CafeUI.UI_FONT_BIG);
-		header.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/6));
+		header = new JLabel("Manual Login", SwingConstants.CENTER);
+		header.setFont(master.UI_FONT_BIG);
+		header.setPreferredSize(new Dimension(master.X_RES-20,master.Y_RES/6));
 		
 		help = new JLabel(defaultHelp, SwingConstants.CENTER);
-		help.setFont(CafeUI.UI_FONT_SMALL);
-		help.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/6));
+		help.setFont(master.UI_FONT_SMALL);
+		help.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
 		
 		username = new JTextField();
-		username.setFont(CafeUI.UI_FONT_BIG);
-		username.setPreferredSize(new Dimension(CafeUI.X_RES-20, 40));
+		username.setFont(master.UI_FONT_BIG);
+		username.setPreferredSize(new Dimension(master.X_RES-20, 40));
 		
-		ok = new JButton("Kirjaudu sisään");
-		ok.setFont(CafeUI.UI_FONT_BIG);
-		ok.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/6));
+		ok = new JButton("OK");
+		ok.setFont(master.UI_FONT_BIG);
+		ok.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
 		ok.addActionListener(this);
 		
-		cancel = new JButton("Peruuta");
-		cancel.setFont(CafeUI.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(CafeUI.X_RES-20, CafeUI.Y_RES/6));
+		cancel = new JButton("Cancel");
+		cancel.setFont(master.UI_FONT_BIG);
+		cancel.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
 		cancel.addActionListener(this);
 		
 		add(header);
@@ -49,7 +49,6 @@ public class ManLoginPage extends JPanel implements ActionListener{
 		help.setText(text);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s == cancel){
@@ -57,7 +56,7 @@ public class ManLoginPage extends JPanel implements ActionListener{
 			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
 		}
 		if (s == ok){
-			if (master.LoginUser(username.getText())){
+			if (master.loginUser(username.getText())){
 				setHelpText(defaultHelp);
 				master.switchPage(CafeUI.VIEW_MENU_PAGE);
 			}
