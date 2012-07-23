@@ -33,6 +33,9 @@
 	<entry key="selectSizes">
 		SELECT ps_productsizeid, ps_size FROM productsize
 	</entry>
+	<entry key="selectSizeByGroupID">
+		SELECT ps_size FROM productsize WHERE ps_rawproductid = (SELECT raw_rawproductid FROM rawproduct WHERE raw_groupid = %s)
+	</entry>
 	<entry key="selectNamesByUsername">
 		SELECT ud_username, ud_givenname, ud_familyname FROM userdata
 		WHERE ud_username IN (%s)

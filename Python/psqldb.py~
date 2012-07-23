@@ -263,7 +263,7 @@ class psqldb:
 			
 		q_gbal = self.getQuery("incGroupBalanceById")
 		try:
-			self.cur.execute(q_gbal, (amount,group))
+			self.cur.execute(q_gbal, (group,amount,))
 		except  Exception ,e:
 			return e
 		

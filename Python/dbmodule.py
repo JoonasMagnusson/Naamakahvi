@@ -66,3 +66,34 @@ class dbmodule:
 			print e
 		con.commit()
 		cur.close()
+		
+	def buyCoffee(self, user, coffee, amount):
+		
+		con = sqlite3.connect(self.dbname)
+		cur = con.cursor()
+		
+		oldBalance = cur.execute("SELECT ub_balance FROM userbalance WHERE ub_username = ? AND ub_groupid = ?", user, coffee)
+		newBalance = oldBalance - amount
+		
+		q = self.getQuery("updateUserBalances")
+		
+		try:
+			cur.execute(q, (newBalance, coffee, user))
+		except  Exception ,e:
+			print e
+		
+		con.commit()
+		cur.close()
+		
+		
+	def getProducts(self)
+	
+		con = sqlite3.connect(self.dbname)
+		cur = con.cursor()
+		
+		
+		
+		con.commit()
+		cur.close()
+	
+		

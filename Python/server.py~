@@ -175,11 +175,6 @@ def bring():
         
         r = dbm.bring(product,amount,user)
         
-        if r:
-            return json.dumps({'status':'ok'})
-        else:
-            return json.dumps({'status':'Error'})
-        
     return json.dumps({'status':'NotImplementedError'})
 
 @app.route('/list_stations/',methods=['POST','GET'])
