@@ -58,7 +58,7 @@ def train():
 def identify():
     if request.method == 'POST':
         user = request.form['username']
-        filename = request.form['filename']
+        filename = request.form['file']
         idlist = cvm.identify(filename)
         return resp_ok(idlist=idlist)
     else:
