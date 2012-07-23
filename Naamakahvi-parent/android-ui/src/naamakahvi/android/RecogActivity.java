@@ -64,11 +64,11 @@ public class RecogActivity extends Activity {
 				try {
 					s = Client.listStations("naama.zerg.fi", 5001);
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					byte[] bitmapdata = bos.toByteArray();
 					face.grabFrame().compress(CompressFormat.PNG, 0 /*
 																	 * ignored
 																	 * for PNG
 																	 */, bos);
+					byte[] bitmapdata = bos.toByteArray();
 					Client client = new Client("naama.zerg.fi", 5001, s.get(0));
 
 					final String[] users = client.identifyImage(bitmapdata);
