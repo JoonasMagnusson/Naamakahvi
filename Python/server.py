@@ -23,7 +23,7 @@ def resp_failure(status_msg, **kwargs):
     ans['status'] = status_msg
     for k, v in kwargs.iteritems():
         ans[k] = v
-    return ans
+    return json.dumps(ans)
 
 @app.before_request
 def before_request():
@@ -64,6 +64,7 @@ def identify():
             print secure_filename(file.filename)
             file.save(secure_filename(file.filename))
             id = cvm.identify(secure_filename(file.filename))
+            print id
             return resp_ok(idlist=id)
         else:
             return resp_failure('Error')
@@ -97,7 +98,7 @@ def register():
         given = request.form['given']
         family = request.form['family']
         if(not dbm.login(user)):
-            dbm.register(user,given,family,5)
+            dbm.register(user,given,family)
             return resp_ok(username=user)
         else:
             return resp_failure('UserAlreadyExistsError')
