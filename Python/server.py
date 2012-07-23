@@ -9,7 +9,7 @@ import cvmodule
 app = Flask(__name__)
 
 dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
-cvm = cvmodule.cvmodule()
+cvm = neuralmodule.neuralmodule()
 
 def resp_ok(**kwargs):
     ans = {}
@@ -19,7 +19,8 @@ def resp_ok(**kwargs):
     return json.dumps(ans)
 
 def resp_failure(status_msg, **kwargs):
-    ans = {'status' : status_msg}
+    ans = {}
+    ans['status'] = status_msg
     for k, v in kwargs.iteritems():
         ans[k] = v
     return ans
@@ -60,10 +61,10 @@ def identify():
         #user = request.form['username']
         file = request.files['file']
         if file:
-            print file
+            print secure_filename(file.filename)
             file.save(secure_filename(file.filename))
-            idlist = cvm.identify(secure_filename(file.filename))
-            return resp_ok(idlist=idlist)
+            id = cvm.identify(secure_filename(file.filename))
+            return resp_ok(idlist=id)
         else:
             return resp_failure('Error')
             
