@@ -4,7 +4,7 @@ from flask import request, redirect, url_for
 from werkzeug import secure_filename
 import json
 import psqldb
-import cvmodule
+import neuralmodule
 
 app = Flask(__name__)
 
