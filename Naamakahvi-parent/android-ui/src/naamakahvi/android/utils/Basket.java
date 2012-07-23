@@ -75,33 +75,7 @@ public class Basket implements Parcelable {
 			final String name = in.readString();
 			
 			
-			IProduct i = new IProduct() {
-
-				public String getName() {
-					return name;
-				}
-
-				@Override
-				public boolean equals(Object arg0) {
-					if (!(arg0 instanceof IProduct)) {
-						return false;
-					}
-					IProduct p2 = (IProduct) arg0;
-					return this.getName() == p2.getName();
-				}
-
-				@Override
-				public int hashCode() {
-					return getName().hashCode();
-				}
-
-				public double getPrice() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-
-			};
-			
+                        IProduct i = ProductCache.getProduct(name);
 			
 			items.put(i, in.readInt());
 		}

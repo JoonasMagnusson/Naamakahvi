@@ -53,58 +53,6 @@ public class MainActivity extends Activity {
 	private static final int[] PRODUCT_QTY_BUTTONS = new int[]{R.id.bQtyO,R.id.bQty1,R.id.bQty2,R.id.bQty3,R.id.bQty4};
 
 	
-	private List<IProduct> products(){
-		List<IProduct> products = new ArrayList<IProduct>();
-		products.add(new IProduct() {
-			
-			public String getName() {
-				return "Kahvi";
-			}
-			public String toString(){return getName();}
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-		
-        products.add(new IProduct() {
-			
-			public String getName() {
-				return "Espresso";
-			}
-			public String toString(){return getName();}
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-        
-        products.add(new IProduct() {
-			
-			public String getName() {
-				return "Tuplaespresso";
-			}
-			public String toString(){return getName();}
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-       products.add(new IProduct() {
-			
-			public String getName() {
-				return "Tee?";
-			}
-			public String toString(){return getName();}
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-        
-        return products;
-	}
-	
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -125,7 +73,7 @@ public class MainActivity extends Activity {
 					List<IStation> s = Client.listStations("naama.zerg.fi", 5001);
 					Client c = new Client("naama.zerg.fi", 5001, s.get(0));
 					ProductCache.loadBuyableItems(c.listBuyableProducts());
-				//	ProductCache.loadRawItems(c.listRawProducts());
+					ProductCache.loadRawItems(c.listRawProducts());
 					hand.post(new Runnable() {
 						
 						public void run() {
@@ -169,7 +117,7 @@ public class MainActivity extends Activity {
 		for (IProduct p : products){
 			tl.addView(makeProductRow(p));			
 		}
-//		products = ProductCache.listRawItems();
+		products = ProductCache.listRawItems();
 	    tl = (TableLayout) findViewById(R.id.payTable);
 
 		for (IProduct p : products){

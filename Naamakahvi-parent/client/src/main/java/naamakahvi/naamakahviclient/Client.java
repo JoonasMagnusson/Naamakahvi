@@ -194,7 +194,7 @@ public class Client {
      * @return the newly registered user
      */
     public IUser registerUser(String username, String givenName,
-            String familyName, byte[] imagedata) throws RegistrationException {
+            String familyName) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
                     "username", username,
@@ -206,10 +206,6 @@ public class Client {
                 User responseUser = new Gson().fromJson(obj, User.class);
                 if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
-                }
-
-                if (imagedata != null) {
-                    addImage(username, imagedata);
                 }
 
                 return responseUser;
@@ -290,7 +286,8 @@ public class Client {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
-            ans.add(new Product(productName, productPrice));
+            int productId = product.get("product_id").getAsInt();
+            ans.add(new Product(productId,productName, productPrice));
         }
         return ans;
     }
@@ -344,8 +341,7 @@ public class Client {
     public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
-                    "product_name", product.getName(),
-                    "station_name", this.station.getName(),
+                    "product_id", Integer.toString(product.getId()),
                     "amount", "" + amount,
                     "username", user.getUserName());
 

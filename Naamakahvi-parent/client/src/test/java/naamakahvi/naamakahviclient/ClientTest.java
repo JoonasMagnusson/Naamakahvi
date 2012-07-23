@@ -292,7 +292,7 @@ public class ClientTest {
     public void registrationWithNewNameSuccessful() throws Exception {
         Client c = new Client(host, port, station);
         try {
-            IUser u = c.registerUser("Pekka", "Pekka", "Virtanen", null);
+            IUser u = c.registerUser("Pekka", "Pekka", "Virtanen");
             assertEquals(u.getUserName(), "Pekka");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -318,7 +318,7 @@ public class ClientTest {
         thrown.expectMessage("Registration failed: Try another username");
 
         Client c = new Client(host, port, station);
-        IUser u = c.registerUser("Teemu", "Teemu", "Lahti", null);
+        IUser u = c.registerUser("Teemu", "Teemu", "Lahti");
     }
 
     @Test

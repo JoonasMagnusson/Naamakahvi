@@ -141,6 +141,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	
 	public void onCPOkClick(View v) {
 		buyProducts();
+		cd.cancel();
 		setResult(RESULT_OK);
 		finish();
 	}

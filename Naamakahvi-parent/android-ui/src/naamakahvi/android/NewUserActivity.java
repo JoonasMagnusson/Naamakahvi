@@ -1,18 +1,23 @@
 package naamakahvi.android;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
+import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,13 +33,16 @@ import naamakahvi.android.components.FaceDetectView;
 
 public class NewUserActivity extends Activity {
 	private final String TAG = "NewUserActivity";
-
+	private Resources mRes;
 	private List<Bitmap> mPics;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_user);
+
+		mRes = getResources();
+
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
 		mPics = new ArrayList<Bitmap>();
 		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
@@ -71,38 +79,76 @@ public class NewUserActivity extends Activity {
 	}
 
 	public void onRegistrationClick(View v) {
-		try {
-			Client client = new Client("127.0.0.1", 5000, null);
-			String username = ((EditText) findViewById(R.id.editTextUsername))
-					.getText().toString();
-			String etunimi = ((EditText) findViewById(R.id.editTextEtunimi))
-					.getText().toString();
-			String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi))
-					.getText().toString();
+		final Handler hand = new Handler(getMainLooper());
+		final Context con = this;
+		new Thread(new Runnable() {
 
-			IUser user = client.registerUser(username, etunimi, sukunimi, null);
-			// tarkistetaan onko username varattu. jos on, kirjoitetaan se ja
-			// pyydet��n uutta else finish()
-			Toast.makeText(
-					getApplicationContext(),
-					"Sinut on rekister�ity onnistuneesti nimell� "
-							+ username, Toast.LENGTH_LONG).show();
-			finish();
-		} catch (Exception ex) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			Log.d(TAG, "Exception: " + ex.getMessage());
-			ex.printStackTrace();
-			builder.setMessage(
-					"Registration failed. Reason: " + ex.getMessage())
-					.setPositiveButton("OK",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int which) {
-									dialog.dismiss();
-								}
-							});
-			builder.show();
-		}
+			public void run() {
+				try {
+					List<IStation> s = Client.listStations("naama.zerg.fi",
+							5001);
+
+					Client client = new Client("naama.zerg.fi", 5001, s.get(0));
+
+					final String username = ((EditText) findViewById(R.id.editTextUsername))
+							.getText().toString();
+					String etunimi = ((EditText) findViewById(R.id.editTextEtunimi))
+							.getText().toString();
+					String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi))
+							.getText().toString();
+
+					IUser user = client.registerUser(username, etunimi,
+							sukunimi);
+
+					for (Bitmap b : mPics) {
+						ByteArrayOutputStream bos = new ByteArrayOutputStream();
+						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */,
+								bos);
+						byte[] bitmapdata = bos.toByteArray();
+						client.addImage(user.getUserName(), bitmapdata);
+					}
+
+					// tarkistetaan onko username varattu. jos on, kirjoitetaan
+					// se ja
+					// pyydet��n uutta else finish()
+					hand.post(new Runnable() {
+
+						public void run() {
+							Toast.makeText(getApplicationContext(),
+									"Successfully registered as: " + username,
+									Toast.LENGTH_LONG).show();
+						}
+					});
+					finish();
+				} catch (final Exception ex) {
+					Log.d(TAG, ex.getMessage());
+					ex.printStackTrace();
+					hand.post(new Runnable() {
+
+						public void run() {
+							AlertDialog.Builder builder = new AlertDialog.Builder(
+									con);
+							builder.setCancelable(false);
+							builder.setMessage(
+									"Registration failed. Reason: "
+											+ ex.getMessage())
+									.setPositiveButton(
+											"OK",
+											new DialogInterface.OnClickListener() {
+												public void onClick(
+														DialogInterface dialog,
+														int which) {
+													dialog.dismiss();
+													finish();
+												}
+											});
+							builder.show();
+						}
+					});
+				}
+			}
+		}).start();
+
 	}
 
 	public void addPicture(View v) {
@@ -115,7 +161,7 @@ public class NewUserActivity extends Activity {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				Log.d(TAG, "Exception: " + e.getMessage());
 				e.printStackTrace();
-				
+
 				builder.setMessage("Error: " + e.getMessage())
 						.setPositiveButton("OK",
 								new DialogInterface.OnClickListener() {

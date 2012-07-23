@@ -26,10 +26,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class MenuActivity extends Activity {
-
+/*
 	private Basket mBasket = new Basket();
 
-	/** Called when the activity is first created. */
+	/** Called when the activity is first created. *//*
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,98 +39,10 @@ public class MenuActivity extends Activity {
 		((GridView) findViewById(R.id.payproduct_grid))
 				.setAdapter(new ProductAdapter(this, pay_products()));
 		((ListView) findViewById(R.id.cart_list)).setAdapter(new CartAdapter(
-				this, mBasket));
+				this, mBasket)); 
 	}
 
-	private ArrayList<IProduct> products() {
-		ArrayList<IProduct> products = new ArrayList<IProduct>();
-		products.add(new IProduct() {
-
-			public String getName() {
-				return "Kahvi";
-			}
-
-			public String toString() {
-				return getName();
-			}
-
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-
-		products.add(new IProduct() {
-
-			public String getName() {
-				return "Espresso";
-			}
-
-			public String toString() {
-				return getName();
-			}
-
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-
-		products.add(new IProduct() {
-
-			public String getName() {
-				return "Tuplaespresso";
-			}
-
-			public String toString() {
-				return getName();
-			}
-
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-		products.add(new IProduct() {
-
-			public String getName() {
-				return "Tee?";
-			}
-
-			public String toString() {
-				return getName();
-			}
-
-			public double getPrice() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
-
-		return products;
-	}
-
-	private ArrayList<IProduct> pay_products() {
-		final RandomString r = new RandomString(20);
-		ArrayList<IProduct> products = new ArrayList<IProduct>();
-
-		for (int i = 0; i < 30; ++i) {
-			products.add(new IProduct() {
-
-				public String getName() {
-					return r.nextString();
-				}
-
-				public double getPrice() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-			});
-
-		}
-		return products;
-	}
-
+	
 	private void refreshCart() {
 		ListView cart = (ListView) findViewById(R.id.cart_list);
 		((CartAdapter) cart.getAdapter()).notifyDataSetChanged();
@@ -245,5 +157,5 @@ public class MenuActivity extends Activity {
 
 			return convertView;
 		}
-	}
+	}*/
 }
