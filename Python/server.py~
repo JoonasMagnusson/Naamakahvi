@@ -194,6 +194,9 @@ def buy():
 
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
+<<<<<<< HEAD
+    return resp_failure('Not implemented')
+=======
     if request.method == 'post'
         product = request.form['product_id']
         user = request.form['username']
@@ -205,7 +208,9 @@ def bring():
             return json.dumps({'status':'ok'})
         else:
             return json.dumps({'status':'Error'})
-
+        
+    return json.dumps({'status':'NotImplementedError'})
+>>>>>>> dev
 
 @app.route('/list_stations/',methods=['POST','GET'])
 def stations():
