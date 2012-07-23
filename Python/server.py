@@ -58,7 +58,7 @@ def train():
 def identify():
     if request.method == 'POST':
         #user = request.form['username']
-        filename = request.files['file']
+        file = request.files['file']
         if file:
             print file
             file.save(secure_filename(file.filename))
