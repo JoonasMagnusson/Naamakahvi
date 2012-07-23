@@ -59,8 +59,14 @@ def identify():
     if request.method == 'POST':
         #user = request.form['username']
         filename = request.form['file']
-        idlist = cvm.identify(filename)
-        return resp_ok(idlist=idlist)
+        if file:
+            print file
+            file.save(secure_filename(file.filename))
+            idlist = cvm.identify(secure_filename(file.filename))
+            return resp_ok(idlist=idlist)
+        else:
+            return resp_failure('Error')
+            
     else:
         return resp_failure('Error')
 
