@@ -130,7 +130,7 @@ def bringableProducts():
         ret.append(({"product_name":y[2],"product_id":y[0],"product_price":1}))
 
 
-    return resp_ok(buyable_products=ret)
+    return resp_ok(raw_products=ret)
 
 #Lists all usernames
 @app.route('/list_usernames/',methods=['POST','GET'])
