@@ -69,10 +69,11 @@ def identify():
 def upload():
     if request.method == 'POST':
         file = request.files['file']
+        user = request.form['username']
         if file:
             print file
             file.save(secure_filename(file.filename))
-            cvm.train(secure_filename(file.filename))
+            cvm.train(secure_filename(file.filename,user))
             return resp_ok()
         else:
             return resp_failure('NoFileInRequestError')
