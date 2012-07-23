@@ -57,7 +57,7 @@ def train():
 @app.route('/identify/',methods=['POST','GET'])
 def identify():
     if request.method == 'POST':
-        user = request.form['username']
+        #user = request.form['username']
         filename = request.form['file']
         idlist = cvm.identify(filename)
         return resp_ok(idlist=idlist)
