@@ -164,10 +164,16 @@ public class FaceCapture implements Runnable{
 				grab.grab();
 				if (checkActiveCanvases()){
 					img = grab.grab();
-					if (doFaceDetect || takePic)
+					if (doFaceDetect || takePic){
+						//System.out.println("finding faces");
 						findFaces();
-					if (takePic)
+						//System.out.println("faces found");
+					}
+					if (takePic){
+						//System.out.println("saving picture");
 						savePic();
+						//System.out.println("picture saved");
+					}
 					Iterator<FaceCanvas> i = canvases.iterator();
 					while (i.hasNext())
 						i.next().repaint();
@@ -185,8 +191,11 @@ public class FaceCapture implements Runnable{
 	}
 	
 	private boolean checkActiveCanvases(){
-		if (noInterrupt){
+		if (noInterrupt && !takePic){
 			return false;
+		}
+		if (takePic){
+			return true;
 		}
 		Iterator<FaceCanvas> i = canvases.iterator();
 		FaceCanvas c;

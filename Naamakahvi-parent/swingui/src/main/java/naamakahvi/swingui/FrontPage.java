@@ -36,7 +36,7 @@ public class FrontPage extends JPanel implements ActionListener{
 		actionPanel = new JPanel();
 		actionPanel.setPreferredSize(new Dimension(master.X_RES/3*2-20, master.Y_RES/5*3));
 		add(actionPanel);
-		
+		/*
 		quantity = new JLabel("Product quantity:");
 		quantity.setFont(master.UI_FONT_BIG);
 				
@@ -45,9 +45,9 @@ public class FrontPage extends JPanel implements ActionListener{
 		
 		actionPanel.add(quantity);
 		actionPanel.add(spinner);
-		
+		*/
 		prodView = new JPanel();
-		prodView.setLayout(new GridLayout(0, 1));
+		prodView.setLayout(new GridLayout(0, 2));
 		prodView.setPreferredSize(new Dimension(master.X_RES/3*2-20, master.Y_RES/2));
 		actionPanel.add(prodView);
 		/*
@@ -77,7 +77,7 @@ public class FrontPage extends JPanel implements ActionListener{
 	}
 	
 	protected void resetPage(){
-		spinner.setValue(1);
+		//spinner.setValue(1);
 		canvas.activate();
 	}
 	
@@ -102,16 +102,18 @@ public class FrontPage extends JPanel implements ActionListener{
 		prodView.removeAll();
 		//TODO: korjaa layout
 		for (int i = 0; i < products.length; i++){
+
+			JLabel prodname = new JLabel(products[i].getName());
+			prodname.setFont(master.UI_FONT_SMALL);
+			prodView.add(prodname);
+			
 			JPanel prodline = new JPanel();
 			prodline.setLayout(new GridLayout(1,0));
 			prodView.add(prodline);
 			
-			JLabel prodname = new JLabel(products[i].getName());
-			prodname.setFont(master.UI_FONT_SMALL);
-			prodline.add(prodname);
 			
 			for (int j = 0; j < 5; j++){
-				prodButtons[i][j] = new JButton("" + j);
+				prodButtons[i][j] = new JButton("" + (j+1));
 				prodButtons[i][j].setFont(master.UI_FONT);
 				prodButtons[i][j].addActionListener(this);
 				prodline.add(prodButtons[i][j]);
@@ -149,12 +151,12 @@ public class FrontPage extends JPanel implements ActionListener{
 		for (int i = 0; i < prodButtons.length; i++){
 			for (int j = 0; j < prodButtons[i].length; j++){
 				if (s == prodButtons[i][j]){
-					//master.takePic();
 					canvas.deactivate();
-					master.selectProduct(products[i].getName(), j);
+					master.selectProduct(products[i], j+1);
 					master.setContinueLocation(CafeUI.VIEW_CHECKOUT_PAGE);
-					master.validateImage();
-					//master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
+					if (!master.validateImage()){
+						canvas.activate();
+					}	
 				}
 			}
 		}

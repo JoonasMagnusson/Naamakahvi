@@ -43,8 +43,8 @@ public class ShortList extends JPanel implements ActionListener{
 		saldoheader.setFont(master.UI_FONT);
 		add(saldoheader);
 		
-		for(int i = 0; i < 5; i++){
-			JLabel saldo = new JLabel("Saldo" + i + ": 0");
+		for(int i = 0; i < 2; i++){
+			JLabel saldo = new JLabel("Saldo" + (i+1) + ": 0");
 			saldo.setFont(master.UI_FONT_SMALL);
 			add(saldo);
 		}

@@ -144,12 +144,12 @@ public class PurchaseCartPage extends JPanel implements ActionListener{
 		
 		buyButtons = new JButton[buyProducts.length];
 		for (int i = 0; i < buyProducts.length; i++){
-			initProductButton(buyProducts[i].getName(), buyMenuView);
+			buyButtons[i] = initProductButton(buyProducts[i].getName(), buyMenuView);
 		}
 		
 		bringButtons = new JButton[bringProducts.length];
 		for (int i = 0; i < bringProducts.length; i++){
-			initProductButton(bringProducts[i].getName(), bringMenuView);
+			bringButtons[i] = initProductButton(bringProducts[i].getName(), bringMenuView);
 		}
 	}
 	
@@ -159,6 +159,46 @@ public class PurchaseCartPage extends JPanel implements ActionListener{
 		panel.add(button);
 		button.addActionListener(this);
 		return button;
+	}
+	
+	private void addToBuyCart(IProduct p){
+		int index = buyCartContents.indexOf(p);
+		if (index != -1){
+			int amount = buyAmounts.get(index);
+			amount++;
+			buyAmounts.remove(index);
+			buyAmounts.add(index, amount);
+			buyCartLabels.get(index).setText(buyCartContents.get(index).getName() + " x " + amount);
+		}
+		else {
+			buyCartContents.add(p);
+			buyAmounts.add(1);
+			JLabel label = new JLabel(p.getName() + " x " + 1);
+			buyCartLabels.add(label);
+			buyCartView.add(label);
+			
+		}
+		buyCartView.revalidate();
+	}
+	
+	private void addToBringCart(IProduct p){
+		int index = bringCartContents.indexOf(p);
+		if (index != -1){
+			int amount = bringAmounts.get(index);
+			amount++;
+			bringAmounts.remove(index);
+			bringAmounts.add(index, amount);
+			bringCartLabels.get(index).setText(bringCartContents.get(index).getName() + " x " + amount);
+		}
+		else {
+			bringCartContents.add(p);
+			bringAmounts.add(1);
+			JLabel label = new JLabel(p.getName() + " x " + 1);
+			bringCartLabels.add(label);
+			bringCartView.add(label);
+			
+		}
+		bringCartView.revalidate();
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -180,17 +220,14 @@ public class PurchaseCartPage extends JPanel implements ActionListener{
 		}
 		for (int i = 0; i < buyButtons.length; i++){
 			if (s == buyButtons[i]){
-				JLabel label = new JLabel("" + i);
-				buyCartLabels.add(label);
-				buyCartView.add(label);
-				buyCartView.revalidate();
+				addToBuyCart(buyProducts[i]);
 			}
-		}/*
+		}
 		for (int i = 0; i < bringButtons.length; i++){
 			if (s == bringButtons[i]){
-				confirmButton.setText("" +i);
+				addToBringCart(bringProducts[i]);
 			}
-		}*/
+		}
 	}
 
 }

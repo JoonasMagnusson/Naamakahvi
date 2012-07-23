@@ -8,7 +8,6 @@ import naamakahvi.swingui.FaceCapture.FaceCanvas;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 
 import java.util.List;
@@ -40,7 +39,6 @@ public class CafeUI extends JFrame{
 	private Client cli;
 	private String[] usernames = new String[1];
 	private IUser user;
-	private String selectedProduct;
 	private IProduct selProd;
 	private int quantity;
 	
@@ -153,7 +151,6 @@ public class CafeUI extends JFrame{
 			menu.setUser(usernames[0]);
 			//menu.setCoffeeSaldo(client.getCoffeeSaldo(userName));
 			//menu.setEspressoSaldo(client.getEspressoSaldo(userName));
-			menu.reset();
 			viewSwitcher.show(container, page);
 			currentLocation = page;
 		}
@@ -174,15 +171,11 @@ public class CafeUI extends JFrame{
 			viewSwitcher.show(container, page);
 			currentLocation = page;
 			checkout.setUsers(usernames);
-			if (user != null){
-			/*checkout.setPurchaseText("Käyttäjältä " + user.getUserName() +
-					" veloitetaan " + quantity + " kpl tuotetta " +
-					selectedProduct);*/
-			}
-			else
-				/*checkout.setPurchaseText("Käyttäjältä " + userName +
-						" veloitetaan " + quantity + " kpl tuotetta " +
-						selectedProduct);*/
+			IProduct[] prods = new IProduct[1];
+			prods[0] = selProd;
+			int[] q = new int[1];
+			q[0] = quantity;
+			checkout.setProducts(prods, q);
 			checkout.startCountdown();
 		}
 		if (VIEW_USERLIST_PAGE.equals(page)){
@@ -213,6 +206,7 @@ public class CafeUI extends JFrame{
 			return true;
 		}
 		catch (ClientException e){
+			e.printStackTrace();
 			//checkout.setPurchaseText(e.getMessage());
 			return false;
 		}
@@ -236,12 +230,12 @@ public class CafeUI extends JFrame{
 			for (int i = 0; i < images.length; i++){
 				if (images[i] != null){
 					streams[i] = new ByteArrayOutputStream();
-					ImageIO.write(images[i], OUTPUT_IMAGE_FORMAT, streams[i]);
+					ImageIO.write(resizeImage(images[i]), OUTPUT_IMAGE_FORMAT, streams[i]);
 				}
 			}
 			
-			user = cli.registerUser(userName, givenName, familyName, streams[0].toByteArray());
-			for (int i = 1; i< streams.length; i++){
+			user = cli.registerUser(userName, givenName, familyName);
+			for (int i = 0; i< streams.length; i++){
 				cli.addImage(user.getUserName(), streams[i].toByteArray());
 			}
 			register.setHelpText("Registered user " + user.getUserName());
@@ -313,8 +307,8 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
-	protected void selectProduct(String prod, int count){
-		selectedProduct = prod;
+	protected void selectProduct(IProduct prod, int count){
+		selProd = prod;
 		quantity = count;
 	}
 	
@@ -322,30 +316,31 @@ public class CafeUI extends JFrame{
 		return face.takePic();
 	}
 	
-	protected void validateImage(){
+	protected boolean validateImage(){
 		BufferedImage img = face.takePic();
 		if (img == null){
 			front.setHelpText("No faces detected");
-			return;
+			return false;
 		}
 		String[] users = null;
 		try {
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			ImageIO.write(img, OUTPUT_IMAGE_FORMAT, stream);
+			ImageIO.write(resizeImage(img), OUTPUT_IMAGE_FORMAT, stream);
 			byte[] output = stream.toByteArray();
 			users = cli.identifyImage(output);
+			loginUser(users[0]);
 		}
 		catch (ClientException e){
 			e.printStackTrace();
 			front.setHelpText(e.getMessage());
 			front.resetPage();
-			return;
+			return false;
 		}
 		catch (IOException e){
 			e.printStackTrace();
 			front.setHelpText("Error: Unable to convert image to byte array");
 			front.resetPage();
-			return;
+			return false;
 		}
 		
 		
@@ -355,6 +350,16 @@ public class CafeUI extends JFrame{
 		else{
 			switchPage(CONTINUE);
 		}
+		return true;
+	}
+	
+	private BufferedImage resizeImage(BufferedImage img){
+		BufferedImage resize = new BufferedImage(200,200,
+				BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics2D g2 = resize.createGraphics();
+		g2.drawImage(img, 0, 0, 200, 200, null);
+		g2.dispose();
+		return resize;
 	}
 	
 	protected void setContinueLocation(String loc){

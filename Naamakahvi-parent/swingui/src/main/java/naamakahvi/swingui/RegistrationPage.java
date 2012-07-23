@@ -74,7 +74,8 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		actionPanel.add(lastName);
 		
 		thumbPanel = new JPanel();
-		thumbPanel.setPreferredSize(new Dimension(master.X_RES/2, master.Y_RES/10));
+		thumbPanel.setLayout(new GridLayout(1,5));
+		thumbPanel.setPreferredSize(new Dimension(master.X_RES/2, master.Y_RES/8));
 		add(thumbPanel);
 		
 		resetPage();
