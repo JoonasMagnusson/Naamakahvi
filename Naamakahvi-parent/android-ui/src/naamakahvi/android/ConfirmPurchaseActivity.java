@@ -86,12 +86,10 @@ public class ConfirmPurchaseActivity extends Activity {
 	        Map.Entry pairs = (Map.Entry)it.next();
 	        IProduct product = (IProduct) pairs.getKey();
 	        int amount = (Integer) pairs.getValue();
-	        if (product.getName().equals("Espresso"))
-	        	changeInEspresso -= amount;
-	        else if (product.getName().equals("Kahvi"))
-	        	changeInCoffee -= amount;
+	        if (product.getName().equals("Kahvi"))
+	        	changeInCoffee -= (amount*product.getPrice());
 	        else
-	        	changeInEspresso -= (amount*2);
+	        	changeInEspresso -= (amount*product.getPrice());
 	    }
 		
 		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
