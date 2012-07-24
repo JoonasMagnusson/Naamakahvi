@@ -234,9 +234,14 @@ public class Client {
             entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
             entity.addPart("username", new StringBody(username, "text/plain", Charset.forName("UTF-8")));
             post.setEntity(entity);
-            httpClient.execute(post);
+            HttpResponse response = httpClient.execute(post);
+            JsonObject jsonResponse = responseToJson(response);
+            String status = jsonResponse.get("status").getAsString();
+            if (!status.equalsIgnoreCase("ok")) {
+                throw new GeneralClientException(status);
+            }
         } catch (Exception ex) {
-            throw new GeneralClientException(ex.toString());
+            throw new GeneralClientException(ex.getMessage());
         }
     }
 
@@ -400,6 +405,12 @@ public class Client {
     }
 
     /**
+     * Sends a HTTP post request to server containing a field:
+     * "file" - the image data for identification
+     * 
+     * The server response should have a json object that contains fields:
+     * "status" - a string, "ok" when the operation is successful
+     * "idlist" - an ordered list of usernames that match the sent image, the best match first
      * 
      * @param imagedata the image
      * @return list of identified usernames 
@@ -417,7 +428,6 @@ public class Client {
             JsonObject jsonResponse = responseToJson(response);
             String status = jsonResponse.get("status").getAsString();
             if (status.equalsIgnoreCase("ok")) {
-
                 JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
 
                 return jsonArrayToStringArray(jarr);
