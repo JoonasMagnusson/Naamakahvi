@@ -2,9 +2,12 @@ package naamakahvi.android;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Basket;
+import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
@@ -22,13 +25,64 @@ import android.view.View;
 public class RecogActivity extends Activity {
 	public static final short SELECT_USERNAME = 0;
 	private Basket mOrder;
+	private Timer mShotTimer;
+
+	class ShotTimer extends TimerTask {
+		private Handler hand;
+		
+		public ShotTimer(Handler hand){
+			this.hand = hand;
+		}
+		
+		@Override
+		public void run() {
+			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
+			List<IStation> s;
+			try {
+				s = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT);
+
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				face.grabFrame().compress(CompressFormat.PNG, 0, bos);
+				byte[] bitmapdata = bos.toByteArray();
+
+				Client client = new Client(Config.SERVER_URL,
+						Config.SERVER_PORT, s.get(0));
+
+				final String[] users = client.identifyImage(bitmapdata);
+
+				hand.post(new Runnable() {
+					public void run() {
+						Intent i = new Intent();
+						i.putExtra(ExtraNames.USERS, users);
+						i.putExtra(ExtraNames.PRODUCTS, mOrder);
+						setResult(RESULT_OK, i);
+						finish();
+					}
+				});
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				mShotTimer.schedule(new ShotTimer(hand), 500L);
+			}
+
+		}
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.recog_user);
+
+		mShotTimer = new Timer();
+
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
+		final Handler hand = new Handler(getMainLooper());
+
+		mShotTimer.schedule(new ShotTimer(hand), 4000L);
+
 		mOrder = getIntent().getParcelableExtra(ExtraNames.PRODUCTS);
 	}
 
@@ -62,41 +116,25 @@ public class RecogActivity extends Activity {
 				FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 				List<IStation> s;
 				try {
-					s = Client.listStations("naama.zerg.fi", 5001);
+					s = Client.listStations(Config.SERVER_URL,
+							Config.SERVER_PORT);
+
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					face.grabFrame().compress(CompressFormat.PNG, 0 /*
-																	 * ignored
-																	 * for PNG
-																	 */, bos);
+					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
 					byte[] bitmapdata = bos.toByteArray();
-					Client client = new Client("naama.zerg.fi", 5001, s.get(0));
+
+					Client client = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, s.get(0));
 
 					final String[] users = client.identifyImage(bitmapdata);
 
 					hand.post(new Runnable() {
-
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									con);
-							builder.setCancelable(false);
-							StringBuilder b = new StringBuilder();
-
-							for (String s : users) {
-								b.append(s);
-								b.append(' ');
-							}
-
-							builder.setMessage(b.toString()).setPositiveButton(
-									"OK",
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-											finish();
-										}
-									});
-							builder.show();
+							Intent i = new Intent();
+							i.putExtra(ExtraNames.USERS, users);
+							i.putExtra(ExtraNames.PRODUCTS, mOrder);
+							setResult(RESULT_OK, i);
+							finish();
 						}
 					});
 
@@ -115,8 +153,8 @@ public class RecogActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.SELECTED_USER, data.getExtras()
-						.getString(ExtraNames.SELECTED_USER));
+				i.putExtra(ExtraNames.USERS, new String[] { data.getExtras()
+						.getString(ExtraNames.SELECTED_USER) });
 				i.putExtra(ExtraNames.PRODUCTS, mOrder);
 				setResult(RESULT_OK, i);
 				finish();

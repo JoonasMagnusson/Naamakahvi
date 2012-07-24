@@ -10,6 +10,7 @@ import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,22 +31,24 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
+import naamakahvi.android.utils.Config;
 
 public class NewUserActivity extends Activity {
 	private final String TAG = "NewUserActivity";
-	private Resources mRes;
 	private List<Bitmap> mPics;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_user);
-
-		mRes = getResources();
-
+		
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
+		
 		mPics = new ArrayList<Bitmap>();
+
+		
 		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
+		
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));
 
 		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -81,14 +84,26 @@ public class NewUserActivity extends Activity {
 	public void onRegistrationClick(View v) {
 		final Handler hand = new Handler(getMainLooper());
 		final Context con = this;
+		final ProgressDialog pd = new ProgressDialog(con);
+		pd.setMessage("Please Wait...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(false);
 		new Thread(new Runnable() {
 
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations("naama.zerg.fi",
-							5001);
 
-					Client client = new Client("naama.zerg.fi", 5001, s.get(0));
+					hand.post(new Runnable() {
+						public void run() {
+							pd.show();
+						}
+					});
+
+					List<IStation> s = Client.listStations(Config.SERVER_URL,
+							Config.SERVER_PORT);
+
+					Client client = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, s.get(0));
 
 					final String username = ((EditText) findViewById(R.id.editTextUsername))
 							.getText().toString();
@@ -121,6 +136,11 @@ public class NewUserActivity extends Activity {
 					});
 					finish();
 				} catch (final Exception ex) {
+					hand.post(new Runnable() {
+						public void run() {
+							pd.dismiss();
+						}
+					});
 					Log.d(TAG, ex.getMessage());
 					ex.printStackTrace();
 					hand.post(new Runnable() {
@@ -129,23 +149,29 @@ public class NewUserActivity extends Activity {
 							AlertDialog.Builder builder = new AlertDialog.Builder(
 									con);
 							builder.setCancelable(false);
-							builder.setMessage(
-									"Registration failed. Reason: "
-											+ ex.getMessage())
-									.setPositiveButton(
-											"OK",
-											new DialogInterface.OnClickListener() {
-												public void onClick(
-														DialogInterface dialog,
-														int which) {
-													dialog.dismiss();
-													finish();
-												}
-											});
+							builder.setMessage("Registration failed: "
+									+ ex.getMessage());
+							builder.setTitle("Error");
+							builder.setPositiveButton("OK",
+									new DialogInterface.OnClickListener() {
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											dialog.dismiss();
+											finish();
+										}
+									});
 							builder.show();
 						}
 					});
 				}
+				
+				hand.post(new Runnable() {
+					public void run() {
+						pd.dismiss();
+					}
+				});
+
 			}
 		}).start();
 
@@ -158,19 +184,10 @@ public class NewUserActivity extends Activity {
 				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
 						.grabFrame();
 			} catch (Exception e) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				Log.d(TAG, "Exception: " + e.getMessage());
 				e.printStackTrace();
 
-				builder.setMessage("Error: " + e.getMessage())
-						.setPositiveButton("OK",
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int which) {
-										dialog.dismiss();
-									}
-								});
-				builder.show();
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 				return;
 			}
 			mPics.add(bmp);
