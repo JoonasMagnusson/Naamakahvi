@@ -22,6 +22,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
+import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
@@ -153,9 +154,8 @@ public class ConfirmPurchaseActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations("naama.zerg.fi",
-							5001);
-					Client c = new Client("naama.zerg.fi", 5001, s.get(0));
+					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
+					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
 					while (it.hasNext()) {
 				        Map.Entry pairs = (Map.Entry)it.next();
 				        IProduct product = (IProduct) pairs.getKey();

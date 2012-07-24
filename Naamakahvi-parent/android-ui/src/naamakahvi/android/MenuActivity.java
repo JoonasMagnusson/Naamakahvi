@@ -7,7 +7,6 @@ import java.util.List;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.ExtraNames;
-import naamakahvi.android.utils.RandomString;
 import naamakahvi.naamakahviclient.IProduct;
 
 import android.app.Activity;
