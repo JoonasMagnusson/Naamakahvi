@@ -183,7 +183,6 @@ public class ClientTest {
             ans.add("status", new JsonPrimitive("ok"));
             stringResponse(response, ans.toString());
         }
-        
     };
     private HttpRequestHandler identifyImageHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
@@ -271,7 +270,7 @@ public class ClientTest {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
         client = new Client(host, port, station);
     }
 
@@ -436,10 +435,10 @@ public class ClientTest {
     @Test
     public void correctSaldoListLength() throws ClientException {
         IUser u = client.authenticateText("Teemu");
-        List<Client.SaldoItem> saldos = client.listUserSaldos(u);
+        List<SaldoItem> saldos = client.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
-    
+
     @Test
     public void successfulImageUpload() throws GeneralClientException {
         client.addImage("Ossi", new byte[0x3]);
