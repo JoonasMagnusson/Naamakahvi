@@ -97,12 +97,13 @@ public class ClientTest {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
-
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso", "megaespresso", "joku harvinainen tuote"}) {
                 JsonObject product = new JsonObject();
                 final int price = 1;
+                final int id = 1;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
+                product.add("product_id", new JsonPrimitive(id));
                 ar.add(product);
             }
             ans.add("buyable_products", ar);
@@ -118,8 +119,10 @@ public class ClientTest {
             for (String s : new String[]{"kahvi", "espresso", "tuplaespresso"}) {
                 JsonObject product = new JsonObject();
                 final int price = 1;
+                final int id = 1;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
+                product.add("product_id", new JsonPrimitive(id));
                 ar.add(product);
             }
             ans.add("default_products", ar);
@@ -142,8 +145,10 @@ public class ClientTest {
             for (String s : new String[]{"suodatinkahvi", "espressopavut", "kahvisuodatin", "sokeri", "puhdistuspilleri"}) {
                 JsonObject product = new JsonObject();
                 final int price = 1;
+                final int id = 1;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
+                product.add("product_id", new JsonPrimitive(id));
                 ar.add(product);
             }
             ans.add("raw_products", ar);
@@ -170,26 +175,6 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
-    // private HttpRequestHandler uploadHandler = new HttpRequestHandler() {
-    //     public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
-    //         System.out.println("A");
-    //         HttpEntityEnclosingRequest r = (HttpEntityEnclosingRequest) request;
-    //         System.out.println("B");
-    //         try {
-    //             MultipartEntity ent = (MultipartEntity) r.getEntity();
-    //         } catch (Exception e) {
-    //             System.out.println(e);
-    //             throw e;
-    //         }
-    //         System.out.println("C");
-    //         JsonObject ans = new JsonObject();
-    //         System.out.println("D");
-    //         ans.add("status", new JsonPrimitive("ok"));
-    //         System.out.println("E");
-    //         stringResponse(response, ans.toString());
-    //         System.out.println("F");
-    //     }
-    // };
     private HttpRequestHandler identifyImageHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
@@ -204,12 +189,11 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
-    
     private HttpRequestHandler listUserSaldosHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
-            
+
             JsonArray ar = new JsonArray();
 
             JsonObject s1 = new JsonObject();
@@ -292,7 +276,7 @@ public class ClientTest {
     public void registrationWithNewNameSuccessful() throws Exception {
         Client c = new Client(host, port, station);
         try {
-            IUser u = c.registerUser("Pekka", "Pekka", "Virtanen", null);
+            IUser u = c.registerUser("Pekka", "Pekka", "Virtanen");
             assertEquals(u.getUserName(), "Pekka");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -318,7 +302,7 @@ public class ClientTest {
         thrown.expectMessage("Registration failed: Try another username");
 
         Client c = new Client(host, port, station);
-        IUser u = c.registerUser("Teemu", "Teemu", "Lahti", null);
+        IUser u = c.registerUser("Teemu", "Teemu", "Lahti");
     }
 
     @Test
@@ -352,7 +336,6 @@ public class ClientTest {
     public void correctBuyableProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
         List<IProduct> ps = c.listBuyableProducts();
-
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso")
@@ -460,5 +443,4 @@ public class ClientTest {
         List<SaldoItem> saldos = c.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
-
 }

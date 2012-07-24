@@ -2,117 +2,167 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="horizontal" >
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
+        android:layout_gravity="center"
+        android:layout_weight="0.32"
+        android:orientation="vertical" >
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textView1"
             android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_margin="20dp"
+            android:layout_weight="1"
+            android:text="@string/reg_button"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1"
+            android:stretchColumns="1" >
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/username"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/editTextUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="0dp"
+                    android:ems="10"
+                    android:maxLength="8"
+                    android:textSize="20dp" >
+
+                    <requestFocus />
+
+                </EditText>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/first_name"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/editTextEtunimi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:maxLength="20"
+                    android:textSize="20dp" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/last_name"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/editTextSukunimi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:maxLength="20"
+                    android:textSize="20dp" />
+            </TableRow>
+        </TableLayout>
+
+        <naamakahvi.android.components.NoScrollGridView
+            android:id="@+id/thumbGrid"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:numColumns="3" >
+        </naamakahvi.android.components.NoScrollGridView>
+
+        <TextView
+            android:id="@+id/touchText"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="@string/thumb_rm_instruction"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/clientRegisterButton"
+            android:layout_width="319dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:onClick="onRegistrationClick"
+            android:text="OK" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.03"
+        android:orientation="vertical" >
+
+        <naamakahvi.android.components.FaceDetectView
+            android:id="@+id/faceDetectView1"
+            android:layout_width="642dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="0.32"
-            android:orientation="vertical" >
+            android:layout_weight="3.05" />
 
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:text="@string/reg_button"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <EditText
-                android:id="@+id/editTextUsername"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="0dp"
-                android:maxLength="8"
-                android:text="username"
-                android:textSize="20dp" >
-
-                <requestFocus />
-            </EditText>
-
-            <EditText
-                android:id="@+id/editTextEtunimi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="10dp"
-                android:inputType="textPersonName"
-                android:maxLength="20"
-                android:text="first name"
-                android:textSize="20dp" />
-
-            <EditText
-                android:id="@+id/editTextSukunimi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="10dp"
-                android:inputType="textPersonName"
-                android:maxLength="20"
-                android:text="last name"
-                android:textSize="20dp" />
-
-            <naamakahvi.android.components.NoScrollGridView
-                android:id="@+id/thumbGrid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:numColumns="3" >
-            </naamakahvi.android.components.NoScrollGridView>
-
-            <TextView
-                android:id="@+id/touchText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/thumb_rm_instruction"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Button
-                android:id="@+id/clientRegisterButton"
-                android:layout_width="319dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"
-                android:onClick="onRegistrationClick"
-                android:text="OK" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.03"
-            android:orientation="vertical" >
-
-            <naamakahvi.android.components.FaceDetectView
-                android:id="@+id/faceDetectView1"
-                android:layout_width="642dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.93" />
-
-            <Button
-                android:id="@+id/takePictureButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="addPicture"
-                android:text="Button" />
-        </LinearLayout>
-
+        <Button
+            android:id="@+id/takePictureButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="addPicture"
+            android:text="Button" />
     </LinearLayout>
 
 </LinearLayout>

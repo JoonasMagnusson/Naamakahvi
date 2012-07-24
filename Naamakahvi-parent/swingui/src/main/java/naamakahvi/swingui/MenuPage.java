@@ -17,7 +17,6 @@ public class MenuPage extends JPanel implements ActionListener{
 	private JButton[][] prodButtons;
 	private IProduct[] products;
 	private JPanel prodPanel;
-	private JSpinner spinner;
 	private CafeUI master;
 	
 	public MenuPage(CafeUI master){
@@ -48,9 +47,6 @@ public class MenuPage extends JPanel implements ActionListener{
 		amountText = new JLabel("Quantity");
 		amountText.setFont(master.UI_FONT);
 		
-		spinner = new JSpinner(new SpinnerNumberModel(1, -99, 99, 1));
-		spinner.setFont(master.UI_FONT);
-		
 		prodPanel = new JPanel();
 		prodPanel.setLayout(new GridLayout(0,1));
 		prodPanel.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/2-20));
@@ -73,12 +69,11 @@ public class MenuPage extends JPanel implements ActionListener{
 		
 		logout = new JButton("Log Out");
 		logout.setFont(master.UI_FONT_BIG);
-		logout.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/4));
+		logout.setPreferredSize(new Dimension(master.X_RES, master.Y_RES/8));
 		logout.addActionListener(this);
 		
 		add(username);
 		add(amountText);
-		add(spinner);
 		add(prodPanel);
 		/*
 		add(coffeeSaldo);
@@ -90,9 +85,6 @@ public class MenuPage extends JPanel implements ActionListener{
 		add(logout);
 	}
 	
-	protected void reset(){
-		spinner.setValue(1);
-	}
 	/*
 	 * Näyttää kirjautuneen käyttäjän nimen
 	 */
@@ -142,7 +134,7 @@ public class MenuPage extends JPanel implements ActionListener{
 			prodline.add(prodname);
 			
 			for (int j = 0; j < 5; j++){
-				prodButtons[i][j] = new JButton("" + j);
+				prodButtons[i][j] = new JButton("" + (j+1));
 				prodButtons[i][j].setFont(master.UI_FONT);
 				prodButtons[i][j].addActionListener(this);
 				prodline.add(prodButtons[i][j]);
@@ -164,10 +156,10 @@ public class MenuPage extends JPanel implements ActionListener{
 		}
 		for (int i = 0; i < prodButtons.length; i++){
 			for (int j = 0; j < prodButtons[i].length; j++){
-				if (s == prodButtons[i]){
-					master.selectProduct(products[i].getName(), 
-							((Number)spinner.getValue()).intValue());
+				if (s == prodButtons[i][j]){
+					master.selectProduct(products[i], j+1);
 					master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
+					System.out.println("debug");
 				}
 			}
 		}

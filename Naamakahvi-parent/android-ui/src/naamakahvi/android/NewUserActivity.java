@@ -1,18 +1,24 @@
 package naamakahvi.android;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
+import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +31,24 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
+import naamakahvi.android.utils.Config;
 
 public class NewUserActivity extends Activity {
 	private final String TAG = "NewUserActivity";
-
 	private List<Bitmap> mPics;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_user);
+		
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
+		
 		mPics = new ArrayList<Bitmap>();
+
+		
 		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
+		
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));
 
 		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -71,38 +82,99 @@ public class NewUserActivity extends Activity {
 	}
 
 	public void onRegistrationClick(View v) {
-		try {
-			Client client = new Client("127.0.0.1", 5000, null);
-			String username = ((EditText) findViewById(R.id.editTextUsername))
-					.getText().toString();
-			String etunimi = ((EditText) findViewById(R.id.editTextEtunimi))
-					.getText().toString();
-			String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi))
-					.getText().toString();
+		final Handler hand = new Handler(getMainLooper());
+		final Context con = this;
+		final ProgressDialog pd = new ProgressDialog(con);
+		pd.setMessage("Please Wait...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(false);
+		new Thread(new Runnable() {
 
-			IUser user = client.registerUser(username, etunimi, sukunimi, null);
-			// tarkistetaan onko username varattu. jos on, kirjoitetaan se ja
-			// pyydet��n uutta else finish()
-			Toast.makeText(
-					getApplicationContext(),
-					"Sinut on rekister�ity onnistuneesti nimell� "
-							+ username, Toast.LENGTH_LONG).show();
-			finish();
-		} catch (Exception ex) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			Log.d(TAG, "Exception: " + ex.getMessage());
-			ex.printStackTrace();
-			builder.setMessage(
-					"Registration failed. Reason: " + ex.getMessage())
-					.setPositiveButton("OK",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int which) {
-									dialog.dismiss();
-								}
-							});
-			builder.show();
-		}
+			public void run() {
+				try {
+
+					hand.post(new Runnable() {
+						public void run() {
+							pd.show();
+						}
+					});
+
+					List<IStation> s = Client.listStations(Config.SERVER_URL,
+							Config.SERVER_PORT);
+
+					Client client = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, s.get(0));
+
+					final String username = ((EditText) findViewById(R.id.editTextUsername))
+							.getText().toString();
+					String etunimi = ((EditText) findViewById(R.id.editTextEtunimi))
+							.getText().toString();
+					String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi))
+							.getText().toString();
+
+					IUser user = client.registerUser(username, etunimi,
+							sukunimi);
+
+					for (Bitmap b : mPics) {
+						ByteArrayOutputStream bos = new ByteArrayOutputStream();
+						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */,
+								bos);
+						byte[] bitmapdata = bos.toByteArray();
+						client.addImage(user.getUserName(), bitmapdata);
+					}
+
+					// tarkistetaan onko username varattu. jos on, kirjoitetaan
+					// se ja
+					// pyydet��n uutta else finish()
+					hand.post(new Runnable() {
+
+						public void run() {
+							Toast.makeText(getApplicationContext(),
+									"Successfully registered as: " + username,
+									Toast.LENGTH_LONG).show();
+						}
+					});
+					finish();
+				} catch (final Exception ex) {
+					hand.post(new Runnable() {
+						public void run() {
+							pd.dismiss();
+						}
+					});
+					Log.d(TAG, ex.getMessage());
+					ex.printStackTrace();
+					hand.post(new Runnable() {
+
+						public void run() {
+							AlertDialog.Builder builder = new AlertDialog.Builder(
+									con);
+							builder.setCancelable(false);
+							builder.setMessage("Registration failed: "
+									+ ex.getMessage());
+							builder.setTitle("Error");
+							builder.setPositiveButton("OK",
+									new DialogInterface.OnClickListener() {
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											dialog.dismiss();
+											finish();
+										}
+									});
+							builder.show();
+						}
+					});
+				}
+				
+				hand.post(new Runnable() {
+					public void run() {
+						pd.dismiss();
+					}
+				});
+
+			}
+		}).start();
+
 	}
 
 	public void addPicture(View v) {
@@ -112,19 +184,10 @@ public class NewUserActivity extends Activity {
 				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
 						.grabFrame();
 			} catch (Exception e) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				Log.d(TAG, "Exception: " + e.getMessage());
 				e.printStackTrace();
-				
-				builder.setMessage("Error: " + e.getMessage())
-						.setPositiveButton("OK",
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int which) {
-										dialog.dismiss();
-									}
-								});
-				builder.show();
+
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 				return;
 			}
 			mPics.add(bmp);

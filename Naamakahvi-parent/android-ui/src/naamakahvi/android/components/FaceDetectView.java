@@ -12,6 +12,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -32,7 +33,7 @@ public class FaceDetectView extends SurfaceView implements
 		SurfaceHolder.Callback, Runnable {
 
 	public static final int GRAB_IMAGE_SIDE = 200;
-	
+
 	private final String TAG = "FaceDetectView";
 
 	private final float RELATIVE_FACE_SIZE = 0.3f;
@@ -147,9 +148,6 @@ public class FaceDetectView extends SurfaceView implements
 	public Bitmap grabFrame() throws Exception {
 		synchronized (this) {
 
-			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE,
-					GRAB_IMAGE_SIDE, Bitmap.Config.ARGB_8888);
-
 			MatOfRect faces = new MatOfRect();
 
 			if (mDetector != null)
@@ -159,25 +157,32 @@ public class FaceDetectView extends SurfaceView implements
 			Rect[] facesArray = faces.toArray();
 
 			if (facesArray.length != 1) {
-				bmp.recycle();
 				if (facesArray.length < 1) {
 					throw new Exception("No faces detected");
 				} else {
 					throw new Exception("More than one face detected");
 				}
 			}
+			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE, GRAB_IMAGE_SIDE,
+					Bitmap.Config.ARGB_8888);
+
+			Rect face = facesArray[0];
+
+
+			Size s = new Size(face.width, face.height);
+			Point p = new Point(face.x + (face.width / 2), face.y
+					+ (face.height / 2));
+			Log.d(TAG, "face x:" + face.x + "," + face.y + " face width:"
+					+ face.width + " face height:" + face.height + " m size:"
+					+ mGrabFrame.cols() + "," + mGrabFrame.rows());
+			Imgproc.getRectSubPix(mGrabFrame, s, p, mGrabFrame);
 			
-			Rect face = facesArray[0];			
 			
-			if (face.width > face.height){
-				face = new Rect(face.x, face.y-((face.width-face.height)/2), face.width,face.width);
-			} else if (face.width!=face.height) {
-				face = new Rect(face.x-((face.height-face.width)/2), face.y , face.height,face.height);
-			}
-			
+
 			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = mirror the image
-			Imgproc.resize(mGrabFrame.submat(face),mGrabFrame , new Size(200,200)); //resize
-			
+			Imgproc.resize(mGrabFrame, mGrabFrame, new Size(200,
+					200)); // resize
+
 			try {
 				Utils.matToBitmap(mGrabFrame, bmp);
 			} catch (Exception e) {

@@ -3,6 +3,7 @@ package naamakahvi.android;
 import java.util.List;
 
 import naamakahvi.android.R;
+import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.android.utils.ProductCache;
 import naamakahvi.naamakahviclient.Client;
@@ -27,7 +28,6 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class LoginwithusernameActivity extends Activity {
 
-	
 	public static final String TAG = "LoginwithUsernameActivity";
 	private Resources mRes;
 	private LayoutInflater mInflater;
@@ -48,12 +48,12 @@ public class LoginwithusernameActivity extends Activity {
 
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations("naama.zerg.fi",
-							5001);
-					Client c = new Client("naama.zerg.fi", 5001, s.get(0));
+					List<IStation> s = Client.listStations(Config.SERVER_URL,
+							Config.SERVER_PORT);
+					Client c = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, s.get(0));
 					final String[] users = c.listUsernames();
-					
-					
+
 					hand.post(new Runnable() {
 
 						public void run() {
@@ -69,19 +69,17 @@ public class LoginwithusernameActivity extends Activity {
 							AlertDialog.Builder builder = new AlertDialog.Builder(
 									con);
 							builder.setCancelable(false);
-							builder.setMessage(
-									"Fetching data from server failed. Reason: "
-											+ ex.getMessage())
-									.setPositiveButton(
-											"OK",
-											new DialogInterface.OnClickListener() {
-												public void onClick(
-														DialogInterface dialog,
-														int which) {
-													dialog.dismiss();
-													finish();
-												}
-											});
+							builder.setMessage("Fetching data from server failed. Reason: "
+									+ ex.getMessage());
+							builder.setPositiveButton("OK",
+									new DialogInterface.OnClickListener() {
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											dialog.dismiss();
+											finish();
+										}
+									});
 							builder.show();
 						}
 					});

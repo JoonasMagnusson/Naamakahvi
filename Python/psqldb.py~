@@ -56,13 +56,12 @@ class psqldb:
 	
 		
 	#Creates new user
-	def register(self,user, given, family):
+	def register(self,user, given, family,reg):
 			
 		q = self.getQuery("insertUserdata")
 		print q
 		admin = False
 		lang = 'eng'
-		reg = 1
 		try:
 			self.cur.execute(q, (user, given, family, reg, lang, admin))
 		except Exception, exc:
@@ -264,7 +263,7 @@ class psqldb:
 			
 		q_gbal = self.getQuery("incGroupBalanceById")
 		try:
-			self.cur.execute(q_gbal, (amount,group))
+			self.cur.execute(q_gbal, (group,amount,))
 		except  Exception ,e:
 			return e
 		
