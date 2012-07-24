@@ -285,8 +285,8 @@ public class Client {
         }
     }
 
-    private List<BuyableProduct> jsonToBuyableProductList(JsonArray ar) {
-        List<BuyableProduct> ans = new ArrayList();
+    private List<IProduct> jsonToBuyableProductList(JsonArray ar) {
+        List<IProduct> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
@@ -298,8 +298,8 @@ public class Client {
         return ans;
     }
 
-    private List<RawProduct> jsonToRawProductList(JsonArray ar) {
-        List<RawProduct> ans = new ArrayList();
+    private List<IProduct> jsonToRawProductList(JsonArray ar) {
+        List<IProduct> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
@@ -316,7 +316,7 @@ public class Client {
      * 
      * @return list of all buyable products
      */
-    public List<BuyableProduct> listBuyableProducts() throws ClientException {
+    public List<IProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
                     "station_name", this.station.getName());
@@ -336,7 +336,7 @@ public class Client {
      * 
      * @return list of default products
      */
-    public List<BuyableProduct> listDefaultProducts() throws ClientException {
+    public List<IProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
                     "station_name", this.station.getName());
@@ -358,7 +358,8 @@ public class Client {
      * @param product bought product
      * @param amount amount of bought product
      */
-    public void buyProduct(IUser user, BuyableProduct product, int amount) throws ClientException {
+    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
+    	if (!product.isBuyable()){throw new ClientException(":C");}
         try {
             JsonObject obj = doPost("/buy_product/",
                     "product_id", Integer.toString(product.getId()),
@@ -380,7 +381,7 @@ public class Client {
      * 
      * @return list of raw product objects
      */
-    public List<RawProduct> listRawProducts() throws ClientException {
+    public List<IProduct> listRawProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_raw_products/",
                     "station_name", this.station.getName());

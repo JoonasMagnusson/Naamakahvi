@@ -6,6 +6,10 @@ public class RawProduct implements IProduct {
     private double price;
     private int id;
 
+    public boolean isBuyable(){
+    	return false;
+    }
+    
     RawProduct(String name, double price, int id) {
         this.name = name;
         this.price = price;

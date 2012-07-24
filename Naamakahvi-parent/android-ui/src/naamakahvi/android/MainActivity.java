@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
 					Client c = new Client(Config.SERVER_URL,
 							Config.SERVER_PORT, s.get(0));
 
-					ProductCache.loadBuyableItems(c.listBuyableProducts());
+					ProductCache.loadBuyableItems((c.listBuyableProducts()));
 					ProductCache.loadRawItems(c.listRawProducts());
 
 					hand.post(new Runnable() {

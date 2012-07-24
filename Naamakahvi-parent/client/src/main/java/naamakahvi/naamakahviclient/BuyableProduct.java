@@ -7,7 +7,11 @@ class BuyableProduct implements IProduct {
     private double price;
     private double size;
 
-
+    
+    public boolean isBuyable(){
+    	return true;
+    }
+    
     BuyableProduct(int id, String name, double price, double size) {
         this.id = id;
         this.name = name;

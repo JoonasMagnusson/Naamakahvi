@@ -344,7 +344,7 @@ public class ClientTest {
     @Test
     public void correctBuyableProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<BuyableProduct> ps = c.listBuyableProducts();
+        List<IProduct> ps = c.listBuyableProducts();
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso")
@@ -355,14 +355,14 @@ public class ClientTest {
     @Test
     public void rightBuyableProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<BuyableProduct> ps = c.listBuyableProducts();
+        List<IProduct> ps = c.listBuyableProducts();
         assertTrue(ps.size() == 5);
     }
 
     @Test
     public void correctDefaultProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<BuyableProduct> ps = c.listDefaultProducts();
+        List<IProduct> ps = c.listDefaultProducts();
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso"));
@@ -371,14 +371,14 @@ public class ClientTest {
     @Test
     public void rightDefaultProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<BuyableProduct> ps = c.listDefaultProducts();
+        List<IProduct> ps = c.listDefaultProducts();
         assertTrue(ps.size() == 3);
     }
 
     @Test
     public void buyProduct() throws ClientException {
         Client c = new Client(host, port, station);
-        BuyableProduct p = c.listBuyableProducts().get(0);
+        IProduct p = c.listBuyableProducts().get(0);
         IUser u = c.authenticateText("Teemu");
         final int amount = 3;
         client.buyProduct(u, p, 3);
@@ -388,7 +388,7 @@ public class ClientTest {
     @Test
     public void correctRawProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<RawProduct> ps = c.listRawProducts();
+        List<IProduct> ps = c.listRawProducts();
         assertTrue(ps.get(0).getName().equals("suodatinkahvi")
                 && ps.get(1).getName().equals("espressopavut")
                 && ps.get(2).getName().equals("kahvisuodatin")
@@ -399,7 +399,7 @@ public class ClientTest {
     @Test
     public void rightRawProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<RawProduct> ps = c.listRawProducts();
+        List<IProduct> ps = c.listRawProducts();
         assertTrue(ps.size() == 5);
     }
 

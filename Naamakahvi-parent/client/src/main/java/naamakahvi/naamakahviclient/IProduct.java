@@ -7,5 +7,7 @@ public interface IProduct {
     public double getPrice();
     
     public int getId();
+    
+    public boolean isBuyable();
 
 }
