@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import naamakahvi.naamakahviclient.Client.GeneralClientException;
 import org.apache.http.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -29,6 +30,7 @@ import org.junit.rules.ExpectedException;
 public class ClientTest {
     private LocalTestServer server = null;
     private HashMap<String, IUser> users = new HashMap<String, IUser>();
+    private Client client;
     private int port;
     private String host;
     private IStation station;
@@ -175,6 +177,13 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
+    private HttpRequestHandler uploadHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+            stringResponse(response, ans.toString());
+        }
+    };
     private HttpRequestHandler identifyImageHandler = new HttpRequestHandler() {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
@@ -248,7 +257,7 @@ public class ClientTest {
         server.register("/list_raw_products/*", listRawProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
         server.register("/bring_product/*", bringProductHandler);
-        // server.register("/upload/*", uploadHandler);
+        server.register("/upload/*", uploadHandler);
         server.register("/identify/*", identifyImageHandler);
         server.register("/list_user_saldos/*", listUserSaldosHandler);
 
@@ -261,6 +270,8 @@ public class ClientTest {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        client = new Client(host, port, station);
     }
 
     @After
@@ -274,9 +285,8 @@ public class ClientTest {
 
     @Test
     public void registrationWithNewNameSuccessful() throws Exception {
-        Client c = new Client(host, port, station);
         try {
-            IUser u = c.registerUser("Pekka", "Pekka", "Virtanen");
+            IUser u = client.registerUser("Pekka", "Pekka", "Virtanen");
             assertEquals(u.getUserName(), "Pekka");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -286,9 +296,8 @@ public class ClientTest {
 
     @Test
     public void authenticationWithExistingNameSuccessful() throws Exception {
-        Client c = new Client(host, port, station);
         try {
-            IUser u = c.authenticateText("Teemu");
+            IUser u = client.authenticateText("Teemu");
             assertEquals(u.getUserName(), "Teemu");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -301,8 +310,7 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Registration failed: Try another username");
 
-        Client c = new Client(host, port, station);
-        IUser u = c.registerUser("Teemu", "Teemu", "Lahti");
+        IUser u = client.registerUser("Teemu", "Teemu", "Lahti");
     }
 
     @Test
@@ -310,21 +318,18 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");
 
-        Client c = new Client(host, port, station);
-        IUser u = c.authenticateText("Matti");
+        IUser u = client.authenticateText("Matti");
     }
 
     @Test
     public void listUsernamesCorrectAmount() throws ClientException {
-        Client c = new Client(host, port, station);
-        String[] usernames = c.listUsernames();
+        String[] usernames = client.listUsernames();
         assert (usernames.length == 4);
     }
 
     @Test
     public void listUsernamesCorrectNames() throws ClientException {
-        Client c = new Client(host, port, station);
-        String[] usernames = c.listUsernames();
+        String[] usernames = client.listUsernames();
         assert (usernames[0].equals("user1")
                 && usernames[1].equals("user2")
                 && usernames[2].equals("user3")
@@ -334,8 +339,7 @@ public class ClientTest {
 
     @Test
     public void correctBuyableProductsListed() throws ClientException {
-        Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listBuyableProducts();
+        List<IProduct> ps = client.listBuyableProducts();
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso")
@@ -345,16 +349,14 @@ public class ClientTest {
 
     @Test
     public void rightBuyableProductsAmount() throws ClientException {
-        Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listBuyableProducts();
+        List<IProduct> ps = client.listBuyableProducts();
 
         assertTrue(ps.size() == 5);
     }
 
     @Test
     public void correctDefaultProductsListed() throws ClientException {
-        Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listDefaultProducts();
+        List<IProduct> ps = client.listDefaultProducts();
 
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
@@ -363,25 +365,22 @@ public class ClientTest {
 
     @Test
     public void rightDefaultProductsAmount() throws ClientException {
-        Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listDefaultProducts();
+        List<IProduct> ps = client.listDefaultProducts();
         assertTrue(ps.size() == 3);
     }
 
     @Test
     public void buyProduct() throws ClientException {
-        Client c = new Client(host, port, station);
-        IProduct p = c.listBuyableProducts().get(0);
-        IUser u = c.authenticateText("Teemu");
+        IProduct p = client.listBuyableProducts().get(0);
+        IUser u = client.authenticateText("Teemu");
         final int amount = 3;
-        c.buyProduct(u, p, 3);
+        client.buyProduct(u, p, 3);
         System.out.println("Bought " + amount + " " + p.getName() + "(s)");
     }
 
     @Test
     public void correctRawProductsListed() throws ClientException {
-        Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listRawProducts();
+        List<IProduct> ps = client.listRawProducts();
 
         assertTrue(ps.get(0).getName().equals("suodatinkahvi")
                 && ps.get(1).getName().equals("espressopavut")
@@ -392,19 +391,17 @@ public class ClientTest {
 
     @Test
     public void rightRawProductsAmount() throws ClientException {
-        Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listRawProducts();
+        List<IProduct> ps = client.listRawProducts();
 
         assertTrue(ps.size() == 5);
     }
 
     @Test
     public void bringProduct() throws ClientException {
-        Client c = new Client(host, port, station);
-        IProduct p = c.listBuyableProducts().get(0);
-        IUser u = c.authenticateText("Teemu");
+        IProduct p = client.listBuyableProducts().get(0);
+        IUser u = client.authenticateText("Teemu");
         final int amount = 3;
-        c.bringProduct(u, p, 3);
+        client.bringProduct(u, p, 3);
         System.out.println("Brought " + amount + " " + p.getName() + "(s)");
     }
 
@@ -426,9 +423,8 @@ public class ClientTest {
 
     @Test
     public void imageAuthenticationListsCorrectUsers() throws ClientException {
-        Client c = new Client(host, port, station);
         byte[] bytes = new byte[2];
-        String[] usernames = c.identifyImage(bytes);
+        String[] usernames = client.identifyImage(bytes);
 
         assertTrue(usernames[0].equals("user1")
                 && usernames[1].equals("user2")
@@ -437,10 +433,14 @@ public class ClientTest {
     }
 
     @Test
-    public void saldoTest() throws ClientException {
-        Client c = new Client(host, port, station);
-        IUser u = c.authenticateText("Teemu");
-        List<Client.SaldoItem> saldos = c.listUserSaldos(u);
+    public void correctSaldoListLength() throws ClientException {
+        IUser u = client.authenticateText("Teemu");
+        List<SaldoItem> saldos = client.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
+    }
+
+    @Test
+    public void successfulImageUpload() throws GeneralClientException {
+        client.addImage("Ossi", new byte[0x3]);
     }
 }

@@ -85,7 +85,7 @@ class neuralmodule:
             
             for m in range(0, g.shape[1]):
         #        print i
-                shape2 = numpy.array([self.SAMPLES,16,8,1])
+                shape2 = numpy.array([self.SAMPLES,20,1])
                 net2 = cv2.ANN_MLP()
                 net2.create(shape2)
                 net2.train(self.projection,g[:,m],None,params = self.ANN_params)
