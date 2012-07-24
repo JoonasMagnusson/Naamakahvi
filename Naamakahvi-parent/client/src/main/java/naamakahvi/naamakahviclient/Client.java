@@ -409,7 +409,7 @@ public class Client {
      * @param product bought product
      * @param amount amount of bought product
      */
-    public void buyProduct(IUser user, BuyableProduct product, int amount) throws ClientException {
+    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
                     "product_id", Integer.toString(product.getId()),
