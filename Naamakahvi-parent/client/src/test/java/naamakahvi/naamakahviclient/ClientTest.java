@@ -103,9 +103,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                final double size = 3;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_size", new JsonPrimitive(size));
                 ar.add(product);
             }
             ans.add("buyable_products", ar);
@@ -122,9 +124,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                final double size = 1;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_size", new JsonPrimitive(size));
                 ar.add(product);
             }
             ans.add("default_products", ar);
@@ -339,7 +343,8 @@ public class ClientTest {
 
     @Test
     public void correctBuyableProductsListed() throws ClientException {
-        List<IProduct> ps = client.listBuyableProducts();
+        Client c = new Client(host, port, station);
+        List<BuyableProduct> ps = c.listBuyableProducts();
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso")
@@ -349,15 +354,15 @@ public class ClientTest {
 
     @Test
     public void rightBuyableProductsAmount() throws ClientException {
-        List<IProduct> ps = client.listBuyableProducts();
-
+        Client c = new Client(host, port, station);
+        List<BuyableProduct> ps = c.listBuyableProducts();
         assertTrue(ps.size() == 5);
     }
 
     @Test
     public void correctDefaultProductsListed() throws ClientException {
-        List<IProduct> ps = client.listDefaultProducts();
-
+        Client c = new Client(host, port, station);
+        List<BuyableProduct> ps = c.listDefaultProducts();
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso"));
@@ -365,14 +370,16 @@ public class ClientTest {
 
     @Test
     public void rightDefaultProductsAmount() throws ClientException {
-        List<IProduct> ps = client.listDefaultProducts();
+        Client c = new Client(host, port, station);
+        List<BuyableProduct> ps = c.listDefaultProducts();
         assertTrue(ps.size() == 3);
     }
 
     @Test
     public void buyProduct() throws ClientException {
-        IProduct p = client.listBuyableProducts().get(0);
-        IUser u = client.authenticateText("Teemu");
+        Client c = new Client(host, port, station);
+        BuyableProduct p = c.listBuyableProducts().get(0);
+        IUser u = c.authenticateText("Teemu");
         final int amount = 3;
         client.buyProduct(u, p, 3);
         System.out.println("Bought " + amount + " " + p.getName() + "(s)");
@@ -380,8 +387,8 @@ public class ClientTest {
 
     @Test
     public void correctRawProductsListed() throws ClientException {
-        List<IProduct> ps = client.listRawProducts();
-
+        Client c = new Client(host, port, station);
+        List<RawProduct> ps = c.listRawProducts();
         assertTrue(ps.get(0).getName().equals("suodatinkahvi")
                 && ps.get(1).getName().equals("espressopavut")
                 && ps.get(2).getName().equals("kahvisuodatin")
@@ -391,8 +398,8 @@ public class ClientTest {
 
     @Test
     public void rightRawProductsAmount() throws ClientException {
-        List<IProduct> ps = client.listRawProducts();
-
+        Client c = new Client(host, port, station);
+        List<RawProduct> ps = c.listRawProducts();
         assertTrue(ps.size() == 5);
     }
 
@@ -435,7 +442,7 @@ public class ClientTest {
     @Test
     public void correctSaldoListLength() throws ClientException {
         IUser u = client.authenticateText("Teemu");
-        List<SaldoItem> saldos = client.listUserSaldos(u);
+        List<SaldoItem> saldos = u.getSaldos(); //client.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
 
@@ -443,4 +450,5 @@ public class ClientTest {
     public void successfulImageUpload() throws GeneralClientException {
         client.addImage("Ossi", new byte[0x3]);
     }
+
 }

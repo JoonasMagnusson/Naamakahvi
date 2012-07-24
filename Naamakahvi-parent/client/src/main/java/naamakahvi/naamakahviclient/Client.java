@@ -40,6 +40,55 @@ public class Client {
         }
     }
 
+    private static class User implements IUser {
+        private String username;
+        private String givenName;
+        private String familyName;
+        private Client client;
+
+        User(Client client, String username, String givenName, String familyName) {
+            this.client = client;
+            this.username = username;
+            this.givenName = givenName;
+            this.familyName = familyName;
+        }
+
+        public String getUserName() {
+            return this.username;
+        }
+
+        @Override
+        public String toString() {
+            return this.username;
+        }
+
+        public String getFamilyName() {
+            return familyName;
+        }
+
+        public String getGivenName() {
+            return givenName;
+        }
+
+        public List<SaldoItem> getSaldos() throws ClientException {
+            try {
+                JsonObject obj = this.client.doGet("/list_user_saldos/",
+                                       "username", this.getUserName());
+
+                String status = obj.get("status").getAsString();
+                
+                if (status.equalsIgnoreCase("ok")) {
+                    return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
+                } else {
+                    throw new GeneralClientException("Failed to get user saldos: " + status);
+                }
+            } catch (Exception e) {
+                throw new GeneralClientException(e.toString());
+            }
+
+        }
+    }
+
     /**
      * Gets all stations as a json object from server using the specified host name and port 
      * number and makes a list of IStation objects. The server response should contain fields:
@@ -204,6 +253,7 @@ public class Client {
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
                 User responseUser = new Gson().fromJson(obj, User.class);
+                responseUser.client = this;
                 if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
@@ -264,6 +314,7 @@ public class Client {
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
                 User responseUser = new Gson().fromJson(obj, User.class);
+                responseUser.client = this;
                 if (!responseUser.getUserName().equals(username)) {
                     throw new AuthenticationException("username returned from server doesn't match given username");
                 }
@@ -285,29 +336,43 @@ public class Client {
         }
     }
 
-    private List<IProduct> jsonToProductList(JsonArray ar) {
-        List<IProduct> ans = new ArrayList();
+    private List<BuyableProduct> jsonToBuyableProductList(JsonArray ar) {
+        List<BuyableProduct> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            ans.add(new Product(productId,productName, productPrice));
+            double productSize = product.get("product_size").getAsDouble();
+            ans.add(new BuyableProduct(productId, productName, productPrice, productSize));
         }
         return ans;
     }
 
+    private List<RawProduct> jsonToRawProductList(JsonArray ar) {
+        List<RawProduct> ans = new ArrayList();
+        for (JsonElement e : ar) {
+            JsonObject product = e.getAsJsonObject();
+            String productName = product.get("product_name").getAsString();
+            double productPrice = product.get("product_price").getAsDouble();
+            int productId = product.get("product_id").getAsInt();
+            ans.add(new RawProduct(productName, productPrice, productId));
+        }
+        return ans;
+    }
+
+
     /**
-     * Fetches all buyable products from server and makes a list of IProduct objects from them.
+     * Fetches all buyable products from server and makes a list of BuyableProduct objects from them.
      * 
      * @return list of all buyable products
      */
-    public List<IProduct> listBuyableProducts() throws ClientException {
+    public List<BuyableProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("buyable_products").getAsJsonArray());
+                return jsonToBuyableProductList(obj.get("buyable_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of buyable products");
             }
@@ -322,16 +387,17 @@ public class Client {
      * 
      * @return list of default products
      */
-    public List<IProduct> listDefaultProducts() throws ClientException {
+    public List<BuyableProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("default_products").getAsJsonArray());
+                return jsonToBuyableProductList(obj.get("default_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of default products");
             }
         } catch (Exception e) {
+            e.printStackTrace(System.out);
             throw new GeneralClientException(e.getMessage());
         }
     }
@@ -343,7 +409,7 @@ public class Client {
      * @param product bought product
      * @param amount amount of bought product
      */
-    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
+    public void buyProduct(IUser user, BuyableProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
                     "product_id", Integer.toString(product.getId()),
@@ -365,12 +431,12 @@ public class Client {
      * 
      * @return list of raw product objects
      */
-    public List<IProduct> listRawProducts() throws ClientException {
+    public List<RawProduct> listRawProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_raw_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("raw_products").getAsJsonArray());
+                return jsonToRawProductList(obj.get("raw_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }
@@ -439,7 +505,7 @@ public class Client {
         }
     }
 
-    private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
+    private static List<SaldoItem> jsonToSaldoList(JsonArray ar) {
         List<SaldoItem> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject saldoitem = e.getAsJsonObject();
@@ -450,22 +516,6 @@ public class Client {
         return ans;
     }
 
-    public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_user_saldos/",
-                    "username", user.getUserName());
-
-            String status = obj.get("status").getAsString();
-
-            if (status.equalsIgnoreCase("ok")) {
-                return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
-            } else {
-                throw new GeneralClientException("Failed to get user saldos: " + status);
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
-    }
     //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
     //        Client c = new Client("naama.zerg.fi", 5001, null);
     //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
