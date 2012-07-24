@@ -280,29 +280,43 @@ public class Client {
         }
     }
 
-    private List<IProduct> jsonToProductList(JsonArray ar) {
-        List<IProduct> ans = new ArrayList();
+    private List<BuyableProduct> jsonToBuyableProductList(JsonArray ar) {
+        List<BuyableProduct> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            ans.add(new Product(productId,productName, productPrice));
+            double productSize = product.get("product_size").getAsDouble();
+            ans.add(new BuyableProduct(productId, productName, productPrice, productSize));
         }
         return ans;
     }
 
+    private List<RawProduct> jsonToRawProductList(JsonArray ar) {
+        List<RawProduct> ans = new ArrayList();
+        for (JsonElement e : ar) {
+            JsonObject product = e.getAsJsonObject();
+            String productName = product.get("product_name").getAsString();
+            double productPrice = product.get("product_price").getAsDouble();
+            int productId = product.get("product_id").getAsInt();
+            ans.add(new RawProduct(productName, productPrice, productId));
+        }
+        return ans;
+    }
+
+
     /**
-     * Fetches all buyable products from server and makes a list of IProduct objects from them.
+     * Fetches all buyable products from server and makes a list of BuyableProduct objects from them.
      * 
      * @return list of all buyable products
      */
-    public List<IProduct> listBuyableProducts() throws ClientException {
+    public List<BuyableProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("buyable_products").getAsJsonArray());
+                return jsonToBuyableProductList(obj.get("buyable_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of buyable products");
             }
@@ -317,16 +331,17 @@ public class Client {
      * 
      * @return list of default products
      */
-    public List<IProduct> listDefaultProducts() throws ClientException {
+    public List<BuyableProduct> listDefaultProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_default_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("default_products").getAsJsonArray());
+                return jsonToBuyableProductList(obj.get("default_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of default products");
             }
         } catch (Exception e) {
+            e.printStackTrace(System.out);
             throw new GeneralClientException(e.getMessage());
         }
     }
@@ -338,7 +353,7 @@ public class Client {
      * @param product bought product
      * @param amount amount of bought product
      */
-    public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
+    public void buyProduct(IUser user, BuyableProduct product, int amount) throws ClientException {
         try {
             JsonObject obj = doPost("/buy_product/",
                     "product_id", Integer.toString(product.getId()),
@@ -360,12 +375,12 @@ public class Client {
      * 
      * @return list of raw product objects
      */
-    public List<IProduct> listRawProducts() throws ClientException {
+    public List<RawProduct> listRawProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_raw_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("raw_products").getAsJsonArray());
+                return jsonToRawProductList(obj.get("raw_products").getAsJsonArray());
             } else {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }

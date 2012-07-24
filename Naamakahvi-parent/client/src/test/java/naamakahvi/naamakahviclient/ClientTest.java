@@ -101,9 +101,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                final double size = 3;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_size", new JsonPrimitive(size));
                 ar.add(product);
             }
             ans.add("buyable_products", ar);
@@ -120,9 +122,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                final double size = 1;
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_size", new JsonPrimitive(size));
                 ar.add(product);
             }
             ans.add("default_products", ar);
@@ -335,7 +339,7 @@ public class ClientTest {
     @Test
     public void correctBuyableProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listBuyableProducts();
+        List<BuyableProduct> ps = c.listBuyableProducts();
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
                 && ps.get(2).getName().equals("tuplaespresso")
@@ -346,7 +350,7 @@ public class ClientTest {
     @Test
     public void rightBuyableProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listBuyableProducts();
+        List<BuyableProduct> ps = c.listBuyableProducts();
 
         assertTrue(ps.size() == 5);
     }
@@ -354,7 +358,7 @@ public class ClientTest {
     @Test
     public void correctDefaultProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listDefaultProducts();
+        List<BuyableProduct> ps = c.listDefaultProducts();
 
         assertTrue(ps.get(0).getName().equals("kahvi")
                 && ps.get(1).getName().equals("espresso")
@@ -364,14 +368,14 @@ public class ClientTest {
     @Test
     public void rightDefaultProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listDefaultProducts();
+        List<BuyableProduct> ps = c.listDefaultProducts();
         assertTrue(ps.size() == 3);
     }
 
     @Test
     public void buyProduct() throws ClientException {
         Client c = new Client(host, port, station);
-        IProduct p = c.listBuyableProducts().get(0);
+        BuyableProduct p = c.listBuyableProducts().get(0);
         IUser u = c.authenticateText("Teemu");
         final int amount = 3;
         c.buyProduct(u, p, 3);
@@ -381,7 +385,7 @@ public class ClientTest {
     @Test
     public void correctRawProductsListed() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listRawProducts();
+        List<RawProduct> ps = c.listRawProducts();
 
         assertTrue(ps.get(0).getName().equals("suodatinkahvi")
                 && ps.get(1).getName().equals("espressopavut")
@@ -393,7 +397,7 @@ public class ClientTest {
     @Test
     public void rightRawProductsAmount() throws ClientException {
         Client c = new Client(host, port, station);
-        List<IProduct> ps = c.listRawProducts();
+        List<RawProduct> ps = c.listRawProducts();
 
         assertTrue(ps.size() == 5);
     }
