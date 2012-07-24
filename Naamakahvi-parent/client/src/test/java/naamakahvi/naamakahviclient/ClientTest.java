@@ -457,7 +457,7 @@ public class ClientTest {
     public void saldoTest() throws ClientException {
         Client c = new Client(host, port, station);
         IUser u = c.authenticateText("Teemu");
-        List<Client.SaldoItem> saldos = c.listUserSaldos(u);
+        List<SaldoItem> saldos = c.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
 

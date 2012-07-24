@@ -433,24 +433,6 @@ public class Client {
         }
     }
 
-    public class SaldoItem {
-        private String groupName;
-        private double saldo;
-
-        private SaldoItem(String groupName, double saldo) {
-            this.groupName = groupName;
-            this.saldo = saldo;
-        }
-
-        public String getGroupName() {
-            return this.groupName;
-        }
-
-        public double getSaldo() {
-            return this.saldo;
-        }
-    }
-
     private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
         List<SaldoItem> ans = new ArrayList();
         for (JsonElement e : ar) {
