@@ -3,6 +3,7 @@ import cv
 import sys,numpy
 import scipy
 from scipy import spatial
+import pickle
 
 #Uncomment to view full arrays
 #numpy.set_printoptions(threshold='nan')
@@ -19,11 +20,26 @@ class neuralmodule:
         self.projection = None
         self.userlist = []
         self.ANN = None
-        self.ANN_params = dict(train_method = cv2.ANN_MLP_TRAIN_PARAMS_BACKPROP)
+        self.ANN_params = dict(bp_dw_scale = 0.2,train_method = cv2.ANN_MLP_TRAIN_PARAMS_BACKPROP)
         self.ANN_matrix = None
         self.ANN_persons = 0
         self.ANN_names = []    
         self.PANN = []
+        
+        
+        
+    def saveData(self):
+        
+        output = open('data.pkl', 'wb')
+        
+        pickle.dump(self.SAMPLES, output)
+        pickle.dump(self.tmat, output)
+        pickle.dump(self.userlist, output)
+        pickle.dump(self.ANN_persons, output)
+        pickle.dump(self.ANN_names, output)
+        
+        output.close()
+            
 
     
     #Grayscales and normalizes image for PCA
