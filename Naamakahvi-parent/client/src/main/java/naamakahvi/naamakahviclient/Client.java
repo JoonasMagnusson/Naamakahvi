@@ -40,6 +40,55 @@ public class Client {
         }
     }
 
+    private static class User implements IUser {
+        private String username;
+        private String givenName;
+        private String familyName;
+        private Client client;
+
+        User(Client client, String username, String givenName, String familyName) {
+            this.client = client;
+            this.username = username;
+            this.givenName = givenName;
+            this.familyName = familyName;
+        }
+
+        public String getUserName() {
+            return this.username;
+        }
+
+        @Override
+        public String toString() {
+            return this.username;
+        }
+
+        public String getFamilyName() {
+            return familyName;
+        }
+
+        public String getGivenName() {
+            return givenName;
+        }
+
+        public List<SaldoItem> getSaldos() throws ClientException {
+            try {
+                JsonObject obj = this.client.doGet("/list_user_saldos/",
+                                       "username", this.getUserName());
+
+                String status = obj.get("status").getAsString();
+                
+                if (status.equalsIgnoreCase("ok")) {
+                    return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
+                } else {
+                    throw new GeneralClientException("Failed to get user saldos: " + status);
+                }
+            } catch (Exception e) {
+                throw new GeneralClientException(e.toString());
+            }
+
+        }
+    }
+
     /**
      * Gets all stations as a json object from server using the specified host name and port 
      * number and makes a list of IStation objects. The server response should contain fields:
@@ -204,6 +253,7 @@ public class Client {
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
                 User responseUser = new Gson().fromJson(obj, User.class);
+                responseUser.client = this;
                 if (!responseUser.getUserName().equals(username)) {
                     throw new RegistrationException("username returned from server doesn't match given username");
                 }
@@ -264,6 +314,7 @@ public class Client {
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 obj.remove("status");
                 User responseUser = new Gson().fromJson(obj, User.class);
+                responseUser.client = this;
                 if (!responseUser.getUserName().equals(username)) {
                     throw new AuthenticationException("username returned from server doesn't match given username");
                 }
@@ -454,7 +505,7 @@ public class Client {
         }
     }
 
-    private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
+    private static List<SaldoItem> jsonToSaldoList(JsonArray ar) {
         List<SaldoItem> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject saldoitem = e.getAsJsonObject();
@@ -465,22 +516,6 @@ public class Client {
         return ans;
     }
 
-    public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_user_saldos/",
-                    "username", user.getUserName());
-
-            String status = obj.get("status").getAsString();
-
-            if (status.equalsIgnoreCase("ok")) {
-                return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
-            } else {
-                throw new GeneralClientException("Failed to get user saldos: " + status);
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
-    }
     //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
     //        Client c = new Client("naama.zerg.fi", 5001, null);
     //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));

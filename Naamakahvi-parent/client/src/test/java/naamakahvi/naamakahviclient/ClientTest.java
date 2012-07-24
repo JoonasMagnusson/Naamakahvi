@@ -442,7 +442,7 @@ public class ClientTest {
     @Test
     public void correctSaldoListLength() throws ClientException {
         IUser u = client.authenticateText("Teemu");
-        List<SaldoItem> saldos = client.listUserSaldos(u);
+        List<SaldoItem> saldos = u.getSaldos(); //client.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
 
@@ -450,4 +450,5 @@ public class ClientTest {
     public void successfulImageUpload() throws GeneralClientException {
         client.addImage("Ossi", new byte[0x3]);
     }
+
 }
