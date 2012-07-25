@@ -211,6 +211,22 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
+    
+    private HttpRequestHandler listGroupnamesHandler = new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
+        	JsonObject ans = new JsonObject();
+        	ans.add("status", new JsonPrimitive("ok"));
+        	
+        	JsonArray ar = new JsonArray();
+        	ar.add(new JsonPrimitive("group1"));
+        	ar.add(new JsonPrimitive("group2"));
+        	ar.add(new JsonPrimitive("group3"));
+        	
+        	ans.add("product_groups", ar);
+        	
+        	stringResponse(response, ans.toString());
+        }
+    };
 
     private void makeResponseFromUser(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
         StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
@@ -251,6 +267,7 @@ public class ClientTest {
         // server.register("/upload/*", uploadHandler);
         server.register("/identify/*", identifyImageHandler);
         server.register("/list_user_saldos/*", listUserSaldosHandler);
+        server.register("/list_product_groups/*", listGroupnamesHandler);
 
         try {
             server.start();
@@ -443,4 +460,21 @@ public class ClientTest {
         List<SaldoItem> saldos = c.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
+    
+    @Test
+    public void listProductGroupsCorrectAmount() throws ClientException {
+    	Client c = new Client(host, port, station);
+    	List<String> groupnames = c.listProductGroups();
+    	assertTrue(groupnames.size() == 3);
+    }
+    
+    @Test
+    public void listProductGroupsCorrectGroupnames() throws ClientException {
+    	Client c = new Client(host, port, station);
+    	List<String> groupnames = c.listProductGroups();
+    	assertTrue(groupnames.get(0).equals("group1")
+    			&& groupnames.get(1).equals("group2")
+    			&& groupnames.get(1).equals("group2"));
+    }
+    
 }
