@@ -281,13 +281,14 @@ public class Client {
     }
 
     private List<IProduct> jsonToProductList(JsonArray ar) {
-        List<IProduct> ans = new ArrayList();
+        List<IProduct> ans = new ArrayList<IProduct>();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            ans.add(new Product(productId,productName, productPrice));
+            String productGroup = product.get("product_group").getAsString();
+            ans.add(new Product(productId, productName, productPrice, productGroup));
         }
         return ans;
     }

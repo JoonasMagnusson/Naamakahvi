@@ -108,9 +108,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_group", new JsonPrimitive(productGroup));
                 ar.add(product);
             }
             ans.add("buyable_products", ar);
@@ -127,9 +129,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_group", new JsonPrimitive(productGroup));
                 ar.add(product);
             }
             ans.add("default_products", ar);
@@ -153,9 +157,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_group", new JsonPrimitive(productGroup));
                 ar.add(product);
             }
             ans.add("raw_products", ar);
