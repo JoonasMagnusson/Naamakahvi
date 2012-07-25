@@ -456,6 +456,28 @@ public class Client {
             throw new GeneralClientException(e.toString());
         }
     }
+    
+    public List<String> listProductGroups() throws ClientException {
+    	try {
+    		JsonObject obj = doGet("/list_product_groups/");
+    		
+    		String status = obj.get("status").getAsString();
+    		
+    		if (status.equalsIgnoreCase("ok")) {
+    			List<String> ans = new ArrayList<String>();
+    			for (JsonElement e : obj.get("product_groups").getAsJsonArray()) {
+    				ans.add(e.getAsString());
+    			}
+    			return ans;
+    		} else {
+    			throw new GeneralClientException("Failed to get product groups: " + status);
+    		}
+    		
+    	} catch (Exception e) {
+    		throw new GeneralClientException(e.toString());
+    	}
+    }
+    
     //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
     //        Client c = new Client("naama.zerg.fi", 5001, null);
     //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
