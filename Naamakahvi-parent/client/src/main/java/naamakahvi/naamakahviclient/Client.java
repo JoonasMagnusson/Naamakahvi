@@ -292,8 +292,7 @@ public class Client {
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            double productSize = product.get("product_size").getAsDouble();
-            ans.add(new BuyableProduct(productId, productName, productPrice, productSize));
+            ans.add(new BuyableProduct(productId, productName, productPrice));
         }
         return ans;
     }

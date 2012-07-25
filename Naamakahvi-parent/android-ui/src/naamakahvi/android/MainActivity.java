@@ -69,6 +69,8 @@ public class MainActivity extends Activity {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,
 							Config.SERVER_PORT);
+					
+					
 					Client c = new Client(Config.SERVER_URL,
 							Config.SERVER_PORT, s.get(0));
 
@@ -81,7 +83,7 @@ public class MainActivity extends Activity {
 						}
 					});
 				} catch (final ClientException ex) {
-					Log.d(TAG, ex.getMessage());
+					Log.d(TAG, "asd " +ex.getMessage());
 					ex.printStackTrace();
 					hand.post(new Runnable() {
 

@@ -27,5 +27,9 @@ public class RawProduct implements IProduct {
     public int getId() {
         return this.id;
     }
+    
+    public String toString(){
+    	return "Raw"+this.id;    	
+    }
 
 }
