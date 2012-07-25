@@ -1,18 +1,15 @@
 package naamakahvi.naamakahviclient;
 
-class BuyableProduct implements IProduct {
+class Product implements IProduct {
 
-    private int id;
     private String name;
     private double price;
-    private double size;
+    private int id;
 
-
-    BuyableProduct(int id, String name, double price, double size) {
+    Product(int id, String name, double price) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.size = size;
     }
 
     public String getName() {
@@ -21,10 +18,6 @@ class BuyableProduct implements IProduct {
 
     public double getPrice() {
         return this.price;
-    }
-
-    public double getSize() {
-        return this.size;
     }
 
     @Override
