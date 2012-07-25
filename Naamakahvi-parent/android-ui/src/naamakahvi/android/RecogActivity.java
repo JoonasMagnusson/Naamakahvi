@@ -61,7 +61,6 @@ public class RecogActivity extends Activity {
 				});
 
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				mShotTimer.schedule(new ShotTimer(hand), 500L);
 			}
@@ -88,18 +87,21 @@ public class RecogActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.releaseCamera();
+		mShotTimer.cancel();
+		mShotTimer = null;
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
+		mShotTimer = new Timer();
+		final Handler hand = new Handler(getMainLooper());
+		mShotTimer.schedule(new ShotTimer(hand), 4000L);
 	}
 
 	public void userListClick(View v) {
