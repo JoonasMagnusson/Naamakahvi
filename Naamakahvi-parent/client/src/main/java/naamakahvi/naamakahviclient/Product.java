@@ -5,11 +5,13 @@ class Product implements IProduct {
     private String name;
     private double price;
     private int id;
+    private String productGroup;
 
-    Product(int id, String name, double price) {
+    Product(int id, String name, double price, String productGroup) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.productGroup = productGroup;
     }
 
     public String getName() {
@@ -20,16 +22,20 @@ class Product implements IProduct {
         return this.price;
     }
 
-    @Override
+    public String getProductGroup() {
+		return this.productGroup;
+	}
+
+	public int getId(){
+	    return id;
+	}
+
+	@Override
     public String toString() {
         return this.name;
     }
     
-    public int getId(){
-        return id;
-    }
-
-	@Override
+    @Override
 	public boolean equals(Object arg0) {
 		if (!(arg0 instanceof IProduct)){
 			return false;
