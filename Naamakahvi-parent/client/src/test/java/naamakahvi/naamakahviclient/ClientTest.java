@@ -375,20 +375,7 @@ public class ClientTest {
         assertTrue(ps.size() == 5);
     }
 
-    @Test
-    public void correctDefaultProductsListed() throws ClientException {
-        List<IProduct> ps = client.listDefaultProducts();
 
-        assertTrue(ps.get(0).getName().equals("kahvi")
-                && ps.get(1).getName().equals("espresso")
-                && ps.get(2).getName().equals("tuplaespresso"));
-    }
-
-    @Test
-    public void rightDefaultProductsAmount() throws ClientException {
-        List<IProduct> ps = client.listDefaultProducts();
-        assertTrue(ps.size() == 3);
-    }
 
     @Test
     public void buyProduct() throws ClientException {

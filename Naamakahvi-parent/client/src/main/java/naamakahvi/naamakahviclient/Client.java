@@ -280,15 +280,15 @@ public class Client {
         }
     }
 
-    private List<IProduct> jsonToProductList(JsonArray ar) {
+    private List<IProduct> jsonToProductList(JsonArray ar,boolean buyable) {
         List<IProduct> ans = new ArrayList<IProduct>();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            String productGroup = product.get("product_group").getAsString();
-            ans.add(new Product(productId, productName, productPrice, productGroup));
+    //        String productGroup = product.get("product_group").getAsString();
+            ans.add(new Product(productId, productName, productPrice,buyable,null));
         }
         return ans;
     }
@@ -303,7 +303,7 @@ public class Client {
             JsonObject obj = doGet("/list_buyable_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("buyable_products").getAsJsonArray());
+                return jsonToProductList(obj.get("buyable_products").getAsJsonArray(),true);
             } else {
                 throw new GeneralClientException("Could not fetch list of buyable products");
             }
@@ -312,26 +312,7 @@ public class Client {
         }
     }
 
-    /**
-     * Fetches default buyable products that are shown on main view from server and makes
-     * a list of IProduct objects from them.
-     * 
-     * @return list of default products
-     */
-    public List<IProduct> listDefaultProducts() throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_default_products/",
-                    "station_name", this.station.getName());
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("default_products").getAsJsonArray());
-            } else {
-                throw new GeneralClientException("Could not fetch list of default products");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.getMessage());
-        }
-    }
-
+    
     /**
      * 
      * 
@@ -366,7 +347,7 @@ public class Client {
             JsonObject obj = doGet("/list_raw_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("raw_products").getAsJsonArray());
+                return jsonToProductList(obj.get("raw_products").getAsJsonArray(),false);
             } else {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }

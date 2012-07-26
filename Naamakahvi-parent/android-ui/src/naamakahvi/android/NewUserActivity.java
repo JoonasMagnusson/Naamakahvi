@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import naamakahvi.naamakahviclient.Client;
-import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 import android.app.Activity;
@@ -13,8 +12,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;

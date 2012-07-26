@@ -9,5 +9,7 @@ public interface IProduct {
     public int getId();
     
     public String getProductGroup();
+    
+    public boolean isBuyable();
 
 }

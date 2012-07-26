@@ -1,28 +1,6 @@
 package naamakahvi.android;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import naamakahvi.android.R;
-import naamakahvi.android.utils.Basket;
-import naamakahvi.android.utils.ExtraNames;
-import naamakahvi.naamakahviclient.IProduct;
-
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class MenuActivity extends Activity {
 /*
