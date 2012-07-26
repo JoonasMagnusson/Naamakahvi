@@ -91,7 +91,7 @@ public class Basket implements Parcelable {
 
 	public void writeToParcel(Parcel dest, int flags) {
 		for (IProduct i : items.keySet()) {
-			dest.writeString(i.getName());
+			dest.writeString(i.toString());
 			dest.writeInt(items.get(i));
 		}
 	}

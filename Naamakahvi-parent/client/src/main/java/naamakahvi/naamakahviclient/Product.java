@@ -2,11 +2,11 @@ package naamakahvi.naamakahviclient;
 
 class Product implements IProduct {
 
-	private String name;
-	private double price;
-	private int id;
-	private String productGroup;
-	private boolean buyable;
+	private final String name;
+	private final double price;
+	private final int id;
+	private final String productGroup;
+	private final boolean buyable;
 
 	Product(int id, String name, double price, boolean buyable,
 			String productGroup) {
@@ -48,12 +48,12 @@ class Product implements IProduct {
 			return false;
 		}
 		IProduct p2 = (IProduct) arg0;
-		return this.getName() == p2.getName();
+		return this.toString() == p2.toString();
 	}
 
 	@Override
 	public int hashCode() {
-		return getName().hashCode();
+		return toString().hashCode();
 	}
 
 }
