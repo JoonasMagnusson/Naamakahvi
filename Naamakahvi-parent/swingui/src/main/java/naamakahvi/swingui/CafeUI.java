@@ -21,49 +21,53 @@ public class CafeUI extends JFrame{
 	private CardLayout viewSwitcher;
 	private FrontPage front;
 	private MenuPage menu;
-	private PurchaseCartPage et;
+	private PurchaseCartPage buycart, bringcart;
 	private CheckoutPage checkout;
 	private RegistrationPage register;
 	private ManLoginPage manual;
 	private StationSelect stations;
 	private UserListPage userlist;
+	private FaceLoginPage facelogin;
+	//Sivu, jolle jatketaan välisivuilta (esim. käyttäjälistasta)
 	protected String continueLocation = VIEW_FRONT_PAGE;
+	//Juuri nyt esillä oleva sivu
 	protected String currentLocation;
 	
 	//veloitukseen tarvittavat tiedot
-	//toisteiset muuttujat (client ja cli, selectedProduct ja seProd, etc.
-	//ovat olemassa väliaikaisesti testausta varten, kunnes backendilta saa
-	//oikeaa dataa
 	private FaceCapture face;
-	//private CoffeeClient client;
 	private Client cli;
 	private String[] usernames = new String[1];
 	private IUser user;
-	private IProduct selProd;
-	private int quantity;
+	private IProduct[] selProd;
+	private int[] quantities;
+	private String mode;
 	
 	//käyttöiittymän resoluutio
-	public final int X_RES = 800;
-	public final int Y_RES = 600;
+	public final int X_RES;
+	public final int Y_RES;
 	//fontit
-	public final Font UI_FONT = new Font("Helvetica", Font.PLAIN, 20);
-	public final Font UI_FONT_BIG = new Font("Helvetica", Font.PLAIN, 28);
-	public final Font UI_FONT_SMALL = new Font("Helvetica", Font.PLAIN, 16);
+	public final Font UI_FONT;
+	public final Font UI_FONT_BIG;
+	public final Font UI_FONT_SMALL;
 	
 	//Näkymien tunnistamisessa käytetyt vakiot
 	public static final String VIEW_FRONT_PAGE = "front";
 	public static final String VIEW_REGISTRATION_PAGE = "register";
 	public static final String VIEW_CHECKOUT_PAGE = "checkout";
 	public static final String VIEW_MAN_LOGIN_PAGE = "manual";
-	public static final String VIEW_PROD_LIST_PAGE = "et";
+	public static final String VIEW_BUY_LIST_PAGE = "buycart";
+	public static final String VIEW_BRING_LIST_PAGE = "bringcart";
 	public static final String VIEW_MENU_PAGE = "menu";
 	public static final String VIEW_STATION_PAGE = "station";
 	public static final String VIEW_USERLIST_PAGE = "userlist";
+	public static final String VIEW_FACE_LOGIN_PAGE = "facelogin";
 	public static final String CONTINUE = "continue";
 	
 	//muut vakiot
 	public static final int MAX_IDENTIFIED_USERS = 5;
 	public static final String OUTPUT_IMAGE_FORMAT = "png";
+	public static final String MODE_BUY = "buy";
+	public static final String MODE_BRING = "bring";
 	
 	//Backendin osoite
 	public static final String ip = "naama.zerg.fi";
@@ -72,16 +76,32 @@ public class CafeUI extends JFrame{
 	/**Luo uuden Swing-käyttöliittymäikkunan ja näyttää Station-valintanäkymän
 	 * 
 	 */
-	public CafeUI(){
+	public CafeUI(int xres, int yres, int camera, boolean doFaceDetect){
+		JLabel loading = new JLabel("Loading...");
+		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
+		add(loading);
+		setTitle("Facecafe");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+		setSize(xres, yres);
+		
+		Insets insets = getInsets();
+		X_RES = xres - insets.left - insets.right;
+		Y_RES = yres - insets.top - insets.bottom;
+		
+		UI_FONT = new Font("Sans Serif", Font.PLAIN, Y_RES/30);
+		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, Y_RES/20);
+		UI_FONT_SMALL = new Font("Sans Serif", Font.PLAIN, Y_RES/40);
+		
+		
 		container = new JPanel();
-		//client = new DummyClient();
 		
 		viewSwitcher = new CardLayout();
 		container.setLayout(viewSwitcher);
 		
 		add(container);
 		
-		face = new FaceCapture();
+		face = new FaceCapture(camera, doFaceDetect);
 		new Thread(face).start();
 		
 		try {
@@ -90,12 +110,14 @@ public class CafeUI extends JFrame{
 			System.out.println("Stations received");
 			container.add(stations, VIEW_STATION_PAGE);
 			viewSwitcher.show(container, VIEW_STATION_PAGE);
+			remove(loading);
+			validate();
 		}
 		catch (ClientException e){
-			System.out.println("Warning: station information not received," +
-							" creating client with null station");
+			System.out.println("Error: Station information not received from server");
+			
 			e.printStackTrace();
-			createStore(null);
+			return;
 		}
 		
 	}
@@ -115,8 +137,11 @@ public class CafeUI extends JFrame{
 		menu = new MenuPage(this);
 		container.add(menu, VIEW_MENU_PAGE);
 		
-		et = new PurchaseCartPage(this);
-		container.add(et, VIEW_PROD_LIST_PAGE);
+		buycart = new PurchaseCartPage(this, MODE_BUY);
+		container.add(buycart, VIEW_BUY_LIST_PAGE);
+		
+		bringcart = new PurchaseCartPage(this, MODE_BRING);
+		container.add(bringcart, VIEW_BRING_LIST_PAGE);
 		
 		checkout = new CheckoutPage(this);
 		container.add(checkout, VIEW_CHECKOUT_PAGE);
@@ -130,6 +155,9 @@ public class CafeUI extends JFrame{
 		userlist = new UserListPage(this);
 		container.add(userlist, VIEW_USERLIST_PAGE);
 		
+		facelogin = new FaceLoginPage(this);
+		container.add(facelogin, VIEW_FACE_LOGIN_PAGE);
+		
 		switchPage(VIEW_FRONT_PAGE);
 	}
 	
@@ -139,16 +167,15 @@ public class CafeUI extends JFrame{
 			currentLocation = continueLocation;
 			continueLocation = VIEW_FRONT_PAGE;
 		}
-		
 		if (VIEW_FRONT_PAGE.equals(page)){
 			viewSwitcher.show(container, page);
-			front.resetPage();
+			//front.resetPage();
 			user = null;
 			usernames = new String[1];
 			currentLocation = page;
 		}
 		if (VIEW_MENU_PAGE.equals(page)){
-			menu.setUser(usernames[0]);
+			menu.setUser(usernames);
 			//menu.setCoffeeSaldo(client.getCoffeeSaldo(userName));
 			//menu.setEspressoSaldo(client.getEspressoSaldo(userName));
 			viewSwitcher.show(container, page);
@@ -163,7 +190,13 @@ public class CafeUI extends JFrame{
 			register.activate();
 			currentLocation = page;
 		}
-		if (VIEW_PROD_LIST_PAGE.equals(page)){
+		if (VIEW_BUY_LIST_PAGE.equals(page)){
+			buycart.setUsers(usernames);
+			viewSwitcher.show(container, page);
+			currentLocation = page;
+		}
+		if (VIEW_BRING_LIST_PAGE.equals(page)){
+			bringcart.setUsers(usernames);
 			viewSwitcher.show(container, page);
 			currentLocation = page;
 		}
@@ -171,12 +204,13 @@ public class CafeUI extends JFrame{
 			viewSwitcher.show(container, page);
 			currentLocation = page;
 			checkout.setUsers(usernames);
-			IProduct[] prods = new IProduct[1];
-			prods[0] = selProd;
-			int[] q = new int[1];
-			q[0] = quantity;
-			checkout.setProducts(prods, q);
+			checkout.setProducts(selProd, quantities, mode);
 			checkout.startCountdown();
+		}
+		if (VIEW_FACE_LOGIN_PAGE.equals(page)){
+			facelogin.activate();
+			currentLocation = page;
+			viewSwitcher.show(container, VIEW_FACE_LOGIN_PAGE);
 		}
 		if (VIEW_USERLIST_PAGE.equals(page)){
 			try{
@@ -192,33 +226,47 @@ public class CafeUI extends JFrame{
 		
 	}
 	
+	protected List<SaldoItem> getSaldo(){
+		if (user == null) return null;
+		return user.getBalance();
+	}
+	
+	protected void setPurchaseMode(String mode){
+		if (MODE_BUY.equals(mode))
+				this.mode = mode;
+		else if (MODE_BRING.equals(mode))
+				this.mode = mode;
+		else {
+			throw new IllegalArgumentException(
+					"Attempted to set purchase mode to neither buy nor bring");
+			
+		}
+	}
+	
 	protected FaceCanvas getCanvas(){
 		return face.getCanvas();
 	}
 	
-	protected boolean buySelectedProduct(){
-		return buyProduct(selProd, quantity);
-	}
-	
 	protected boolean buyProduct(IProduct prod, int quantity){
 		try{
-			cli.buyProduct(user, prod, quantity);
+			if (mode.equals(MODE_BUY)){
+				cli.buyProduct(user, prod, quantity);
+				front.setHelpText("Transaction successful");
+			}
+			else if (mode.equals(MODE_BRING)){
+				cli.bringProduct(user, prod, quantity);
+				front.setHelpText("Transaction successful");
+			}
+			else {
+				throw new RuntimeException(
+						"Attempted to buy wit illegal buy mode");
+			}
 			return true;
 		}
 		catch (ClientException e){
 			e.printStackTrace();
-			//checkout.setPurchaseText(e.getMessage());
-			return false;
-		}
-	}
-	
-	protected boolean bringProduct(IProduct prod, int quantity){
-		try{
-			cli.bringProduct(user, prod, quantity);
-			return true;
-		}
-		catch (ClientException e){
-			//checkout.setPurchaseText(e.getMessage());
+			checkout.setHelpText(e.getMessage());
+			front.setHelpText("");
 			return false;
 		}
 	}
@@ -295,21 +343,20 @@ public class CafeUI extends JFrame{
 			return null;
 		}
 	}
-	
+	/*
 	protected List<IProduct> getDefaultProducts(){
 		try{
-			//TODO
 			return cli.listBuyableProducts();
 		}
 		catch (ClientException e){
 			e.printStackTrace();
 			return null;
 		}
-	}
+	}*/
 	
-	protected void selectProduct(IProduct prod, int count){
-		selProd = prod;
-		quantity = count;
+	protected void selectProduct(IProduct[] prods, int[] amounts){
+		selProd = prods;
+		quantities = amounts;
 	}
 	
 	protected BufferedImage takePic(){
@@ -319,7 +366,7 @@ public class CafeUI extends JFrame{
 	protected boolean validateImage(){
 		BufferedImage img = face.takePic();
 		if (img == null){
-			front.setHelpText("No faces detected");
+			facelogin.setHelpText("No faces detected");
 			return false;
 		}
 		String[] users = null;
@@ -332,14 +379,12 @@ public class CafeUI extends JFrame{
 		}
 		catch (ClientException e){
 			e.printStackTrace();
-			front.setHelpText(e.getMessage());
-			front.resetPage();
+			facelogin.setHelpText(e.getMessage());
 			return false;
 		}
 		catch (IOException e){
 			e.printStackTrace();
-			front.setHelpText("Error: Unable to convert image to byte array");
-			front.resetPage();
+			facelogin.setHelpText("Error: Unable to convert image to byte array");
 			return false;
 		}
 		
@@ -367,10 +412,50 @@ public class CafeUI extends JFrame{
 	}
 	
 	public static void main(String[] args) {
-		CafeUI ikkuna = new CafeUI();
-		ikkuna.setTitle("Facecafe");
-		ikkuna.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		ikkuna.setVisible(true);
-		ikkuna.setSize(800, 600);
+		int xres = 800;
+		int yres = 600;
+		int cam = 0;
+		boolean doFaceDetect = false;
+		for(int i = 0; i < args.length; i++){
+			if (args[i].length() > 5 && 
+					"xres:".equalsIgnoreCase(args[i].substring(0, 5))){
+				try{
+					xres = Integer.parseInt(args[i].substring(5));
+				}
+				catch (NumberFormatException e){
+					System.err.println(
+							"Error: could not parse horizontal resolution: not an integer\n" +
+							"Defaulting to 800");
+				}
+			}
+			if (args[i].length() > 5 && 
+					"yres:".equalsIgnoreCase(args[i].substring(0, 5))){
+				try{
+					yres = Integer.parseInt(args[i].substring(5));
+				}
+				catch (NumberFormatException e){
+					System.err.println(
+							"Error: could not parse vertical resolution: not an integer\n" +
+							"Defaulting to 600");
+				}
+			}
+			if (args[i].length() > 4 && 
+					"cam:".equalsIgnoreCase(args[i].substring(0, 4))){
+				try{
+					cam = Integer.parseInt(args[i].substring(4));
+				}
+				catch (NumberFormatException e){
+					System.err.println(
+							"Error: could not parse camera index: not an integer\n" +
+							"Defaulting to 0");
+				}
+			}
+			if ("dofacedetect".equalsIgnoreCase(args[i])){
+				doFaceDetect = true;
+			}
+		}
+		
+		new CafeUI(xres, yres, cam, doFaceDetect);
+		
 	}
 }

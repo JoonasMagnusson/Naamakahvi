@@ -16,11 +16,15 @@ public class UserListPage extends JPanel implements ActionListener{
 
 	public UserListPage(CafeUI master){
 		this.master = master;
+		FlowLayout layout = new FlowLayout();
+		//layout.setHgap(0);
+		//layout.setVgap(0);
+		setLayout(layout);
 		
 		helptext = new JLabel(defaulthelp);
 		helptext.setFont(master.UI_FONT_SMALL);
-		helptext.setPreferredSize(new Dimension(
-				master.X_RES-20, master.Y_RES/10));
+		helptext.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/10 - layout.getVgap()));
 		add(helptext);
 		
 		userPanel = new JPanel();
@@ -29,13 +33,13 @@ public class UserListPage extends JPanel implements ActionListener{
 		userScroll = new JScrollPane(userPanel, 
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		userScroll.setPreferredSize(new Dimension(
-				master.X_RES-20, master.Y_RES/8*5));
+		userScroll.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/5*4 - layout.getVgap()));
 		add(userScroll);
 		
 		cancel = new JButton("Cancel");
-		cancel.setPreferredSize(new Dimension(
-				master.X_RES-20, master.Y_RES/10));
+		cancel.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/10 - layout.getVgap()));
 		cancel.addActionListener(this);
 		cancel.setFont(master.UI_FONT_BIG);
 		add(cancel);

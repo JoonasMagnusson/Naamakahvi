@@ -11,75 +11,81 @@ import naamakahvi.naamakahviclient.IProduct;
 /*
  * Käyttöliittymän päävalikkonäkymä, josta valitaan mitä tuotetta ostetaan
  */
-public class MenuPage extends JPanel implements ActionListener{
-	private JLabel username, coffeeSaldo, espressoSaldo, amountText;
-	private JButton cart, coffeeButton, espressoButton, logout;
-	private JButton[][] prodButtons;
-	private IProduct[] products;
-	private JPanel prodPanel;
+public class MenuPage extends JPanel implements ActionListener, CloseableView{
+	//private JLabel username;
+	private JButton buycart, bringcart, logout;
+	private JButton[][] buyprodButtons, bringprodButtons;
+	private IProduct[] buyproducts, bringproducts;
+	private JPanel buyprodPanel, bringprodPanel, prodPanel;
 	private CafeUI master;
+	private JScrollPane buyscroll, bringscroll;
+	private ShortList userlist;
 	
 	public MenuPage(CafeUI master){
 		this.master = master;
+		FlowLayout layout = new FlowLayout();
+		//layout.setHgap(0);
+		//layout.setVgap(0);
+		setLayout(layout);
 		
+		/*
 		username = new JLabel("Placeholder", SwingConstants.CENTER);
 		username.setFont(master.UI_FONT_BIG);
 		username.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/8));
-		/*
-		coffeeSaldo = new JLabel("Saldo: 0", SwingConstants.CENTER);
-		coffeeSaldo.setFont(CafeUI.UI_FONT);
-		coffeeSaldo.setPreferredSize(new Dimension(CafeUI.X_RES/2-10, CafeUI.Y_RES/8));
-		
-		espressoSaldo = new JLabel("Saldo: 0", SwingConstants.CENTER);
-		espressoSaldo.setFont(CafeUI.UI_FONT);
-		espressoSaldo.setPreferredSize(new Dimension(CafeUI.X_RES/2-10, CafeUI.Y_RES/8));
-		
-		coffeeButton = new JButton("Osta Kahvia");
-		coffeeButton.setFont(CafeUI.UI_FONT_BIG);
-		coffeeButton.setPreferredSize(new Dimension(CafeUI.X_RES/2-10, CafeUI.Y_RES/4));
-		coffeeButton.addActionListener(this);
-		
-		espressoButton = new JButton("Osta Espressoa");
-		espressoButton.setFont(CafeUI.UI_FONT_BIG);
-		espressoButton.setPreferredSize(new Dimension(CafeUI.X_RES/2-10, CafeUI.Y_RES/4));
-		espressoButton.addActionListener(this);
 		*/
-		amountText = new JLabel("Quantity");
-		amountText.setFont(master.UI_FONT);
+		
+		userlist = new ShortList(master, this);
+		userlist.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
+				master.Y_RES/8*7 - layout.getVgap()));
 		
 		prodPanel = new JPanel();
-		prodPanel.setLayout(new GridLayout(0,1));
-		prodPanel.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/2-20));
+		prodPanel.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
+				master.Y_RES/8*7 - layout.getVgap()));
+		
+		buyprodPanel = new JPanel();
+		buyprodPanel.setLayout(new GridBagLayout());
+		//buyprodPanel.setPreferredSize(new Dimension(master.X_RES/2-20, master.Y_RES/2-20));
+		
+		buyscroll = new JScrollPane(buyprodPanel,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		buyscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
+				master.Y_RES/16*7 - layout.getVgap()));
+		
+		bringprodPanel = new JPanel();
+		bringprodPanel.setLayout(new GridBagLayout());
+		//bringprodPanel.setPreferredSize(new Dimension(master.X_RES/2-20, master.Y_RES/2-20));
+		
+		bringscroll = new JScrollPane(bringprodPanel,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		bringscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
+				master.Y_RES/16*7 - layout.getVgap()));
 		
 		/*
-		prodButtons = new JButton[3];
-		prodButtons[0] = new JButton("Coffee");
-		prodButtons[1] = new JButton("Espresso");
-		prodButtons[2] = new JButton("Double Espresso");
-		for (int i = 0; i < prodButtons.length; i++){
-			prodButtons[i].setFont(CafeUI.UI_FONT);
-			prodButtons[i].addActionListener(this);
-			prodPanel.add(prodButtons[i]);
-		}*/
+		buycart = new JButton("Buy multiple products");
+		buycart.setFont(master.UI_FONT_BIG);
+		buycart.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
+		buycart.addActionListener(this);
 		
-		cart = new JButton("Shopping Cart");
-		cart.setFont(master.UI_FONT_BIG);
-		cart.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/4));
-		cart.addActionListener(this);
-		
+		bringcart = new JButton("Bring multiple products");
+		bringcart.setFont(master.UI_FONT_BIG);
+		bringcart.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
+		bringcart.addActionListener(this);
+		*/
 		logout = new JButton("Log Out");
 		logout.setFont(master.UI_FONT_BIG);
-		logout.setPreferredSize(new Dimension(master.X_RES, master.Y_RES/8));
+		logout.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/8 - layout.getVgap()));
 		logout.addActionListener(this);
 		
-		add(username);
-		add(amountText);
+		//add(username);
+		add(userlist);
 		add(prodPanel);
-		/*
-		add(coffeeSaldo);
-		add(espressoSaldo);
-		add(coffeeButton);
-		add(espressoButton);*/
+		prodPanel.add(buyscroll);
+		prodPanel.add(bringscroll);
+		//add(buycart);
+		//add(bringcart);
 		getProducts();
 		
 		add(logout);
@@ -88,65 +94,105 @@ public class MenuPage extends JPanel implements ActionListener{
 	/*
 	 * Näyttää kirjautuneen käyttäjän nimen
 	 */
-	public void setUser(String user){
-		username.setText("Recognized user: " + user);
+	public void setUser(String[] usernames){
+		userlist.setUsers(usernames);
 	}
-	/*
-	 * Näyttää kirjautuneen käyttäjän suodatinkahvisaldon
-	 */
-	public void setCoffeeSaldo(int saldo){
-		//coffeeSaldo.setText("Saldo: " + saldo);
-	}
-	/*
-	 * Näyttää kirjautuneen käyttäjän espressosaldon
-	 */
-	public void setEspressoSaldo(int saldo){
-		//espressoSaldo.setText("Saldo: " + saldo);
-	}
-	
-	
 	
 	private void getProducts(){
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1.0;
+		List<IProduct> tempbuy = master.getBuyableProducts();
+		List<IProduct> tempbring = master.getRawProducts();
 		
-		List<IProduct> temp = master.getDefaultProducts();
+		GridBagLayout buyLayout = (GridBagLayout)buyprodPanel.getLayout();
+		GridBagLayout bringLayout = (GridBagLayout)bringprodPanel.getLayout();
 		
-		if (temp == null || temp.size() < 1){
-			throw new IllegalArgumentException("No default products received from server");
-		}
+		buyprodPanel.removeAll();
+		bringprodPanel.removeAll();
 		
-		prodPanel.removeAll();
+		JLabel buyheader = new JLabel("Buy Products:");
+		buyheader.setFont(master.UI_FONT);
+		buyLayout.setConstraints(buyheader, c);
+		buyprodPanel.add(buyheader);
 		
-		JLabel header = new JLabel("Quick Buy");
-		header.setFont(master.UI_FONT);
+		JLabel bringheader = new JLabel("Bring Products:");
+		bringheader.setFont(master.UI_FONT);
+		bringLayout.setConstraints(bringheader, c);
+		bringprodPanel.add(bringheader);
 		
+		c.gridwidth = GridBagConstraints.REMAINDER;
 		
-		products = new IProduct[temp.size()];
-		prodButtons = new JButton[temp.size()][5];
-		temp.toArray(products);
-		prodPanel.removeAll();
-		for (int i = 0; i < products.length; i++){
+		buycart = new JButton("Buy Multiple Products");
+		buycart.setFont(master.UI_FONT_SMALL);
+		buycart.addActionListener(this);
+		buyLayout.setConstraints(buycart, c);
+		buyprodPanel.add(buycart);
+		
+		bringcart = new JButton("Bring Multiple Products");
+		bringcart.setFont(master.UI_FONT_SMALL);
+		bringcart.addActionListener(this);
+		bringLayout.setConstraints(bringcart, c);
+		bringprodPanel.add(bringcart);
+		
+		buyproducts = new IProduct[tempbuy.size()];
+		buyprodButtons = new JButton[tempbuy.size()][5];
+		tempbuy.toArray(buyproducts);
+		
+		bringproducts = new IProduct[tempbring.size()];
+		bringprodButtons = new JButton[tempbring.size()][5];
+		tempbring.toArray(bringproducts);
+		
+		for (int i = 0; i < buyproducts.length; i++){
+			c.gridwidth = 1;
+			
+			JLabel prodname = new JLabel(buyproducts[i].getName());
+			prodname.setFont(master.UI_FONT_SMALL);
+			buyLayout.setConstraints(prodname, c);
+			buyprodPanel.add(prodname);
+			
+			c.gridwidth = GridBagConstraints.REMAINDER;
+			
 			JPanel prodline = new JPanel();
 			prodline.setLayout(new GridLayout(1,0));
-			prodPanel.add(prodline);
+			buyLayout.setConstraints(prodline, c);
+			buyprodPanel.add(prodline);
 			
-			JLabel prodname = new JLabel(products[i].getName());
-			prodname.setFont(master.UI_FONT_SMALL);
-			prodline.add(prodname);
 			
 			for (int j = 0; j < 5; j++){
-				prodButtons[i][j] = new JButton("" + (j+1));
-				prodButtons[i][j].setFont(master.UI_FONT);
-				prodButtons[i][j].addActionListener(this);
-				prodline.add(prodButtons[i][j]);
+				buyprodButtons[i][j] = new JButton("" + (j+1));
+				buyprodButtons[i][j].setFont(master.UI_FONT_SMALL);
+				buyprodButtons[i][j].addActionListener(this);
+				prodline.add(buyprodButtons[i][j]);
 			}
 		}
-		cart = new JButton("Shopping Cart View");
-		cart.setFont(master.UI_FONT);
-		cart.addActionListener(this);
-		prodPanel.add(cart);
 		
-		prodPanel.revalidate();
-	
+		buyprodPanel.revalidate();
+		
+		for (int i = 0; i <bringproducts.length; i++){
+			c.gridwidth = 1;
+			
+			JLabel prodname = new JLabel(bringproducts[i].getName());
+			prodname.setFont(master.UI_FONT_SMALL);
+			bringLayout.setConstraints(prodname, c);
+			bringprodPanel.add(prodname);
+			
+			c.gridwidth = GridBagConstraints.REMAINDER;
+			
+			JPanel prodline = new JPanel();
+			prodline.setLayout(new GridLayout(1,0));
+			bringLayout.setConstraints(prodline, c);
+			bringprodPanel.add(prodline);
+			
+			
+			for (int j = 0; j < 5; j++){
+				bringprodButtons[i][j] = new JButton("" + (j+1));
+				bringprodButtons[i][j].setFont(master.UI_FONT_SMALL);
+				bringprodButtons[i][j].addActionListener(this);
+				prodline.add(bringprodButtons[i][j]);
+			}
+		}
+		bringprodPanel.revalidate();
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -154,17 +200,43 @@ public class MenuPage extends JPanel implements ActionListener{
 		if (s == logout){
 			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
 		}
-		for (int i = 0; i < prodButtons.length; i++){
-			for (int j = 0; j < prodButtons[i].length; j++){
-				if (s == prodButtons[i][j]){
-					master.selectProduct(products[i], j+1);
+		for (int i = 0; i < buyprodButtons.length; i++){
+			for (int j = 0; j < buyprodButtons[i].length; j++){
+				if (s == buyprodButtons[i][j]){
+					IProduct[] prods = new IProduct[1];
+					prods[0] = buyproducts[i];
+
+					int[] amounts = new int[1];
+					amounts[0] = j+1;
+					master.setPurchaseMode(CafeUI.MODE_BUY);
+					master.selectProduct(prods, amounts);
 					master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
-					System.out.println("debug");
 				}
 			}
 		}
-		if (s == cart){
-			master.switchPage(CafeUI.VIEW_PROD_LIST_PAGE);
+		for (int i = 0; i < bringprodButtons.length; i++){
+			for (int j = 0; j < bringprodButtons[i].length; j++){
+				if (s == bringprodButtons[i][j]){
+					IProduct[] prods = new IProduct[1];
+					prods[0] = bringproducts[i];
+
+					int[] amounts = new int[1];
+					amounts[0] = j+1;
+					master.setPurchaseMode(CafeUI.MODE_BRING);
+					master.selectProduct(prods, amounts);
+					master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
+				}
+			}
 		}
+		if (s == buycart){
+			master.switchPage(CafeUI.VIEW_BUY_LIST_PAGE);
+		}
+		if (s == bringcart){
+			master.switchPage(CafeUI.VIEW_BRING_LIST_PAGE);
+		}
+	}
+
+	public void closeView() {
+		//Nothing to close
 	}
 }

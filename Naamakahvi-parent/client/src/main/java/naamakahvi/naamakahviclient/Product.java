@@ -48,7 +48,7 @@ class Product implements IProduct {
 			return false;
 		}
 		IProduct p2 = (IProduct) arg0;
-		return this.toString() == p2.toString();
+		return this.toString().equals(p2.toString());
 	}
 
 	@Override
