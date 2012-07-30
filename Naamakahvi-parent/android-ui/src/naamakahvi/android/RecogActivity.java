@@ -26,11 +26,18 @@ public class RecogActivity extends Activity {
 
 	class ShotTimer extends TimerTask {
 		private Handler hand;
-		
-		public ShotTimer(Handler hand){
+		private boolean canceled = false;
+
+		public ShotTimer(Handler hand) {
 			this.hand = hand;
 		}
-		
+
+		@Override
+		public boolean cancel() {
+			canceled = true;
+			return super.cancel();
+		}
+
 		@Override
 		public void run() {
 			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
@@ -59,7 +66,9 @@ public class RecogActivity extends Activity {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				mShotTimer.schedule(new ShotTimer(hand), 500L);
+				if (!canceled) {
+					mShotTimer.schedule(new ShotTimer(hand), 500L);
+				}
 			}
 
 		}
@@ -85,10 +94,12 @@ public class RecogActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
-		face.releaseCamera();
 		mShotTimer.cancel();
 		mShotTimer = null;
+
+		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
+		face.releaseCamera();
+
 	}
 
 	@Override
