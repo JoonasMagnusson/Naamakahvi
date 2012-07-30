@@ -204,8 +204,8 @@ public class Client {
      * Method: Post
      * Path: /register/
      * Parameters: username
-     *             givenName
-     *             familyName
+     *             given
+     *             family
      * 
      * Example server response:
      * {
