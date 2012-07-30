@@ -23,6 +23,14 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+/**
+ * A client class that passes data from user interface to server and vice 
+ * versa. Communication between client and server is done using HTTP. The client expects
+ * the server response data to be in JSON format.
+
+ * @author Janne Ronkonen
+ * @author Eeva Terkki
+ */
 public class Client {
     private String host;
     private int port;
@@ -41,14 +49,21 @@ public class Client {
     }
 
     /**
-     * Gets all stations as a json object from server using the specified host name and port 
-     * number and makes a list of IStation objects. The server response should contain fields:
-     * "status" - a string
-     * "stations" - an array of station names
+     * Using the specified host name and port number, sends a HTTP request to server 
+     * to get all station names.
+     * Method: Get
+     * Path: /list_stations/ 
+     * 
+     * Example server response:
+     * {
+     *      "status":"ok",
+     *      "stations":["station1", "station2"]      
+     * }
+     * 
      * 
      * @param host server host name
      * @param port server port number
-     * @return list of stations
+     * @return the list of station names
      */
     public static List<IStation> listStations(String host, int port) throws ClientException {
         try {
@@ -157,10 +172,15 @@ public class Client {
     }
 
     /**
-     * Gets all usernames from server and creates a string array. The server response should
-     * be a json object that contains fields:
-     * "status" - a string, "ok" when the operation is successful
-     * "usernames" - an array of usernames
+     * Gets all usernames from the server. 
+     * Method: Get
+     * Path: /list_usernames/
+     * 
+     * Example server response:
+     * {
+     *      "status":"ok"
+     *      "usernames":["example1","example2"]      
+     * }
      * 
      * @return list of all usernames
      */
@@ -179,18 +199,36 @@ public class Client {
     }
 
     /**
-     * Sends new user's user data and optional image data to server and creates a User object 
-     * that represents the registered user. The server response should be a json object that
-     * contains fields:
-     * "status" - a string, "ok" when the operation is successful
-     * "username" - 
-     * "given" -
-     * "family" - 
+     * Sends new user's user data to the server and creates a User object 
+     * that represents the newly registered user. 
+     * Method: Post
+     * Path: /register/
+     * Parameters: username
+     *             givenName
+     *             familyName
      * 
-     * @param username new user's username
-     * @param givenName new user's given name
-     * @param familyName new user's family name
-     * @param imagedata image of the new user (optional)
+     * Example server response:
+     * {
+     *      "status":"ok",
+     *      "username":"example",
+     *      "givenName":"example given name",
+     *      "familyName":"example family name",
+     *      "balance": 
+     *      [
+     *          {
+     *            "groupName":"example group"
+     *            "saldo":0.0
+     *          },
+     *          {
+     *            "groupName":"example group 2"
+     *            "saldo":0.0
+     *          }
+     *      ]
+     * }
+     * 
+     * @param username the new user's username
+     * @param givenName the new user's given name
+     * @param familyName the new user's family name
      * @return the newly registered user
      */
     public IUser registerUser(String username, String givenName,
@@ -220,9 +258,18 @@ public class Client {
     }
 
     /**
-     * Sends an image of a user to server. 
+     * Sends an image of a user to the server. 
+     * Method: Post 
+     * Path: /upload/ 
+     * Parameters: file
+     *             username
+     *
+     * Example server response: 
+     * {
+     *      "status":"ok"
+     * }
      * 
-     * @param username 
+     * @param username username
      * @param imagedata the image data
      */
     public void addImage(String username, byte[] imagedata) throws GeneralClientException {
@@ -241,14 +288,33 @@ public class Client {
     }
 
     /**
-     * Gets user data related to given username from server and creates a User instance.
-     * The server response should have a json object that contains fields:
-     * "status" - a string, "ok" when the operation is successful
-     * "username" - the user's username as a string
-     * "given" - the user's given name as a string
-     * "family" - the user's family name as a string
+     * Gets user data related to the specified username from the server and creates a User 
+     * instance.
+     * Method: Post
+     * Path: /authenticate_text/
+     * Parameters: username
      * 
-     * @param username the username
+     * Example server response: 
+     * 
+     * {
+     *      "status":"ok",
+     *      "username":"example",
+     *      "given":"example given name",
+     *      "family":"example family name",
+     *      "balance": 
+     *      [
+     *          {
+     *            "groupName":"example group"
+     *            "saldo": 11.1
+     *          },
+     *          {
+     *            "groupName":"example group 2"
+     *            "saldo": 22.2
+     *          }
+     *      ]
+     * }
+     * 
+     * @param username username
      * @return the user instance
      */
     public IUser authenticateText(String username) throws AuthenticationException {
@@ -287,13 +353,33 @@ public class Client {
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            ans.add(new Product(productId,productName, productPrice));
+            ans.add(new Product(productId, productName, productPrice));
         }
         return ans;
     }
 
     /**
-     * Fetches all buyable products from server and makes a list of IProduct objects from them.
+     * Gets all buyable products from the server and makes a list of IProduct objects 
+     * Method: Get
+     * Path: /list_buyable_products/
+     * 
+     * Example server response: 
+     * {
+     *      "status":"ok",
+     *      "buyable_products":
+     *      [
+     *        {
+     *          "product_name":"coffee",
+     *          "product_price":1,
+     *          "product_id":1
+     *        },
+     *        {
+     *          "product_name":"espresso",
+     *          "product_price":1,
+     *          "product_id":2
+     *        }
+     *      ]
+     * }
      * 
      * @return list of all buyable products
      */
@@ -312,8 +398,27 @@ public class Client {
     }
 
     /**
-     * Fetches default buyable products that are shown on main view from server and makes
-     * a list of IProduct objects from them.
+     * Gets all default products from the server and creates a list of IProduct objects.
+     * Method: Get
+     * Path: /list_default_products/
+     * 
+     * Example server response: 
+     * {
+     *      "status":"ok",
+     *      "default_products":
+     *      [
+     *        {
+     *          "product_name":"coffee",
+     *          "product_price":1,
+     *          "product_id":1
+     *        },
+     *        {
+     *          "product_name":"espresso",
+     *          "product_price":1,
+     *          "product_id":2
+     *        },
+     *      ]
+     * }
      * 
      * @return list of default products
      */
@@ -332,7 +437,17 @@ public class Client {
     }
 
     /**
+     * Sends information about a user's purchase to the server.
+     * Method: Post
+     * Path: /buy_product/
+     * Parameters: product_id
+     *             amount
+     *             username
      * 
+     * Example server response:
+     * {
+     *      "status":"ok"
+     * }
      * 
      * @param user the buying user
      * @param product bought product
@@ -356,7 +471,26 @@ public class Client {
     }
 
     /**
-     * 
+     * Gets all raw products from the server and makes a list of IProduct objects 
+     * Method: Get
+     * Path: /list_raw_products/
+     * Example server response:
+     * {
+     *      "status":"ok",
+     *      "raw_products":
+     *      [
+     *        {
+     *          "product_name":"coffee beans",
+     *          "product_price":1,
+     *          "product_id":3
+     *        },
+     *        {
+     *          "product_name":"filter",
+     *          "product_price":1,
+     *          "product_id":4
+     *        },
+     *      ]
+     * }
      * 
      * @return list of raw product objects
      */
@@ -375,7 +509,18 @@ public class Client {
     }
 
     /**
+     * Sends the server information about a user bringing some product as a payment.
+     * Method: Post
+     * Path: /bring_product/
+     * Parameters: product_name
+     *             station_name
+     *             amount
+     *             username
      * 
+     * Example server response:
+     * {
+     *      "status":"ok"
+     * }
      * 
      * @param user the user bringing the product
      * @param product the product to be brought
@@ -400,6 +545,14 @@ public class Client {
     }
 
     /**
+     * Sends an image of a user to the server to get an ordered list of matching user names,
+     * best match first.
+     * 
+     * Example server response:
+     * {
+     *      "status":"ok",
+     *      "idlist":["user1","user2","user3","user4"]
+     * }
      * 
      * @param imagedata the image
      * @return list of identified usernames 
@@ -440,6 +593,33 @@ public class Client {
         return ans;
     }
 
+    /**
+     * Gets a user's product balances from the server.
+     * Method: Get
+     * Path: /list_user_saldos/
+     * Parameters: username
+     * 
+     * Example server response: 
+     * 
+     * {
+     *      "status":"ok",
+     *      "saldo_list":
+     *      [
+     *        {
+     *          "group_name":"coffee",
+     *          "saldo":-30
+     *        },
+     *        {
+     *          "group_name":"espresso",
+     *          "saldo":7
+     *        }
+     *      ]
+     * }
+     * 
+     * @param user the user whose balance is wanted
+     * @return list of the user's balances of different products
+     * @throws ClientException 
+     */
     public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
         try {
             JsonObject obj = doGet("/list_user_saldos/",
@@ -456,28 +636,42 @@ public class Client {
             throw new GeneralClientException(e.toString());
         }
     }
-    
+
+    /**
+     * Gets all product group names from the server.
+     * Method: Get
+     * Path: /list_product_groups/
+     * 
+     * Example server response: 
+     * 
+     * {
+     *      "status":"ok",
+     *      "product_groups":["group1","group2","group3"]
+     * }
+     * 
+     * @return the list of the product group names
+     * @throws ClientException 
+     */
     public List<String> listProductGroups() throws ClientException {
-    	try {
-    		JsonObject obj = doGet("/list_product_groups/");
-    		
-    		String status = obj.get("status").getAsString();
-    		
-    		if (status.equalsIgnoreCase("ok")) {
-    			List<String> ans = new ArrayList<String>();
-    			for (JsonElement e : obj.get("product_groups").getAsJsonArray()) {
-    				ans.add(e.getAsString());
-    			}
-    			return ans;
-    		} else {
-    			throw new GeneralClientException("Failed to get product groups: " + status);
-    		}
-    		
-    	} catch (Exception e) {
-    		throw new GeneralClientException(e.toString());
-    	}
+        try {
+            JsonObject obj = doGet("/list_product_groups/");
+
+            String status = obj.get("status").getAsString();
+
+            if (status.equalsIgnoreCase("ok")) {
+                List<String> ans = new ArrayList<String>();
+                for (JsonElement e : obj.get("product_groups").getAsJsonArray()) {
+                    ans.add(e.getAsString());
+                }
+                return ans;
+            } else {
+                throw new GeneralClientException("Failed to get product groups: " + status);
+            }
+
+        } catch (Exception e) {
+            throw new GeneralClientException(e.toString());
+        }
     }
-    
     //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
     //        Client c = new Client("naama.zerg.fi", 5001, null);
     //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
