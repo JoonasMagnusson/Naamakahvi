@@ -249,6 +249,8 @@ class psqldb:
 			
 		data = self.selectExportProductData(product)
 		
+		print data		
+
 		group = data["group_id"]
 		amount = amount * data["value"]
 		self.decGroupBalanceById(group, amount)
