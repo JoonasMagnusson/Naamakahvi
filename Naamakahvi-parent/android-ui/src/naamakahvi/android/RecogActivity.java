@@ -17,14 +17,17 @@ import android.content.Intent;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 public class RecogActivity extends Activity {
 	public static final short SELECT_USERNAME = 0;
 	private Basket mOrder;
-	private Timer mShotTimer;
+	private ShotTimer mShotTimer;
 
-	class ShotTimer extends TimerTask {
+	public static final String TAG ="RecogActivity";
+	
+	class ShotTimer extends Thread {
 		private Handler hand;
 		private boolean canceled = false;
 
@@ -32,42 +35,59 @@ public class RecogActivity extends Activity {
 			this.hand = hand;
 		}
 
-		@Override
-		public boolean cancel() {
-			canceled = true;
-			return super.cancel();
+		synchronized public void cancel() {
+			this.canceled = true;
+		}
+
+		synchronized public boolean isCanceled() {
+			return canceled;
 		}
 
 		@Override
 		public void run() {
 			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 			List<IStation> s;
+	
 			try {
-				s = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT);
+				Thread.sleep(4000);
+			} catch (InterruptedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+		
+			while (!isCanceled()) {
+				try {
+					Log.d(TAG,"canceled thread: "+isCanceled());
+					s = Client.listStations(Config.SERVER_URL,
+							Config.SERVER_PORT);
 
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				face.grabFrame().compress(CompressFormat.PNG, 0, bos);
-				byte[] bitmapdata = bos.toByteArray();
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
+					byte[] bitmapdata = bos.toByteArray();
 
-				Client client = new Client(Config.SERVER_URL,
-						Config.SERVER_PORT, s.get(0));
+					Client client = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, s.get(0));
 
-				final String[] users = client.identifyImage(bitmapdata);
+					final String[] users = client.identifyImage(bitmapdata);
 
-				hand.post(new Runnable() {
-					public void run() {
-						Intent i = new Intent();
-						i.putExtra(ExtraNames.USERS, users);
-						i.putExtra(ExtraNames.PRODUCTS, mOrder);
-						setResult(RESULT_OK, i);
-						finish();
+					hand.post(new Runnable() {
+						public void run() {
+							Intent i = new Intent();
+							i.putExtra(ExtraNames.USERS, users);
+							i.putExtra(ExtraNames.PRODUCTS, mOrder);
+							setResult(RESULT_OK, i);
+							finish();
+						}
+					});
+
+				} catch (Exception e) {
+					e.printStackTrace();
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				});
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				if (!canceled) {
-					mShotTimer.schedule(new ShotTimer(hand), 500L);
 				}
 			}
 
@@ -80,14 +100,8 @@ public class RecogActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.recog_user);
 
-		mShotTimer = new Timer();
-
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
-		final Handler hand = new Handler(getMainLooper());
-
-		mShotTimer.schedule(new ShotTimer(hand), 4000L);
-
 		mOrder = getIntent().getParcelableExtra(ExtraNames.PRODUCTS);
 	}
 
@@ -95,8 +109,7 @@ public class RecogActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		mShotTimer.cancel();
-		mShotTimer = null;
-
+		Log.d(TAG,"canceled: "+mShotTimer.isCanceled());
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.releaseCamera();
 
@@ -107,9 +120,9 @@ public class RecogActivity extends Activity {
 		super.onResume();
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
-		mShotTimer = new Timer();
 		final Handler hand = new Handler(getMainLooper());
-		mShotTimer.schedule(new ShotTimer(hand), 4000L);
+		mShotTimer = new ShotTimer(hand);
+		mShotTimer.start();
 	}
 
 	public void userListClick(View v) {
