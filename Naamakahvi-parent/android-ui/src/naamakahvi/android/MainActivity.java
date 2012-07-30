@@ -1,11 +1,8 @@
 package naamakahvi.android;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import naamakahvi.android.R;
-import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
@@ -14,34 +11,20 @@ import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
 import naamakahvi.naamakahviclient.IStation;
-import naamakahvi.naamakahviclient.IUser;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends Activity {
 

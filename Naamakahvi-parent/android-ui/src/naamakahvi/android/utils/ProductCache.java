@@ -2,7 +2,6 @@ package naamakahvi.android.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import naamakahvi.naamakahviclient.IProduct;
@@ -24,7 +23,7 @@ public class ProductCache {
 	public static void loadBuyableItems(List<IProduct> products){
 		mBuyableList = new ArrayList<IProduct>();
 		for (IProduct p : products){
-			mNameCache.put(p.getName(),p);
+			mNameCache.put(p.toString(),p);
 			mBuyableList.add(p);
 		}
 		mBuyableReady = true;
@@ -33,7 +32,7 @@ public class ProductCache {
 	public static void loadRawItems(List<IProduct> products){
 		mRawList = new ArrayList<IProduct>();
 		for (IProduct p : products){
-			mNameCache.put(p.getName(),p);
+			mNameCache.put(p.toString(),p);
 			mRawList.add(p);
 		}
 		mRawReady = true;

@@ -124,7 +124,7 @@ def buyableProducts():
     ret = []
     rslt = dbm.selectFinProductNames()
     for x,y in enumerate(rslt):
-        ret.append(({"product_name":y[2],"product_id":y[0],"product_price":1}))
+        ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[4],"product_price":1}))
 
     print ret
     return resp_ok(buyable_products=ret)
@@ -137,7 +137,7 @@ def bringableProducts():
     ret = []
     rslt = dbm.selectRawProductNames()
     for x,y in enumerate(rslt):
-        ret.append(({"product_name":y[2],"product_id":y[0],"product_price":1}))
+        ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[5],"product_price":1}))
 
 
     return resp_ok(raw_products=ret)
@@ -181,6 +181,7 @@ def buy():
         product = request.form['product_id']
         user = request.form['username']
         amount = request.form['amount']
+        
         r = dbm.buy(product,amount,user)
         print product,amount,user
         
@@ -195,17 +196,18 @@ def buy():
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
     if request.method == 'POST':
-        product = request.form['product_id']
-        user = request.form['username']
+        productname = request.form['product_name']
+        rawproductid = request.form['product_id']
+        stationname = request.form['station']
         amount = request.form['amount']
+        user = request.form['username']
         
-        r = dbm.bring(product,amount,user)
+        r = dbm.bring(rawproductid,amount,user)
         
         if r:
-            return json.dumps({'status':'ok'})
+            return resp_ok()
         else:
-            return json.dumps({'status':'Error'})
-
+            return resp_failure('Error')
 
 @app.route('/list_stations/',methods=['POST','GET'])
 def stations():

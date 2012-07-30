@@ -1,13 +1,10 @@
 package naamakahvi.android;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
@@ -38,6 +34,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	private String username;
 	public static final String TAG = "ConfirmPurchaseActivity";
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
@@ -122,6 +119,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		
 		cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
 			
+			@Override
 			public void onTick(long timeLeft) {
 				countdown.setText(getString(R.string.countdown_prefix) + " "
 						+ timeLeft / 1000
@@ -129,6 +127,7 @@ public class ConfirmPurchaseActivity extends Activity {
 
 			}
 			
+			@Override
 			public void onFinish() {
 				buyProducts();
 				setResult(RESULT_OK);

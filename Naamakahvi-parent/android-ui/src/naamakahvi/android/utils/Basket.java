@@ -1,8 +1,6 @@
 package naamakahvi.android.utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import naamakahvi.naamakahviclient.IProduct;
@@ -93,7 +91,7 @@ public class Basket implements Parcelable {
 
 	public void writeToParcel(Parcel dest, int flags) {
 		for (IProduct i : items.keySet()) {
-			dest.writeString(i.getName());
+			dest.writeString(i.toString());
 			dest.writeInt(items.get(i));
 		}
 	}

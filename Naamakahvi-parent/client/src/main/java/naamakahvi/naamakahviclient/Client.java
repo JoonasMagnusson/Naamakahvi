@@ -27,7 +27,7 @@ import org.apache.http.message.BasicNameValuePair;
  * A client class that passes data from user interface to server and vice 
  * versa. Communication between client and server is done using HTTP. The client expects
  * the server response data to be in JSON format.
-
+ *
  * @author Janne Ronkonen
  * @author Eeva Terkki
  */
@@ -346,14 +346,16 @@ public class Client {
         }
     }
 
-    private List<IProduct> jsonToProductList(JsonArray ar) {
-        List<IProduct> ans = new ArrayList();
+    private List<IProduct> jsonToProductList(JsonArray ar, boolean buyable) {
+        List<IProduct> ans = new ArrayList<IProduct>();
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            ans.add(new Product(productId, productName, productPrice));
+
+            //        String productGroup = product.get("product_group").getAsString();
+            ans.add(new Product(productId, productName, productPrice, buyable, null));
         }
         return ans;
     }
@@ -388,48 +390,9 @@ public class Client {
             JsonObject obj = doGet("/list_buyable_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("buyable_products").getAsJsonArray());
+                return jsonToProductList(obj.get("buyable_products").getAsJsonArray(), true);
             } else {
                 throw new GeneralClientException("Could not fetch list of buyable products");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.getMessage());
-        }
-    }
-
-    /**
-     * Gets all default products from the server and creates a list of IProduct objects.
-     * Method: Get
-     * Path: /list_default_products/
-     * 
-     * Example server response: 
-     * {
-     *      "status":"ok",
-     *      "default_products":
-     *      [
-     *        {
-     *          "product_name":"coffee",
-     *          "product_price":1,
-     *          "product_id":1
-     *        },
-     *        {
-     *          "product_name":"espresso",
-     *          "product_price":1,
-     *          "product_id":2
-     *        },
-     *      ]
-     * }
-     * 
-     * @return list of default products
-     */
-    public List<IProduct> listDefaultProducts() throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_default_products/",
-                    "station_name", this.station.getName());
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("default_products").getAsJsonArray());
-            } else {
-                throw new GeneralClientException("Could not fetch list of default products");
             }
         } catch (Exception e) {
             throw new GeneralClientException(e.getMessage());
@@ -499,7 +462,7 @@ public class Client {
             JsonObject obj = doGet("/list_raw_products/",
                     "station_name", this.station.getName());
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("raw_products").getAsJsonArray());
+                return jsonToProductList(obj.get("raw_products").getAsJsonArray(), false);
             } else {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }

@@ -10,12 +10,9 @@ import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
-import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IStation;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
@@ -61,7 +58,6 @@ public class RecogActivity extends Activity {
 				});
 
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				mShotTimer.schedule(new ShotTimer(hand), 500L);
 			}
@@ -88,18 +84,21 @@ public class RecogActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.releaseCamera();
+		mShotTimer.cancel();
+		mShotTimer = null;
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
+		mShotTimer = new Timer();
+		final Handler hand = new Handler(getMainLooper());
+		mShotTimer.schedule(new ShotTimer(hand), 4000L);
 	}
 
 	public void userListClick(View v) {

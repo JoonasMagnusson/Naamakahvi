@@ -108,9 +108,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_group", new JsonPrimitive(productGroup));
                 ar.add(product);
             }
             ans.add("buyable_products", ar);
@@ -127,9 +129,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_group", new JsonPrimitive(productGroup));
                 ar.add(product);
             }
             ans.add("default_products", ar);
@@ -153,9 +157,11 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
+                product.add("product_group", new JsonPrimitive(productGroup));
                 ar.add(product);
             }
             ans.add("raw_products", ar);
@@ -369,20 +375,7 @@ public class ClientTest {
         assertTrue(ps.size() == 5);
     }
 
-    @Test
-    public void correctDefaultProductsListed() throws ClientException {
-        List<IProduct> ps = client.listDefaultProducts();
 
-        assertTrue(ps.get(0).getName().equals("kahvi")
-                && ps.get(1).getName().equals("espresso")
-                && ps.get(2).getName().equals("tuplaespresso"));
-    }
-
-    @Test
-    public void rightDefaultProductsAmount() throws ClientException {
-        List<IProduct> ps = client.listDefaultProducts();
-        assertTrue(ps.size() == 3);
-    }
 
     @Test
     public void buyProduct() throws ClientException {

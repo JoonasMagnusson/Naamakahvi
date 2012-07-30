@@ -21,78 +21,94 @@ public class RegistrationPage extends JPanel implements ActionListener{
 	private BufferedImage[] images;
 	private int thumbCount = 0;
 	private static int MAX_THUMBCOUNT = 5;
+	private FlowLayout layout;
 	
 	public RegistrationPage(CafeUI master){
 		this.master = master;
+		layout = new FlowLayout();
+		//layout.setHgap(0);
+		//layout.setVgap(0);
+		setLayout(layout);
 		
 		header = new JLabel("Register New User", SwingConstants.CENTER);
 		header.setFont(master.UI_FONT_BIG);
-		header.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/10));
+		header.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/6 - layout.getHgap()));
 		add(header);
 		
 		help = new JLabel(defaultHelp, SwingConstants.CENTER);
 		help.setFont(master.UI_FONT_SMALL);
-		help.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/10));
+		help.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/6 - layout.getHgap()));
 		add(help);
 		
 		canvas = master.getCanvas();
-		canvas.setPreferredSize(new Dimension(master.X_RES/3, master.Y_RES/3));
+		canvas.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
+				master.Y_RES/3 - layout.getHgap()));
 		add(canvas);
 		
 		actionPanel = new JPanel();
-		actionPanel.setPreferredSize(new Dimension(master.X_RES/3*2-20, master.Y_RES/8*3+20));
+		actionPanel.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
+				master.Y_RES/3 - layout.getHgap()));
 		add(actionPanel);
 		
 		unLabel = new JLabel("Username:", SwingConstants.CENTER);
 		unLabel.setFont(master.UI_FONT);
-		unLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/8));
+		unLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/10));
 		actionPanel.add(unLabel);
 		
 		userName = new JTextField();
 		userName.setFont(master.UI_FONT_BIG);
-		userName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/8));
+		userName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionPanel.add(userName);
 		
 		fnLabel = new JLabel("Given Name:", SwingConstants.CENTER);
 		fnLabel.setFont(master.UI_FONT);
-		fnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/8));
+		fnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/10));
 		actionPanel.add(fnLabel);
 		
 		firstName = new JTextField();
 		firstName.setFont(master.UI_FONT_BIG);
-		firstName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/8));
+		firstName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionPanel.add(firstName);
 		
 		lnLabel = new JLabel("Family Name:", SwingConstants.CENTER);
 		lnLabel.setFont(master.UI_FONT);
-		lnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/8));
+		lnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/10));
 		actionPanel.add(lnLabel);
 		
 		lastName = new JTextField();
 		lastName.setFont(master.UI_FONT_BIG);
-		lastName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/8));
+		lastName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionPanel.add(lastName);
 		
 		thumbPanel = new JPanel();
-		thumbPanel.setLayout(new GridLayout(1,5));
-		thumbPanel.setPreferredSize(new Dimension(master.X_RES/2, master.Y_RES/8));
+		FlowLayout flow = new FlowLayout();
+		flow.setHgap(0);
+		flow.setVgap(0);
+		thumbPanel.setLayout(flow);
+		thumbPanel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+				master.Y_RES/6 - layout.getHgap()));
 		add(thumbPanel);
 		
 		resetPage();
 		
 		takePic = new JButton("Take Picture");
 		takePic.setFont(master.UI_FONT);
-		takePic.setPreferredSize(new Dimension(master.X_RES/4-30, master.Y_RES/8));
+		takePic.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+				master.Y_RES/6 - layout.getHgap()));
 		takePic.addActionListener(this);
 		
 		register = new JButton("Register");
 		register.setFont(master.UI_FONT);
-		register.setPreferredSize(new Dimension(master.X_RES/4-30, master.Y_RES/8));
+		register.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+				master.Y_RES/6 - layout.getHgap()));
 		register.addActionListener(this);
 		
 		cancel = new JButton("Cancel");
 		cancel.setFont(master.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/8));
+		cancel.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/6 - layout.getHgap()));
 		cancel.addActionListener(this);
 		
 		add(takePic);
@@ -103,12 +119,15 @@ public class RegistrationPage extends JPanel implements ActionListener{
 	private void resetPage(){
 		thumbPanel.removeAll();
 		thumbs = new Thumbnail[MAX_THUMBCOUNT];
+		int size = (master.X_RES/10 - layout.getHgap() < master.Y_RES/6  - layout.getVgap()?
+				master.X_RES/10  - layout.getHgap() : master.Y_RES/6  - layout.getHgap());
 		for (int i=0; i < thumbs.length; i++){
-			thumbs[i] = new Thumbnail(master.X_RES/10, master.X_RES/10);
+			thumbs[i] = new Thumbnail(size, size);
 			thumbPanel.add(thumbs[i]);
 		}
 		images = new BufferedImage[MAX_THUMBCOUNT];
 		thumbPanel.revalidate();
+		thumbCount = 0;
 	}
 	
 	protected void setHelpText(String text){
