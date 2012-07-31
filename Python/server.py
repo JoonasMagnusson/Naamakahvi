@@ -183,7 +183,7 @@ def buy():
         amount = request.form['amount']
         
         r = dbm.buy(product,amount,user)
-        print product,amount,user
+        #print product,amount,user
         
         if r:
             return resp_ok()

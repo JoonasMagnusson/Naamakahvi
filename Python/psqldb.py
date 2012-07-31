@@ -233,7 +233,7 @@ class psqldb:
 		q = self.getQuery("selectExportProductData")
 		
 		try:
-			self.cur.exequte(q, (product))
+			self.cur.execute(q, (product))
 		except	Exception ,e:
 			return e
 		data = self.cur.fetchone()
@@ -252,7 +252,7 @@ class psqldb:
 		print data		
 
 		group = data["group_id"]
-		amount = amount * data["value"]
+		amount = float(amount) * data["value"]
 		self.decGroupBalanceById(group, amount)
 		self.updateUserBalancesDeduct(amount, group, user)
 		self.insertBuy(user,product,amount)
