@@ -1,13 +1,10 @@
 package naamakahvi.android;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
@@ -38,17 +34,18 @@ public class ConfirmPurchaseActivity extends Activity {
 	private String username;
 	public static final String TAG = "ConfirmPurchaseActivity";
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
 		intent = getIntent();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
-        String[] testUsers = intent.getStringArrayExtra(ExtraNames.USERS);
-        setListView(possibleUsersListView, testUsers);
-        username = testUsers[0];
-        setSaldos(testUsers[0]);
-        setRecognizedText(testUsers[0]);
+        String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
+        setListView(possibleUsersListView, listOfPossibleUsers);
+        username = listOfPossibleUsers[0];
+        setSaldos(listOfPossibleUsers[0]);
+        setRecognizedText(listOfPossibleUsers[0]);
 	}
 
 	
@@ -59,10 +56,10 @@ public class ConfirmPurchaseActivity extends Activity {
         listView.setOnItemClickListener(new OnItemClickListener() {
         	public void onItemClick(AdapterView<?> parent, View view,
         		int position, long id) {
-        		String item = (String) parent.getAdapter().getItem(position);
-        		setSaldos(item);
-        		setRecognizedText(item);
-        		username = item;
+        		String alternativeUser = (String) parent.getAdapter().getItem(position);
+        		setSaldos(alternativeUser);
+        		setRecognizedText(alternativeUser);
+        		username = alternativeUser;
         		cd.cancel();
         		cd.start();
         	}
@@ -76,23 +73,21 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setSaldos(String username) {
-		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
-		Map<IProduct, Integer> itemsBought = b.getItems();
+		Basket producstThatCustomerIsBuying = intent.getParcelableExtra(ExtraNames.PRODUCTS);
+		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
 		int changeInEspresso = 0;
 		int changeInCoffee = 0;
 		
 		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
-		Iterator it = itemsBought.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry pairs = (Map.Entry)it.next();
-	        IProduct product = (IProduct) pairs.getKey();
-	        int amount = (Integer) pairs.getValue();
-	        if (product.getName().equals("Espresso"))
-	        	changeInEspresso -= amount;
-	        else if (product.getName().equals("Kahvi"))
-	        	changeInCoffee -= amount;
+		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
+	    while (productsAndAmounts.hasNext()) {
+	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
+	        IProduct product = (IProduct) productAndAmountPair.getKey();
+	        int amount = (Integer) productAndAmountPair.getValue();
+	        if (product.getName().equals("Kahvi"))
+	        	changeInCoffee -= (amount*product.getPrice());
 	        else
-	        	changeInEspresso -= (amount*2);
+	        	changeInEspresso -= (amount*product.getPrice());
 	    }
 		
 		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
@@ -124,6 +119,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		
 		cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
 			
+			@Override
 			public void onTick(long timeLeft) {
 				countdown.setText(getString(R.string.countdown_prefix) + " "
 						+ timeLeft / 1000
@@ -131,6 +127,7 @@ public class ConfirmPurchaseActivity extends Activity {
 
 			}
 			
+			@Override
 			public void onFinish() {
 				buyProducts();
 				setResult(RESULT_OK);
@@ -150,16 +147,21 @@ public class ConfirmPurchaseActivity extends Activity {
 	private void buyProducts() {
 		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> itemsBought = b.getItems();
-		final Iterator it = itemsBought.entrySet().iterator();
+		Iterator productsAndAmounts = itemsBought.entrySet().iterator();
+		startBuyingThread(productsAndAmounts);
+	}
+	
+	private void startBuyingThread(Iterator its) {
+		final Iterator productsAndAmounts = its;
 		new Thread(new Runnable() {
 			public void run() {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
-					while (it.hasNext()) {
-				        Map.Entry pairs = (Map.Entry)it.next();
-				        IProduct product = (IProduct) pairs.getKey();
-				        int amount = (Integer) pairs.getValue();
+					while (productsAndAmounts.hasNext()) {
+				        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
+				        IProduct product = (IProduct) productAndAmountPair.getKey();
+				        int amount = (Integer) productAndAmountPair.getValue();
 				        IUser buyer = c.authenticateText(username);
 				        c.buyProduct(buyer, product, amount);
 				    }

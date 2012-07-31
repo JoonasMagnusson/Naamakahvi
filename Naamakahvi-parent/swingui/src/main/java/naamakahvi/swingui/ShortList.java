@@ -3,10 +3,14 @@ package naamakahvi.swingui;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import naamakahvi.naamakahviclient.SaldoItem;
 
 public class ShortList extends JPanel implements ActionListener{
 	private CafeUI master;
@@ -14,6 +18,7 @@ public class ShortList extends JPanel implements ActionListener{
 	private JButton[] userbuttons;
 	private JLabel selectedUser;
 	private CloseableView container;
+	private JPanel saldolist;
 	
 	public ShortList(CafeUI master, CloseableView container){
 		this.master = master;
@@ -43,11 +48,15 @@ public class ShortList extends JPanel implements ActionListener{
 		saldoheader.setFont(master.UI_FONT);
 		add(saldoheader);
 		
+		saldolist = new JPanel();
+		add(saldolist);
+		loadBalance();
+		/*
 		for(int i = 0; i < 2; i++){
 			JLabel saldo = new JLabel("Saldo" + (i+1) + ": 0");
 			saldo.setFont(master.UI_FONT_SMALL);
 			add(saldo);
-		}
+		}*/
 		
 		if (usernames.length > 1){
 			JLabel userlistheader = new JLabel("Closest face matches:");
@@ -65,6 +74,24 @@ public class ShortList extends JPanel implements ActionListener{
 		add(switchUser);
 		revalidate();
 	}
+	
+	private void loadBalance(){
+		List<SaldoItem> saldos = master.getSaldo();
+		if (saldos == null){
+			//TODO restore when saldos are working
+			return;
+			//throw new NullPointerException("Could not retrieve user balance");
+		}
+		saldolist.removeAll();
+		Iterator<SaldoItem> i = saldos.iterator();
+		while (i.hasNext()){
+			SaldoItem s = i.next();
+			JLabel saldolabel = new JLabel(s.getGroupName() + ": " + s.getSaldo());
+			saldolabel.setFont(master.UI_FONT_SMALL);
+			saldolist.add(saldolabel);
+		}
+		saldolist.revalidate();
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
@@ -74,10 +101,14 @@ public class ShortList extends JPanel implements ActionListener{
 			master.continueLocation = master.currentLocation;
 			master.switchPage(CafeUI.VIEW_USERLIST_PAGE);
 		}
+		if (userbuttons == null) return;
 		for (int i = 0; i < userbuttons.length; i++){
 			if (s == userbuttons[i]){
 				container.closeView();
-				master.switchUser(userbuttons[i].getText());
+				String username = userbuttons[i].getText();
+				master.switchUser(username);
+				selectedUser.setText(username);
+				loadBalance();
 			}
 		}
 	}

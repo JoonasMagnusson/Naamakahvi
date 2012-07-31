@@ -280,7 +280,7 @@ public class FaceCapture implements Runnable{
 				ready = false;
 				BufferedImage bimg = img.getBufferedImage();
 				
-				if (doFaceDetect){
+				if (doFaceDetect && detectedFaces != null){
 					Graphics2D gimg = bimg.createGraphics();
 					gimg.setColor(Color.RED);
 					gimg.setStroke(new BasicStroke(3.0F));

@@ -5,7 +5,6 @@ import java.util.List;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
-import naamakahvi.android.utils.ProductCache;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IStation;

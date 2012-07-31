@@ -228,15 +228,34 @@ class psqldb:
 		self.con.commit()
 		return True
 		
+	def selectExportProductData(self,product):
 	
+		q = self.getQuery("selectExportProductData")
 		
-	def buy(self,group,amount,user):
+		try:
+			self.cur.exequte(q, (product))
+		except	Exception ,e:
+			return e
+		data = self.cur.fetchone()
+		
+		datadict = {"final_id":data[0], "group_id":data[1], "value":data[2], "fin":data[3], "eng":data[4], "swe":data[5], "deacttime":data[6]}
+		
+		return datadict
+		
+	def buy(self,product,amount,user):
 		
 		if(not self.login(user)):
 			return False
+			
+		data = self.selectExportProductData(product)
 		
+		print data		
+
+		group = data["group_id"]
+		amount = amount * data["value"]
 		self.decGroupBalanceById(group, amount)
 		self.updateUserBalancesDeduct(amount, group, user)
+		self.insertBuy(user,product,amount)
 		
 		return True
 	
@@ -259,6 +278,7 @@ class psqldb:
 		except  Exception ,e:
 			print e
 		
+		sizeid = self.cur.fetchone()[2] 
 		value = self.cur.fetchone()[1]
 		amount = amount * rawsize * value
 			
@@ -273,7 +293,25 @@ class psqldb:
 			self.cur.execute(q_ubal, (amount,group,user,))
 		except  Exception ,e:
 			return e
+			
+		self.insertBring(user,rawproduct,sizeid,amount)
 		return True
+		
+	def insertBuy(self,user,finalproduct,value):
+		q = self.getQuery("insertProductout")
+		try:
+			self.cur.execute(q, (user,finalproduct,value,))
+		except  Exception ,e:
+			return e
+		self.con.commit()
+	
+	def insertBring(self,user,rawproduct,productsize,value):
+		q = self.getQuery("insertProductin")
+		try:
+			self.cur.execute(q, (user,rawproduct,productsize,value,))
+		except  Exception ,e:
+			return e
+		self.con.commit()
 
 	def nukeTable(self,table):
 		

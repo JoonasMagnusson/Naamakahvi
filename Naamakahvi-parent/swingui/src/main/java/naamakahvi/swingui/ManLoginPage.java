@@ -1,6 +1,7 @@
 package naamakahvi.swingui;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,27 +16,36 @@ public class ManLoginPage extends JPanel implements ActionListener{
 	
 	public ManLoginPage(CafeUI master){
 		this.master = master;
+		FlowLayout layout = new FlowLayout();
+		//layout.setHgap(0);
+		//layout.setVgap(0);
+		setLayout(layout);
 		
 		header = new JLabel("Manual Login", SwingConstants.CENTER);
 		header.setFont(master.UI_FONT_BIG);
-		header.setPreferredSize(new Dimension(master.X_RES-20,master.Y_RES/6));
+		header.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/5 - layout.getVgap()));
 		
 		help = new JLabel(defaultHelp, SwingConstants.CENTER);
 		help.setFont(master.UI_FONT_SMALL);
-		help.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
+		help.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/5 - layout.getVgap()));
 		
 		username = new JTextField();
 		username.setFont(master.UI_FONT_BIG);
-		username.setPreferredSize(new Dimension(master.X_RES-20, 40));
+		username.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/5 - layout.getVgap()));
 		
 		ok = new JButton("OK");
 		ok.setFont(master.UI_FONT_BIG);
-		ok.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
+		ok.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/5 - layout.getVgap()));
 		ok.addActionListener(this);
 		
 		cancel = new JButton("Cancel");
 		cancel.setFont(master.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
+		cancel.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/5 - layout.getVgap()));
 		cancel.addActionListener(this);
 		
 		add(header);

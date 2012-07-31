@@ -7,149 +7,151 @@ import javax.swing.*;
 
 import naamakahvi.naamakahviclient.IProduct;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
 /*
  * Kälin erikoistoimintosivu
  */
-public class PurchaseCartPage extends JPanel implements ActionListener{
+public class PurchaseCartPage extends JPanel implements ActionListener, CloseableView{
 	private JButton cancelButton, confirmButton, clearButton;
 	
-	private JButton[] buyButtons, bringButtons;
-	private IProduct[] buyProducts, bringProducts;
+	private JButton[] prodButtons;
+	private IProduct[] products;
 	
-	private ArrayList<IProduct> buyCartContents, bringCartContents;
-	private ArrayList<Integer> buyAmounts, bringAmounts;
-	private JLabel buyHeader, bringHeader;
-	private ArrayList<JLabel> buyCartLabels, bringCartLabels;
+	private ArrayList<IProduct> cartContents;
+	private ArrayList<Integer> amounts;
+	private ArrayList<JButton> removebuttons;
+	private JLabel header;
+	private ArrayList<JLabel> cartLabels;
 	
-	private JPanel cartPanel, buyMenuView, bringMenuView, productPanel,
-		buyCartView, bringCartView;
-	private JScrollPane cartBuyScroll, cartBringScroll, menuBuyScroll, menuBringScroll;
+	private JPanel cartPanel, menuView, cartView;
+	private JScrollPane cartScroll, menuScroll;
 	private CafeUI master;
 	
-	public PurchaseCartPage(CafeUI master){
+	private GridBagLayout cartLayout;
+	private GridBagConstraints cartConstraints;
+	
+	private String mode;
+	private ShortList userlist;
+	
+	public PurchaseCartPage(CafeUI master, String mode){
 		this.master = master;
+		this.mode = mode;
+		FlowLayout layout = new FlowLayout();
+		//layout.setHgap(0);
+		//layout.setVgap(0);
+		setLayout(layout);
 		
 		cancelButton = new JButton("Cancel");
 		cancelButton.setFont(master.UI_FONT_BIG);
 		cancelButton.addActionListener(this);
-		cancelButton.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
+		cancelButton.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+				master.Y_RES/8 - layout.getVgap()));
 		
 		confirmButton = new JButton("Buy selected products");
 		confirmButton.setFont(master.UI_FONT_BIG);
 		confirmButton.addActionListener(this);
-		confirmButton.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
+		confirmButton.setPreferredSize(new Dimension(master.X_RES/2 -layout.getVgap(),
+				master.Y_RES/8 - layout.getVgap()));
+		
+		
+		userlist = new ShortList(master, this);
+		userlist.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+				master.Y_RES/8*7 - layout.getVgap()));
+		add(userlist);
 		
 		//Ostoskori
 		cartPanel = new JPanel();
-		cartPanel.setPreferredSize(new Dimension(master.X_RES/3-10, master.Y_RES/8*6+10));
+		FlowLayout cartflow = new FlowLayout();
+		cartflow.setHgap(0);
+		cartflow.setVgap(0);
+		cartPanel.setLayout(cartflow);
+		cartPanel.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+				master.Y_RES/8*7 - layout.getVgap()));
+		
+		
+		cartView = new JPanel();
+		cartLayout = new GridBagLayout();
+		cartView.setLayout(cartLayout);
+		cartConstraints = new GridBagConstraints();
+		cartConstraints.weightx = 1.0;
+		cartConstraints.fill = GridBagConstraints.BOTH;
+		
+		cartScroll = new JScrollPane(cartView, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		cartScroll.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+				master.Y_RES/8*6 - layout.getVgap()));
+		cartPanel.add(cartScroll);
 		
 		clearButton = new JButton("Clear cart");
 		clearButton.setFont(master.UI_FONT);
 		clearButton.addActionListener(this);
-		clearButton.setPreferredSize(new Dimension(master.X_RES/3-10, master.Y_RES/40*3));
+		clearButton.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(), 
+				master.Y_RES/8 - layout.getVgap()));
 		cartPanel.add(clearButton);
 		
-		buyCartView = new JPanel();
-		buyCartView.setLayout(new GridLayout(0,1));
-		cartBuyScroll = new JScrollPane(buyCartView, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		cartBuyScroll.setPreferredSize(new Dimension(master.X_RES/3-10, master.Y_RES/80*28));
-		cartPanel.add(cartBuyScroll);
-		
-		buyHeader = new JLabel("Buying:");
-		buyHeader.setFont(master.UI_FONT);
-		
-		bringCartView = new JPanel();
-		bringCartView.setLayout(new GridLayout(0,1));
-		cartBringScroll = new JScrollPane(bringCartView, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		cartBringScroll.setPreferredSize(new Dimension(master.X_RES/3-10, master.Y_RES/80*28));
-		cartPanel.add(cartBringScroll);
-		
-		bringHeader = new JLabel("Bringing:");
-		bringHeader.setFont(master.UI_FONT);
+		header = new JLabel("Buying:");
+		header.setFont(master.UI_FONT);
 		
 		clearCart();
+		add(cartPanel);
 		
 		//Tuotelista
-		productPanel = new JPanel();
-		productPanel.setPreferredSize(new Dimension(master.X_RES/3*2-10, master.Y_RES/8*6+10));
-		
-		buyMenuView = new JPanel();
-		buyMenuView.setLayout(new GridLayout(0, 2));
-		menuBuyScroll = new JScrollPane(buyMenuView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+		menuView = new JPanel();
+		menuView.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
+				master.Y_RES/8*7 - layout.getVgap()));
+		menuView.setLayout(new GridLayout(0, 1));
+		menuScroll = new JScrollPane(menuView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		menuBuyScroll.setPreferredSize(new Dimension(master.X_RES/3*2-10, master.Y_RES/8*3));
-		productPanel.add(menuBuyScroll);
+		menuScroll.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
+				master.Y_RES/8*7 - layout.getVgap()));
+		add(menuScroll);
 		
-		bringMenuView = new JPanel();
-		bringMenuView.setLayout(new GridLayout(0, 2));
-		menuBringScroll = new JScrollPane(bringMenuView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		menuBringScroll.setPreferredSize(new Dimension(master.X_RES/3*2-10, master.Y_RES/8*3));
-		productPanel.add(menuBringScroll);
 		
-		//väliaikainen, testausta varten
-		/*
-		buyButtons = new JButton[1000];
-		for (int i = 0; i < 1000; i++){
-			buyButtons[i] = initProductButton("test", buyMenuView);
-		}
-		*/
-		loadProducts();
+		loadProducts(mode);
 		
-		add(cartPanel);
-		add(productPanel);
 		add(confirmButton);
 		add(cancelButton);
 	}
 	
 	protected void clearCart(){
-		buyCartView.removeAll();
-		bringCartView.removeAll();
-		buyCartView.add(buyHeader);
-		bringCartView.add(bringHeader);
+		cartView.removeAll();
+		cartConstraints.gridwidth = GridBagConstraints.REMAINDER;
+		cartLayout.setConstraints(header, cartConstraints);
+		cartView.add(header);
 
-		buyCartContents = new ArrayList<IProduct>();
-		bringCartContents = new ArrayList<IProduct>();
-		buyAmounts = new ArrayList<Integer>();
-		bringAmounts = new ArrayList<Integer>();
-		buyCartLabels = new ArrayList<JLabel>();
-		bringCartLabels = new ArrayList<JLabel>();
+		cartContents = new ArrayList<IProduct>();
+		amounts = new ArrayList<Integer>();
+		cartLabels = new ArrayList<JLabel>();
+		removebuttons = new ArrayList<JButton>();
 		
-		buyCartView.revalidate();
-		bringCartView.revalidate();
+		cartView.revalidate();
 	}
 	
-	protected void loadProducts(){
+	protected void loadProducts(String mode){
 		
-		List<IProduct> buylist = master.getBuyableProducts();
-		List<IProduct> bringlist = master.getRawProducts();
-		if (buylist == null || bringlist == null){
-			return;
+		List<IProduct> prodlist;
+		if (CafeUI.MODE_BUY.equals(mode)){
+			prodlist = master.getBuyableProducts();
+		}
+		else if (CafeUI.MODE_BRING.equals(mode)){
+			prodlist = master.getRawProducts();
+		}
+		else{
+			throw new IllegalArgumentException("Cart page mode is neither buy or bring");
 		}
 
-		buyMenuView.removeAll();
-		bringMenuView.removeAll();
+		menuView.removeAll();
 		
-		buyProducts = new IProduct[buylist.size()];
-		buylist.toArray(buyProducts);
-		
-		bringProducts = new IProduct[bringlist.size()];
-		bringlist.toArray(bringProducts);
-		
-		
-		buyButtons = new JButton[buyProducts.length];
-		for (int i = 0; i < buyProducts.length; i++){
-			buyButtons[i] = initProductButton(buyProducts[i].getName(), buyMenuView);
-		}
-		
-		bringButtons = new JButton[bringProducts.length];
-		for (int i = 0; i < bringProducts.length; i++){
-			bringButtons[i] = initProductButton(bringProducts[i].getName(), bringMenuView);
+		products = new IProduct[prodlist.size()];
+		prodlist.toArray(products);
+				
+		prodButtons = new JButton[products.length];
+		for (int i = 0; i < products.length; i++){
+			prodButtons[i] = initProductButton(products[i].getName() + 
+					": " + products[i].getPrice(), menuView);
 		}
 	}
 	
@@ -161,44 +163,59 @@ public class PurchaseCartPage extends JPanel implements ActionListener{
 		return button;
 	}
 	
-	private void addToBuyCart(IProduct p){
-		int index = buyCartContents.indexOf(p);
+	private void addToCart(IProduct p){
+		int index = cartContents.indexOf(p);
 		if (index != -1){
-			int amount = buyAmounts.get(index);
+			int amount = amounts.get(index);
 			amount++;
-			buyAmounts.remove(index);
-			buyAmounts.add(index, amount);
-			buyCartLabels.get(index).setText(buyCartContents.get(index).getName() + " x " + amount);
+			amounts.remove(index);
+			amounts.add(index, amount);
+			cartLabels.get(index).setText(cartContents.get(index).getName() + " x " + amount);
 		}
 		else {
-			buyCartContents.add(p);
-			buyAmounts.add(1);
+			cartContents.add(p);
+			amounts.add(1);
 			JLabel label = new JLabel(p.getName() + " x " + 1);
-			buyCartLabels.add(label);
-			buyCartView.add(label);
+			cartConstraints.gridwidth = GridBagConstraints.RELATIVE;
+			cartLayout.setConstraints(label, cartConstraints);
+			cartLabels.add(label);
+			cartView.add(label);
+			
+			JButton remove = new JButton("-");
+			remove.setFont(master.UI_FONT);
+			remove.addActionListener(this);
+			cartConstraints.gridwidth = GridBagConstraints.REMAINDER;
+			cartLayout.setConstraints(remove, cartConstraints);
+			removebuttons.add(remove);
+			cartView.add(remove);
 			
 		}
-		buyCartView.revalidate();
+		cartView.revalidate();
 	}
 	
-	private void addToBringCart(IProduct p){
-		int index = bringCartContents.indexOf(p);
-		if (index != -1){
-			int amount = bringAmounts.get(index);
-			amount++;
-			bringAmounts.remove(index);
-			bringAmounts.add(index, amount);
-			bringCartLabels.get(index).setText(bringCartContents.get(index).getName() + " x " + amount);
+	private void removeFromCart(int index){
+		int amount = amounts.get(index);
+		amount--;
+		if (amount > 0){
+			amounts.remove(index);
+			amounts.add(index, amount);
+			cartLabels.get(index).setText(cartContents.get(index).getName() + " x " + amount);
 		}
 		else {
-			bringCartContents.add(p);
-			bringAmounts.add(1);
-			JLabel label = new JLabel(p.getName() + " x " + 1);
-			bringCartLabels.add(label);
-			bringCartView.add(label);
-			
+			amounts.remove(index);
+			JLabel label = cartLabels.get(index);
+			JButton button = removebuttons.get(index);
+			cartView.remove(button);
+			cartView.remove(label);
+			cartContents.remove(index);
+			cartLabels.remove(index);
+			removebuttons.remove(index);
 		}
-		bringCartView.revalidate();
+		cartView.revalidate();
+	}
+	
+	protected void setUsers(String[] users){
+		userlist.setUsers(users);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -210,24 +227,35 @@ public class PurchaseCartPage extends JPanel implements ActionListener{
 			clearCart();
 		}
 		if (s == confirmButton){
-			for (int i = 0; i< buyCartContents.size(); i++){
-				master.buyProduct(buyCartContents.get(i), buyAmounts.get(i));
+			//~*~C A S T I N G T Y P E S~*~
+			IProduct[] p = new IProduct[cartContents.size()];
+			Integer[] a1 = new Integer[amounts.size()];
+			cartContents.toArray(p);
+			amounts.toArray(a1);
+			int[] a2 = new int[a1.length];
+			for(int i = 0; i < a1.length; i++){
+				a2[i] = a1[i];
 			}
-			for (int i = 0; i< bringCartContents.size(); i++){
-				master.buyProduct(bringCartContents.get(i), bringAmounts.get(i));
-			}
-			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
+			//~*~C A S T I N G T Y P E S~*~
+			
+			master.selectProduct(p, a2);
+			master.setPurchaseMode(mode);
+			master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
 		}
-		for (int i = 0; i < buyButtons.length; i++){
-			if (s == buyButtons[i]){
-				addToBuyCart(buyProducts[i]);
+		for (int i = 0; i < prodButtons.length; i++){
+			if (s == prodButtons[i]){
+				addToCart(products[i]);
 			}
 		}
-		for (int i = 0; i < bringButtons.length; i++){
-			if (s == bringButtons[i]){
-				addToBringCart(bringProducts[i]);
-			}
+		int index = removebuttons.indexOf(s);
+		if (index != -1){
+			removeFromCart(index);
 		}
+	}
+
+	public void closeView() {
+		// Nothing to close
+		
 	}
 
 }

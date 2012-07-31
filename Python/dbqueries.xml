@@ -24,11 +24,11 @@
 	</entry>
 	<entry key="selectEProductNames">
 		SELECT final_finalproductid, final_finname, final_engname,
-		final_swename FROM finalproduct ORDER BY final_finalproductid
+		final_swename, final_groupid FROM finalproduct ORDER BY final_finalproductid
 	</entry>
 	<entry key="selectIProductNames">
 		SELECT raw_rawproductid, raw_finname, raw_engname, raw_swename,
-		raw_sizeunit FROM rawproduct ORDER BY raw_rawproductid
+		raw_sizeunit, raw_groupid FROM rawproduct ORDER BY raw_rawproductid
 	</entry>
 	<entry key="selectSizes">
 		SELECT ps_productsizeid, ps_size FROM productsize
@@ -427,6 +427,12 @@
 	</entry>
 	<entry key="selectDeactRawProducts">
 		select raw_rawproductid as id, %s from rawproduct where raw_deacttime is not null and raw_groupid = %s
+	</entry>
+	<entry key="insertProductout">
+	INSERT INTO productout (out_username, out_finalproductid, out_acttime, out_value ) values (%s,%s,LOCALTIMESTAMP,%s)
+	</entry>
+	<entry key="insertProductin">
+	INSERT INTO productin (in_username, in_rawproductid, in_productsizeid, in_acttime, in_value) values (%s, %s, %s, LOCALTIMESTAMP, %s)
 	</entry>
 
 </properties>

@@ -23,21 +23,28 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	
 	public CheckoutPage(CafeUI master){
 		this.master = master;
+		FlowLayout layout = new FlowLayout();
+		//layout.setHgap(0);
+		//layout.setVgap(0);
+		setLayout(layout);
 		
 		userlist = new ShortList(master, this);
-		userlist.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8*5));
+		userlist.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+				master.Y_RES/4*3 - layout.getVgap()));
 		add(userlist);
 		//userPanel.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/4*3));
 		//add(userPanel);
 		
 		purchasePanel = new JPanel();
-		purchasePanel.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8*5));
+		purchasePanel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+				master.Y_RES/4*3 - layout.getVgap()));
 		purchasePanel.setLayout(new GridLayout(0,1));
 		add(purchasePanel);
 		
 		ok = new JButton("OK");
 		ok.setFont(master.UI_FONT_BIG);
-		ok.setPreferredSize(new Dimension(master.X_RES/2 - 10, master.Y_RES/8));
+		ok.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+				master.Y_RES/8 - layout.getVgap()));
 		ok.addActionListener(this);
 		add(ok);	
 		
@@ -48,13 +55,15 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		
 		cancel = new JButton("Cancel");
 		cancel.setFont(master.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(master.X_RES/2 - 10, master.Y_RES/8));
+		cancel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+				master.Y_RES/8 - layout.getVgap()));
 		cancel.addActionListener(this);	
 		add(cancel);
 		
 		countdownText = new JLabel("Placeholder", SwingConstants.CENTER);
 		countdownText.setFont(master.UI_FONT);
-		countdownText.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/6));
+		countdownText.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+				master.Y_RES/6 - layout.getVgap()));
 		add(countdownText);
 		
 		countdownTimer = new Timer(1000, this);
@@ -70,7 +79,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	}
 	
 	
-	protected void setProducts(IProduct[] products, int[] quantities){
+	protected void setProducts(IProduct[] products, int[] quantities, String mode){
 		if (products == null || quantities == null ||
 				products.length != quantities.length
 				 || products.length < 1){
@@ -81,7 +90,17 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		this.quantities = quantities;
 		purchasePanel.removeAll();
 		
-		JLabel header = new JLabel("Receipt:");
+		JLabel header;
+		if (mode.equals(CafeUI.MODE_BUY)){
+			header = new JLabel("Buying:");
+		}
+		else if (mode.equals(CafeUI.MODE_BRING)){
+			header = new JLabel("Bringing:");
+		}
+		else{
+			throw new IllegalArgumentException(
+					"Mode passed to checkout was neither buy nor sell");
+		}
 		header.setFont(master.UI_FONT_BIG);
 		purchasePanel.add(header);
 		
@@ -101,7 +120,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	protected void startCountdown(){
 		countdownSecs = countdownLength;
 		countdownTimer.start();
-		countdownText.setText("The product(s) will be charged from your account in " + 
+		countdownText.setText("The transaction will complete automatically in " + 
 				countdownSecs + " seconds");
 	}
 	/*
@@ -111,12 +130,17 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		countdownTimer.stop();
 	}
 	
+	protected void setHelpText(String text){
+		closeView();
+		countdownText.setText(text);
+	}
+	
 	public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s == countdownTimer){
 			countdownSecs--;
 			if (countdownSecs > 0){
-				countdownText.setText("The product(s) will be charged from your account in " + 
+				countdownText.setText("The transaction will complete automatically in " + 
 						countdownSecs + " seconds");
 				countdownTimer.restart();
 			}
@@ -133,6 +157,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
 		}
 		if (s == ok){
+			closeView();
 			boolean error = false;
 			for (int i = 0; i < products.length;i++){
 				if (!master.buyProduct(products[i], quantities[i])){
@@ -141,7 +166,6 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 			}
 			if (!error){
 				master.switchPage(CafeUI.VIEW_FRONT_PAGE);
-				closeView();
 			}
 			
 		}

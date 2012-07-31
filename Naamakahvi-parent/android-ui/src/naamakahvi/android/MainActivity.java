@@ -1,11 +1,9 @@
 package naamakahvi.android;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import naamakahvi.android.R;
-import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
@@ -14,34 +12,23 @@ import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
 import naamakahvi.naamakahviclient.IStation;
-import naamakahvi.naamakahviclient.IUser;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends Activity {
 
@@ -49,6 +36,8 @@ public class MainActivity extends Activity {
 	public static final String TAG = "MainActivity";
 	private LayoutInflater mInflater;
 
+	private SharedPreferences mPreferences;
+	
 	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO,
 			R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
 
@@ -60,9 +49,89 @@ public class MainActivity extends Activity {
 
 		mInflater = getLayoutInflater();
 
+		
+		mPreferences = getPreferences(MODE_PRIVATE);
+		String server = mPreferences.getString("server", null);
+		int port = mPreferences.getInt("port", -1);
+
+		if (server == null || port < 1) {
+			showServerDialog();
+		} else {
+			loadData();
+		}
+
+	}
+
+	private void showServerDialog() {
+		final EditText servEdit = new EditText(this);
+		
+		final Handler hand = new Handler(getMainLooper());
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setCancelable(false);
+		builder.setTitle("Server address");
+		builder.setView(servEdit);
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				Config.SERVER_URL = servEdit.getText().toString();
+				dialog.dismiss();
+				hand.post(new Runnable() {
+					
+					public void run() {
+						showPortDialog();
+					}
+				});
+			}
+		});
+		builder.show();
+	}
+
+	private void showPortDialog(){
+		final EditText portEdit = new EditText(this);
+		
+		final Handler hand = new Handler(getMainLooper());
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				this);
+		builder.setCancelable(false);
+		builder.setTitle("Port");
+		builder.setView(portEdit);
+		builder.setPositiveButton("OK",
+				new DialogInterface.OnClickListener() {
+					public void onClick(
+							DialogInterface dialog,
+							int which) {
+						int port;
+						try {
+						port = Integer.parseInt(portEdit.getText().toString());
+						}catch(Exception e){
+							e.printStackTrace();
+							return;
+						}
+						Config.SERVER_PORT = port;
+						dialog.dismiss();	
+					    
+						Editor e = mPreferences.edit();
+						e.putString("server",Config.SERVER_URL);
+						e.putInt("port", Config.SERVER_PORT);
+						e.commit();
+						
+						hand.post(new Runnable() {
+							
+							public void run() {
+								loadData();
+							}
+						});
+					}
+				});
+		builder.show();
+	}
+
+	private void loadData() {
 		final Handler hand = new Handler(getMainLooper());
 
 		final Context con = this;
+
 		new Thread(new Runnable() {
 
 			public void run() {
@@ -169,7 +238,8 @@ public class MainActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS) );
+				i.putExtra(ExtraNames.USERS,
+						data.getExtras().getStringArray(ExtraNames.USERS));
 				i.putExtra(ExtraNames.PRODUCTS,
 						data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				startActivity(i);

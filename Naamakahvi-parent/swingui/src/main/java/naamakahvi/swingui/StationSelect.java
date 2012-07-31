@@ -19,7 +19,7 @@ public class StationSelect extends JPanel implements ActionListener{
 		this.stations = stations;
 		
 		helptext = new JLabel("Select Location:");
-		helptext.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/10));
+		helptext.setPreferredSize(new Dimension(master.X_RES, master.Y_RES/10));
 		helptext.setFont(master.UI_FONT);
 		add(helptext);
 		
