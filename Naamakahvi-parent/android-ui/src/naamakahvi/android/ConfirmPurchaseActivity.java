@@ -26,6 +26,7 @@ import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
 import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
+import naamakahvi.naamakahviclient.SaldoItem;
 
 public class ConfirmPurchaseActivity extends Activity {
 
@@ -33,7 +34,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	private CountDownTimer cd;
 	private Intent intent;
 	private String username;
-	private IUser buyer;
+	private Handler handler;
 	public static final String TAG = "ConfirmPurchaseActivity";
 	
 	@Override
@@ -41,6 +42,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
 		intent = getIntent();
+		handler = new Handler();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
@@ -54,8 +56,12 @@ public class ConfirmPurchaseActivity extends Activity {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
-					IUser user = c.authenticateText(username);
-					buyer = user;
+					final IUser user = c.authenticateText(username);
+					handler.post(new Runnable() {
+						public void run() {
+							setSaldos(user);
+						}
+					});
 				}
 				catch (final ClientException ex) {
 					Log.d(TAG, ex.getMessage());
@@ -83,7 +89,6 @@ public class ConfirmPurchaseActivity extends Activity {
 	private void configureUserView(String name) {
 		username = name;
         startGetIUserThread();
-        setSaldos();
         setRecognizedText();
 	}
 	
@@ -93,44 +98,55 @@ public class ConfirmPurchaseActivity extends Activity {
 		recognized.setText(newRecognizedText);
 	}
 	
-	private void setSaldos() {
+	private void setSaldos(IUser buyer) {
 		Basket producstThatCustomerIsBuying = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
-		int changeInEspresso = 0;
-		int changeInCoffee = 0;
-		
-		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
-		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
-	    while (productsAndAmounts.hasNext()) {
-	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
-	        IProduct product = (IProduct) productAndAmountPair.getKey();
-	        int amount = (Integer) productAndAmountPair.getValue();
-	        if (product.getName().equals("Kahvi"))
-	        	changeInCoffee -= (amount*product.getPrice());
-	        else
-	        	changeInEspresso -= (amount*product.getPrice());
-	    }
-		
-		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
-		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
-		
-		//TODO: get saldos from client, currently testSaldos used instead.
-		int testSaldoCof = -2;
-		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp + " + " + changeInEspresso;
-		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof + " + " + changeInCoffee;
-		saldoCoffee.setText(newTextForSaldoCoffee);
-		saldoEspresso.setText(newTextForSaldoEspresso);
-		
-		if ((testSaldoCof + changeInCoffee) >= 0)
-			saldoCoffee.setTextColor(Color.GREEN);
+		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
+
+		List<SaldoItem> userBalance = buyer.getBalance();
+		String[] userSaldoTexts = new String[1];
+		if (userBalance == null)
+			userSaldoTexts[0] = "ei onnistunut";
 		else
-			saldoCoffee.setTextColor(Color.RED);
+			userSaldoTexts[0] = "onnistui";
 		
-		if ((testSaldoEsp + changeInEspresso) >= 0)
-			saldoEspresso.setTextColor(Color.GREEN);
-		else
-			saldoEspresso.setTextColor(Color.RED);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+    	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+coffeeSaldoView.setAdapter(adapter);
+		
+//		String[] userSaldoTexts = new String[userBalance.size()];
+//		
+//		for (int i = 0; i < userBalance.size(); i++) {
+//			SaldoItem saldoItem = userBalance.get(i);
+//			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
+//					" + TODO later";
+//		}
+//		
+//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+//            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+//		coffeeSaldoView.setAdapter(adapter);
+//		
+//		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
+//		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
+//	    while (productsAndAmounts.hasNext()) {
+//	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
+//	        IProduct product = (IProduct) productAndAmountPair.getKey();
+//	        int amount = (Integer) productAndAmountPair.getValue();
+//	        if (product.getName().equals("Kahvi"))
+//	        	changeInCoffee -= (amount*product.getPrice());
+//	        else
+//	        	changeInEspresso -= (amount*product.getPrice());
+//	    }
+//		
+//		if ((testSaldoCof + changeInCoffee) >= 0)
+//			saldoCoffee.setTextColor(Color.GREEN);
+//		else
+//			saldoCoffee.setTextColor(Color.RED);
+//		
+//		if ((testSaldoEsp + changeInEspresso) >= 0)
+//			saldoEspresso.setTextColor(Color.GREEN);
+//		else
+//			saldoEspresso.setTextColor(Color.RED);
 	}
 	
 	private void setCountdown() {
@@ -179,6 +195,7 @@ public class ConfirmPurchaseActivity extends Activity {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
+					IUser buyer = c.authenticateText(username);
 					while (productsAndAmounts.hasNext()) {
 				        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
 				        IProduct product = (IProduct) productAndAmountPair.getKey();
