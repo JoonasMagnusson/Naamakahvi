@@ -175,8 +175,8 @@ coffeeSaldoView.setAdapter(adapter);
 	}
 	
 	public void onCPOkClick(View v) {
-		buyProducts();
 		cd.cancel();
+		buyProducts();
 		setResult(RESULT_OK);
 		finish();
 	}
