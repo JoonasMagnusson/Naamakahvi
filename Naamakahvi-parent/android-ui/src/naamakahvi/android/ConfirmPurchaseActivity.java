@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +33,8 @@ public class ConfirmPurchaseActivity extends Activity {
 	private CountDownTimer cd;
 	private Intent intent;
 	private String username;
+	private IUser buyer;
+	private Handler handler;
 	public static final String TAG = "ConfirmPurchaseActivity";
 	
 	@Override
@@ -44,10 +47,28 @@ public class ConfirmPurchaseActivity extends Activity {
         String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
         setListView(possibleUsersListView, listOfPossibleUsers);
         username = listOfPossibleUsers[0];
+        handler = new Handler();
+        startGetIUserThread();
         setSaldos(listOfPossibleUsers[0]);
         setRecognizedText(listOfPossibleUsers[0]);
 	}
 
+	private void startGetIUserThread() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
+					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
+					IUser user = c.authenticateText(username);
+					buyer = user;
+				}
+				catch (final ClientException ex) {
+					Log.d(TAG, ex.getMessage());
+					ex.printStackTrace();
+				}
+			}			
+		}).start();
+	}
 	
 	private void setListView(ListView listView, String[] list) {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -57,9 +78,10 @@ public class ConfirmPurchaseActivity extends Activity {
         	public void onItemClick(AdapterView<?> parent, View view,
         		int position, long id) {
         		String alternativeUser = (String) parent.getAdapter().getItem(position);
+        		username = alternativeUser;
+        		startGetIUserThread();
         		setSaldos(alternativeUser);
         		setRecognizedText(alternativeUser);
-        		username = alternativeUser;
         		cd.cancel();
         		cd.start();
         	}
@@ -162,7 +184,6 @@ public class ConfirmPurchaseActivity extends Activity {
 				        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
 				        IProduct product = (IProduct) productAndAmountPair.getKey();
 				        int amount = (Integer) productAndAmountPair.getValue();
-				        IUser buyer = c.authenticateText(username);
 				        c.buyProduct(buyer, product, amount);
 				    }
 				}
