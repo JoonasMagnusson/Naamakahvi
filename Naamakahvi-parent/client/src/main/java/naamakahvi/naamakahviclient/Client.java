@@ -199,8 +199,7 @@ public class Client {
     }
 
     /**
-     * Sends new user's user data to the server and creates a User object 
-     * that represents the newly registered user. 
+     * Sends new user's user data to the server.
      * Method: Post
      * Path: /register/
      * Parameters: username
@@ -209,21 +208,7 @@ public class Client {
      * 
      * Example server response:
      * {
-     *      "status":"ok",
-     *      "username":"example",
-     *      "givenName":"example given name",
-     *      "familyName":"example family name",
-     *      "balance": 
-     *      [
-     *          {
-     *            "groupName":"example group"
-     *            "saldo":0.0
-     *          },
-     *          {
-     *            "groupName":"example group 2"
-     *            "saldo":0.0
-     *          }
-     *      ]
+     *      "status":"ok"
      * }
      * 
      * @param username the new user's username
@@ -231,7 +216,7 @@ public class Client {
      * @param familyName the new user's family name
      * @return the newly registered user
      */
-    public IUser registerUser(String username, String givenName,
+    public void registerUser(String username, String givenName,
             String familyName) throws RegistrationException {
         try {
             JsonObject obj = doPost("/register/",
@@ -239,17 +224,10 @@ public class Client {
                     "given", givenName,
                     "family", familyName);
 
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                obj.remove("status");
-                User responseUser = new Gson().fromJson(obj, User.class);
-                if (!responseUser.getUserName().equals(username)) {
-                    throw new RegistrationException("username returned from server doesn't match given username");
-                }
-
-                return responseUser;
-            } else {
+            if (!obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 throw new RegistrationException("Registration failed: Try another username");
             }
+            
         } catch (RegistrationException e) {
             throw e;
         } catch (Exception e) {
@@ -451,7 +429,7 @@ public class Client {
      *          "product_name":"filter",
      *          "product_price":1,
      *          "product_id":4
-     *        },
+     *        }
      *      ]
      * }
      * 

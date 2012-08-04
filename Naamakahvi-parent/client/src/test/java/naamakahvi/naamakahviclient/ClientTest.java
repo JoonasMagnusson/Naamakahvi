@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class ClientTest {
+
     private LocalTestServer server = null;
     private HashMap<String, IUser> users = new HashMap<String, IUser>();
     private Client client;
@@ -38,6 +39,7 @@ public class ClientTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private class ResponseUser extends User {
+
         private final String status;
 
         private ResponseUser(String uname, String given, String family, String success, List<SaldoItem> balance) {
@@ -46,27 +48,27 @@ public class ClientTest {
         }
     }
     private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
             String username = userData.get("username");
-            IUser user;
-            SaldoItem saldo = new SaldoItem("group", 0);
-            List<SaldoItem> balance = new ArrayList<SaldoItem>();
-            balance.add(saldo);
+            String status;
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "fail", balance);
+                status = "fail";
             } else {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "ok", balance);
+                status = "ok";
             }
-
-            makeResponseFromUser(user, response);
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive(status));
+            stringResponse(response, ans.toString());
         }
     };
     private HttpRequestHandler textAuthenticationHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
             String username = userData.get("username");
-            IUser user;   
+            IUser user;
             SaldoItem saldo = new SaldoItem("group", 1.3);
             List<SaldoItem> balance = new ArrayList<SaldoItem>();
             balance.add(saldo);
@@ -86,6 +88,7 @@ public class ClientTest {
         r.setStatusCode(200);
     }
     private HttpRequestHandler listUsernamesHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest hr, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -100,6 +103,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listBuyableProductsHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -120,6 +124,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listDefaultProductsHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -141,6 +146,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler buyProductHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -148,6 +154,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listRawProductsHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -169,6 +176,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listStationsHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -182,6 +190,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler bringProductHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -189,6 +198,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler identifyImageHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -203,6 +213,7 @@ public class ClientTest {
         }
     };
     private HttpRequestHandler listUserSaldosHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
@@ -224,20 +235,20 @@ public class ClientTest {
             stringResponse(response, ans.toString());
         }
     };
-    
     private HttpRequestHandler listGroupnamesHandler = new HttpRequestHandler() {
+
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
-        	JsonObject ans = new JsonObject();
-        	ans.add("status", new JsonPrimitive("ok"));
-        	
-        	JsonArray ar = new JsonArray();
-        	ar.add(new JsonPrimitive("group1"));
-        	ar.add(new JsonPrimitive("group2"));
-        	ar.add(new JsonPrimitive("group3"));
-        	
-        	ans.add("product_groups", ar);
-        	
-        	stringResponse(response, ans.toString());
+            JsonObject ans = new JsonObject();
+            ans.add("status", new JsonPrimitive("ok"));
+
+            JsonArray ar = new JsonArray();
+            ar.add(new JsonPrimitive("group1"));
+            ar.add(new JsonPrimitive("group2"));
+            ar.add(new JsonPrimitive("group3"));
+
+            ans.add("product_groups", ar);
+
+            stringResponse(response, ans.toString());
         }
     };
 
@@ -291,7 +302,7 @@ public class ClientTest {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
         client = new Client(host, port, station);
     }
 
@@ -307,8 +318,7 @@ public class ClientTest {
     @Test
     public void registrationWithNewNameSuccessful() throws Exception {
         try {
-            IUser u = client.registerUser("Pekka", "Pekka", "Virtanen");
-            assertEquals(u.getUserName(), "Pekka");
+            client.registerUser("Pekka", "Pekka", "Virtanen");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;
@@ -331,7 +341,7 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Registration failed: Try another username");
 
-        IUser u = client.registerUser("Teemu", "Teemu", "Lahti");
+        client.registerUser("Teemu", "Teemu", "Lahti");
     }
 
     @Test
@@ -339,7 +349,7 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");
 
-        IUser u = client.authenticateText("Matti");
+        client.authenticateText("Matti");
     }
 
     @Test
@@ -374,8 +384,6 @@ public class ClientTest {
 
         assertTrue(ps.size() == 5);
     }
-
-
 
     @Test
     public void buyProduct() throws ClientException {
@@ -446,21 +454,20 @@ public class ClientTest {
         List<SaldoItem> saldos = client.listUserSaldos(u);
         assertTrue(saldos.size() == 2);
     }
-    
+
     @Test
     public void listProductGroupsCorrectAmount() throws ClientException {
-    	Client c = new Client(host, port, station);
-    	List<String> groupnames = c.listProductGroups();
-    	assertTrue(groupnames.size() == 3);
+        Client c = new Client(host, port, station);
+        List<String> groupnames = c.listProductGroups();
+        assertTrue(groupnames.size() == 3);
     }
-    
+
     @Test
     public void listProductGroupsCorrectGroupnames() throws ClientException {
-    	Client c = new Client(host, port, station);
-    	List<String> groupnames = c.listProductGroups();
-    	assertTrue(groupnames.get(0).equals("group1")
-    			&& groupnames.get(1).equals("group2")
-    			&& groupnames.get(1).equals("group2"));
+        Client c = new Client(host, port, station);
+        List<String> groupnames = c.listProductGroups();
+        assertTrue(groupnames.get(0).equals("group1")
+                && groupnames.get(1).equals("group2")
+                && groupnames.get(1).equals("group2"));
     }
-    
 }
