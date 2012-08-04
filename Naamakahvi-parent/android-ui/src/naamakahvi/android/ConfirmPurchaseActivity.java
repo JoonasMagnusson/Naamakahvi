@@ -127,7 +127,6 @@ coffeeSaldoView.setAdapter(adapter);
 //            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
 //		coffeeSaldoView.setAdapter(adapter);
 //		
-//		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
 		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
 		HashMap<String, Double> saldoChanges = new HashMap<String, Double>();
 	    while (productsAndAmounts.hasNext()) {
