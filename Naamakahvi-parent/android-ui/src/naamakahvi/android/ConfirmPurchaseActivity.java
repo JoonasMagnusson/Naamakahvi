@@ -49,8 +49,8 @@ public class ConfirmPurchaseActivity extends Activity {
         username = listOfPossibleUsers[0];
         handler = new Handler();
         startGetIUserThread();
-        setSaldos(listOfPossibleUsers[0]);
-        setRecognizedText(listOfPossibleUsers[0]);
+        setSaldos();
+        setRecognizedText();
 	}
 
 	private void startGetIUserThread() {
@@ -80,21 +80,21 @@ public class ConfirmPurchaseActivity extends Activity {
         		String alternativeUser = (String) parent.getAdapter().getItem(position);
         		username = alternativeUser;
         		startGetIUserThread();
-        		setSaldos(alternativeUser);
-        		setRecognizedText(alternativeUser);
+        		setSaldos();
+        		setRecognizedText();
         		cd.cancel();
         		cd.start();
         	}
         }); 
 	}
 	
-	private void setRecognizedText(String username) {
+	private void setRecognizedText() {
 		TextView recognized = (TextView) findViewById(R.id.cp_nametext);
 		String newRecognizedText = "You were recognized as: " + username;
 		recognized.setText(newRecognizedText);
 	}
 	
-	private void setSaldos(String username) {
+	private void setSaldos() {
 		Basket producstThatCustomerIsBuying = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
 		int changeInEspresso = 0;
