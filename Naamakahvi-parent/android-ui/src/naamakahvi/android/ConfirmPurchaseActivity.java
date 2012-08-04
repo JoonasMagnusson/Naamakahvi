@@ -1,5 +1,6 @@
 package naamakahvi.android;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,6 +27,7 @@ import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
 import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
+import naamakahvi.naamakahviclient.SaldoItem;
 
 public class ConfirmPurchaseActivity extends Activity {
 
@@ -32,6 +35,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	private CountDownTimer cd;
 	private Intent intent;
 	private String username;
+	private Handler handler;
 	public static final String TAG = "ConfirmPurchaseActivity";
 	
 	@Override
@@ -39,15 +43,34 @@ public class ConfirmPurchaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_purchase);
 		intent = getIntent();
+		handler = new Handler();
 		setCountdown();
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
         setListView(possibleUsersListView, listOfPossibleUsers);
-        username = listOfPossibleUsers[0];
-        setSaldos(listOfPossibleUsers[0]);
-        setRecognizedText(listOfPossibleUsers[0]);
+        configureUserView(listOfPossibleUsers[0]);
 	}
-
+	
+	private void startGetIUserThread() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
+					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
+					final IUser user = c.authenticateText(username);
+					handler.post(new Runnable() {
+						public void run() {
+							setSaldos(user);
+						}
+					});
+				}
+				catch (final ClientException ex) {
+					Log.d(TAG, ex.getMessage());
+					ex.printStackTrace();
+				}
+			}			
+		}).start();
+	}
 	
 	private void setListView(ListView listView, String[] list) {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -57,59 +80,72 @@ public class ConfirmPurchaseActivity extends Activity {
         	public void onItemClick(AdapterView<?> parent, View view,
         		int position, long id) {
         		String alternativeUser = (String) parent.getAdapter().getItem(position);
-        		setSaldos(alternativeUser);
-        		setRecognizedText(alternativeUser);
-        		username = alternativeUser;
+        		configureUserView(alternativeUser);
         		cd.cancel();
         		cd.start();
         	}
         }); 
 	}
 	
-	private void setRecognizedText(String username) {
+	private void configureUserView(String name) {
+		username = name;
+        startGetIUserThread();
+        setRecognizedText();
+	}
+	
+	private void setRecognizedText() {
 		TextView recognized = (TextView) findViewById(R.id.cp_nametext);
 		String newRecognizedText = "You were recognized as: " + username;
 		recognized.setText(newRecognizedText);
 	}
 	
-	private void setSaldos(String username) {
+	private void setSaldos(IUser buyer) {
 		Basket producstThatCustomerIsBuying = intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
-		int changeInEspresso = 0;
-		int changeInCoffee = 0;
+		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
+
+		List<SaldoItem> userBalance = buyer.getBalance();
+		String[] userSaldoTexts = new String[1];
+		if (userBalance == null)
+			userSaldoTexts[0] = "ei onnistunut";
+		else
+			userSaldoTexts[0] = "onnistui";
 		
-		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+    	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+coffeeSaldoView.setAdapter(adapter);
+		
+//		String[] userSaldoTexts = new String[userBalance.size()];
+//		
+//		for (int i = 0; i < userBalance.size(); i++) {
+//			SaldoItem saldoItem = userBalance.get(i);
+//			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
+//					" + TODO later";
+//		}
+//		
+//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+//            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+//		coffeeSaldoView.setAdapter(adapter);
+//		
 		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
+		HashMap<String, Double> saldoChanges = new HashMap<String, Double>();
 	    while (productsAndAmounts.hasNext()) {
 	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
 	        IProduct product = (IProduct) productAndAmountPair.getKey();
 	        int amount = (Integer) productAndAmountPair.getValue();
-	        if (product.getName().equals("Kahvi"))
-	        	changeInCoffee -= (amount*product.getPrice());
+	        String productGroup = product.getProductGroup();
+	        double productPrice = product.getPrice();
+	        if (saldoChanges.containsKey(productGroup)) {
+	        	double oldPrices = saldoChanges.get(productGroup);
+	        	saldoChanges.remove(productGroup);
+	        	saldoChanges.put(productGroup, oldPrices + (amount*productPrice));
+	        }
 	        else
-	        	changeInEspresso -= (amount*product.getPrice());
+	        	saldoChanges.put(productGroup, productPrice);
 	    }
-		
-		TextView saldoEspresso = (TextView) findViewById(R.id.saldoEspresso);
-		TextView saldoCoffee = (TextView) findViewById(R.id.saldoCoffee);
-		
-		//TODO: get saldos from client, currently testSaldos used instead.
-		int testSaldoCof = -2;
-		int testSaldoEsp = 4;
-		String newTextForSaldoEspresso = "Your espressosaldo is " + testSaldoEsp + " + " + changeInEspresso;
-		String newTextForSaldoCoffee = "Your coffeesaldo is " + testSaldoCof + " + " + changeInCoffee;
-		saldoCoffee.setText(newTextForSaldoCoffee);
-		saldoEspresso.setText(newTextForSaldoEspresso);
-		
-		if ((testSaldoCof + changeInCoffee) >= 0)
-			saldoCoffee.setTextColor(Color.GREEN);
-		else
-			saldoCoffee.setTextColor(Color.RED);
-		
-		if ((testSaldoEsp + changeInEspresso) >= 0)
-			saldoEspresso.setTextColor(Color.GREEN);
-		else
-			saldoEspresso.setTextColor(Color.RED);
+//			saldoEspresso.setTextColor(Color.GREEN);
+//		else
+//			saldoEspresso.setTextColor(Color.RED);
 	}
 	
 	private void setCountdown() {
@@ -138,8 +174,8 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	public void onCPOkClick(View v) {
-		buyProducts();
 		cd.cancel();
+		buyProducts();
 		setResult(RESULT_OK);
 		finish();
 	}
@@ -158,11 +194,11 @@ public class ConfirmPurchaseActivity extends Activity {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
+					IUser buyer = c.authenticateText(username);
 					while (productsAndAmounts.hasNext()) {
 				        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
 				        IProduct product = (IProduct) productAndAmountPair.getKey();
 				        int amount = (Integer) productAndAmountPair.getValue();
-				        IUser buyer = c.authenticateText(username);
 				        c.buyProduct(buyer, product, amount);
 				    }
 				}
