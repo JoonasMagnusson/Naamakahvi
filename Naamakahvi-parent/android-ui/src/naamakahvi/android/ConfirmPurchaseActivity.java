@@ -34,7 +34,6 @@ public class ConfirmPurchaseActivity extends Activity {
 	private Intent intent;
 	private String username;
 	private IUser buyer;
-	private Handler handler;
 	public static final String TAG = "ConfirmPurchaseActivity";
 	
 	@Override
@@ -46,13 +45,9 @@ public class ConfirmPurchaseActivity extends Activity {
         ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
         String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
         setListView(possibleUsersListView, listOfPossibleUsers);
-        username = listOfPossibleUsers[0];
-        handler = new Handler();
-        startGetIUserThread();
-        setSaldos();
-        setRecognizedText();
+        configureUserView(listOfPossibleUsers[0]);
 	}
-
+	
 	private void startGetIUserThread() {
 		new Thread(new Runnable() {
 			public void run() {
@@ -78,14 +73,18 @@ public class ConfirmPurchaseActivity extends Activity {
         	public void onItemClick(AdapterView<?> parent, View view,
         		int position, long id) {
         		String alternativeUser = (String) parent.getAdapter().getItem(position);
-        		username = alternativeUser;
-        		startGetIUserThread();
-        		setSaldos();
-        		setRecognizedText();
+        		configureUserView(alternativeUser);
         		cd.cancel();
         		cd.start();
         	}
         }); 
+	}
+	
+	private void configureUserView(String name) {
+		username = name;
+        startGetIUserThread();
+        setSaldos();
+        setRecognizedText();
 	}
 	
 	private void setRecognizedText() {
