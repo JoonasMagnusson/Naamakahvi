@@ -134,6 +134,19 @@ class psqldb:
 		result = self.cur.fetchall()
 		return result
 	
+	def selectProductsizes(self):
+		
+		
+		q = self.getQuery("selectProductsizes")		
+
+		try:
+			self.cur.execute(q)		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchall()
+		return result
+		
 	
 	def selectUserBalances(self,user):
 		

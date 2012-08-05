@@ -1,5 +1,6 @@
 package naamakahvi.android;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -126,24 +127,22 @@ coffeeSaldoView.setAdapter(adapter);
 //            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
 //		coffeeSaldoView.setAdapter(adapter);
 //		
-//		// TODO: alla olevaa muutetaan, kun saadaan productiin metodit, jotka kertovat hinnan!
-//		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
-//	    while (productsAndAmounts.hasNext()) {
-//	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
-//	        IProduct product = (IProduct) productAndAmountPair.getKey();
-//	        int amount = (Integer) productAndAmountPair.getValue();
-//	        if (product.getName().equals("Kahvi"))
-//	        	changeInCoffee -= (amount*product.getPrice());
-//	        else
-//	        	changeInEspresso -= (amount*product.getPrice());
-//	    }
-//		
-//		if ((testSaldoCof + changeInCoffee) >= 0)
-//			saldoCoffee.setTextColor(Color.GREEN);
-//		else
-//			saldoCoffee.setTextColor(Color.RED);
-//		
-//		if ((testSaldoEsp + changeInEspresso) >= 0)
+		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
+		HashMap<String, Double> saldoChanges = new HashMap<String, Double>();
+	    while (productsAndAmounts.hasNext()) {
+	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
+	        IProduct product = (IProduct) productAndAmountPair.getKey();
+	        int amount = (Integer) productAndAmountPair.getValue();
+	        String productGroup = product.getProductGroup();
+	        double productPrice = product.getPrice();
+	        if (saldoChanges.containsKey(productGroup)) {
+	        	double oldPrices = saldoChanges.get(productGroup);
+	        	saldoChanges.remove(productGroup);
+	        	saldoChanges.put(productGroup, oldPrices + (amount*productPrice));
+	        }
+	        else
+	        	saldoChanges.put(productGroup, productPrice);
+	    }
 //			saldoEspresso.setTextColor(Color.GREEN);
 //		else
 //			saldoEspresso.setTextColor(Color.RED);

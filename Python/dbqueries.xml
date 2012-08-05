@@ -30,6 +30,11 @@
 		SELECT raw_rawproductid, raw_finname, raw_engname, raw_swename,
 		raw_sizeunit, raw_groupid FROM rawproduct ORDER BY raw_rawproductid
 	</entry>
+	<entry key="selectProductsizes">
+		SELECT distinct  * from productsize inner join rawproduct on 
+		(productsize.ps_rawproductid = rawproduct.raw_rawproductid) 
+		where rawproduct.raw_deacttime is NULL;
+	</entry>	
 	<entry key="selectSizes">
 		SELECT ps_productsizeid, ps_size FROM productsize
 	</entry>

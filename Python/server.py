@@ -142,6 +142,21 @@ def bringableProducts():
 
     return resp_ok(raw_products=ret)
 
+@app.route('/list_productsizes/',methods=['POST','GET'])
+def rawsizes():
+    
+    ret = []
+    rslt = dbm.selectProductsizes()
+    for x,y in enumerate(rslt):
+        z = y[1]*y[8]*-1
+        n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
+        ret.append(({"product_name":n,"group_id":y[6],"product_price":z}))
+
+    
+    return resp_ok(raw_products=ret)
+
+
+
 #Lists all usernames
 @app.route('/list_usernames/',methods=['POST','GET'])
 def listUsernames():
