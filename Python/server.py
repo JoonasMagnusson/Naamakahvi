@@ -36,7 +36,7 @@ def teardown_request(exception):
 #Returns available products and other useful stuff. (not yet implemented,obviously)
 @app.route('/')
 def mainpage():
-    return 'Naamakahvi server'
+    return 'Naamakahvi server v. 666'
 
 #Trains the opencv-plugin.
 #Input: name of uploaded file.
@@ -63,9 +63,10 @@ def identify():
         if file:
             print secure_filename(file.filename)
             file.save(secure_filename(file.filename))
-            id = cvm.identify(secure_filename(file.filename))
+            id,prob = cvm.identify(secure_filename(file.filename))
             print id
-            return resp_ok(idlist=id)
+            print prob
+            return resp_ok(idlist=id,acc=prob)
         else:
             return resp_failure('Error')
             

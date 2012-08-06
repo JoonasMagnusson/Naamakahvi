@@ -132,4 +132,4 @@ class neuralmodule:
         my = dict(zy)
         sy = sorted(my,key=my.__getitem__)
         
-        return sy[::-1]
+        return sy[::-1],major
