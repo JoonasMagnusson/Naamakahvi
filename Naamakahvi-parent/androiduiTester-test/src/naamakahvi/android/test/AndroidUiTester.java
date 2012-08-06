@@ -43,7 +43,7 @@ public class AndroidUiTester extends ActivityInstrumentationTestCase2<MainActivi
 	public void testNewUserCreation() {
 		solo.assertCurrentActivity("Activity not main activity", MainActivity.class);
 		solo.clickOnButton("New user");
-		
+		solo.enterText(1, "plaa");
 	}
 
 	@Override
