@@ -238,7 +238,7 @@ def getBalance(user):
     #print rslt
     for x,y in enumerate(rslt):
         retz = {}
-        retz['id'] = y[0]
+        retz['saldo'] = y[4]
         retz['groupName'] = y[2]
         ret.append(retz)
         
