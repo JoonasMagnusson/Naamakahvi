@@ -109,15 +109,14 @@ public class NewUserActivity extends Activity {
 					String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi))
 							.getText().toString();
 
-					IUser user = client.registerUser(username, etunimi,
-							sukunimi);
+					client.registerUser(username, etunimi, sukunimi);
 
 					for (Bitmap b : mPics) {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
 						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */,
 								bos);
 						byte[] bitmapdata = bos.toByteArray();
-						client.addImage(user.getUserName(), bitmapdata);
+						client.addImage(username, bitmapdata);
 					}
 
 					// tarkistetaan onko username varattu. jos on, kirjoitetaan
