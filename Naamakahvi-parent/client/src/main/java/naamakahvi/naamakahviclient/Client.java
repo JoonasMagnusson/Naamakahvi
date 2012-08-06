@@ -308,7 +308,7 @@ public class Client {
                 String given = data.get("given").getAsString();
                 String family = data.get("family").getAsString();
                 List<SaldoItem> balance = jsonToSaldoList(data.get("balance").getAsJsonArray());
-                
+
                 return new User(uname, given, family, balance);
             } else {
                 throw new AuthenticationException("Authentication failed");
@@ -333,8 +333,11 @@ public class Client {
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            int sizeId = product.get("size_id").getAsInt();
-
+            int sizeId = 0;
+            
+            if (!buyable) {
+                sizeId = product.get("size_id").getAsInt();
+            }
             //        String productGroup = product.get("product_group").getAsString();
             ans.add(new Product(productId, productName, productPrice, buyable, null, sizeId));
         }
@@ -448,7 +451,7 @@ public class Client {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());            
+            System.out.println(e.getMessage());
             throw new GeneralClientException(e.toString());
         }
     }
@@ -626,6 +629,7 @@ public class Client {
 //        System.out.println(u.getUserName());
 //        for(SaldoItem i : u.getBalance()) {
 //            System.out.println(i.getGroupName() + ": " + i.getSaldo());
-          c.listRawProducts();
+        c.listRawProducts();
+        c.listBuyableProducts();
     }
 }
