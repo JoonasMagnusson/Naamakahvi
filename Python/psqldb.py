@@ -207,9 +207,23 @@ class psqldb:
 		result = self.cur.fetchall()
 		return result
 	
+	def selectUserData(self,user):
+		
+		q = self.getQuery("selectUserData")		
+		try:
+			self.cur.execute(q,(user,))		
+		except  Exception ,e:
+			print e
+			
+		result = self.cur.fetchone()
+		print result
+		return result
+		
+	
 	def selectUserBalances(self,user):
 		
-		q = self.getQuery("selectUserBalances")		
+		q = self.getQuery("selectUserBalances")	
+			
 		try:
 			self.cur.execute(q,(user,))		
 		except  Exception ,e:

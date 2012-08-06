@@ -107,12 +107,23 @@ def register():
 
 
 #Logs user in. Good for checking if user exists.
-@app.route('/authenticate_text/',methods=['POST','GET'])
+@app.route('/get_user/',methods=['POST','GET'])
 def login():
     if request.method == 'POST':
         user = request.form['username']
         if(dbm.login(user)):
-            return resp_ok(username=user)
+            resp = {}
+            
+            udata = dbm.selectUserData(user)
+            print "############"
+            print udata
+            bal = dbm.selectUserBalances(user)
+            resp["username"] = user
+            resp["given"] = udata[1]
+            resp["family"] = udata[2]
+            resp["balance"] = bal
+            
+            return resp_ok(data=resp)
         else:
             return resp_failure('NoSuchUserError')
     else:
