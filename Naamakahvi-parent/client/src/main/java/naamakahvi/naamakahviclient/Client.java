@@ -333,7 +333,7 @@ public class Client {
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
-            int sizeId = 0;
+            int sizeId = -1;
             
             if (!buyable) {
                 sizeId = product.get("size_id").getAsInt();
