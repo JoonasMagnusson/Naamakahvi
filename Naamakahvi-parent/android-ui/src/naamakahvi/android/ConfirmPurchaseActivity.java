@@ -105,15 +105,10 @@ public class ConfirmPurchaseActivity extends Activity {
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
 
 		List<SaldoItem> userBalance = buyer.getBalance();
-		String[] userSaldoTexts = new String[1];
-		if (userBalance == null)
-			userSaldoTexts[0] = "ei onnistunut";
-		else
-			userSaldoTexts[0] = "onnistui";
-		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-    	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
-coffeeSaldoView.setAdapter(adapter);
+
+		String[] userSaldoTexts = new String[2];
+		userSaldoTexts[0] = "aa";
+		userSaldoTexts[1] = "bb";
 		
 //		String[] userSaldoTexts = new String[userBalance.size()];
 //		
@@ -122,11 +117,11 @@ coffeeSaldoView.setAdapter(adapter);
 //			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
 //					" + TODO later";
 //		}
-//		
-//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-//            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
-//		coffeeSaldoView.setAdapter(adapter);
-//		
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+		coffeeSaldoView.setAdapter(adapter);
+		
 		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
 		HashMap<String, Double> saldoChanges = new HashMap<String, Double>();
 	    while (productsAndAmounts.hasNext()) {

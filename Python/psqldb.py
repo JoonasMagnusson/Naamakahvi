@@ -286,7 +286,7 @@ class psqldb:
 		
 		return True
 	
-	def bring(self,rawproduct,amount,user):
+	def bring(self,sizeid,rawproduct,amount,user):
 		
 		if(not self.login(user)):
 			return False
@@ -296,8 +296,12 @@ class psqldb:
 			self.cur.execute(q_rawdata, (rawproduct,))
 		except	 Exception ,e:
 			print e
-		rawsize = self.cur.fetchone()[2]
-		group = self.cur.fetchone()[1]
+			
+		raw = self.cur.fetchone()
+		raw_value = raw[2]
+		group = raw[1]
+		
+		print "raw_value, group",raw_value, group
 		
 		q_value = self.getQuery("selectSizesInIProduct")
 		try:
@@ -305,11 +309,16 @@ class psqldb:
 		except  Exception ,e:
 			print e
 		
-		sizeid = self.cur.fetchone()[2] 
-		value = self.cur.fetchone()[1]
-		amount = amount * rawsize * value
+		size = self.cur.fetchone()
+		sizeid = size[2] 
+		value = size[1]
+		
+		print type(value)
+		
+		amount = float(amount)* float(raw_value) * value
+		print "amount", amount
 			
-		q_gbal = self.getQuery("incGroupBalanceById")
+		q_gbal = self.getQuery("incGroupbalanceById")
 		try:
 			self.cur.execute(q_gbal, (amount,group))
 		except  Exception ,e:

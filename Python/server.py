@@ -143,17 +143,6 @@ def buyableProducts():
 
 #Lists raw products
 @app.route('/list_raw_products/',methods=['POST','GET'])
-def bringableProducts():
-    
-    ret = []
-    rslt = dbm.selectRawProductNames()
-    for x,y in enumerate(rslt):
-        ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[5],"product_price":1}))
-
-
-    return resp_ok(raw_products=ret)
-
-@app.route('/list_productsizes/',methods=['POST','GET'])
 def rawsizes():
     
     ret = []
@@ -162,7 +151,7 @@ def rawsizes():
     for x,y in enumerate(rslt):
         z = y[1]*y[8]
         n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
-        ret.append(({"product_name":n,"size_id":y[0],"rawproduct_id":y[3],"group_id":y[6],"product_price":z}))
+        ret.append(({"product_name":n,"size_id":y[0],"product_id":y[3],"group_id":y[6],"product_price":z}))
 
     
     return resp_ok(raw_products=ret)
@@ -212,13 +201,15 @@ def buy():
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
     if request.method == 'POST':
-        productname = request.form['product_name']
+        #productname = request.form['product_name']
+        
         rawproductid = request.form['product_id']
-        stationname = request.form['station']
+        sizeid = request.form['size_id']
+        #stationname = request.form['station']
         amount = request.form['amount']
         user = request.form['username']
         
-        r = dbm.bring(rawproductid,amount,user)
+        r = dbm.bring(sizeid,rawproductid,amount,user)
         
         if r:
             return resp_ok()
