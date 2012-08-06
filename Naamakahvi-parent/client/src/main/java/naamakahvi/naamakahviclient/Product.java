@@ -5,16 +5,18 @@ class Product implements IProduct {
 	private final String name;
 	private final double price;
 	private final int id;
+        private final int sizeId;
 	private final String productGroup;
 	private final boolean buyable;
 
 	Product(int id, String name, double price, boolean buyable,
-			String productGroup) {
+			String productGroup, int sizeId) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
 		this.productGroup = productGroup;
 		this.buyable = buyable;
+                this.sizeId = sizeId;
 	}
 
 	public String getName() {

@@ -1,6 +1,5 @@
 package naamakahvi.naamakahviclient;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -334,9 +333,10 @@ public class Client {
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
+            int sizeId = product.get("size_id").getAsInt();
 
             //        String productGroup = product.get("product_group").getAsString();
-            ans.add(new Product(productId, productName, productPrice, buyable, null));
+            ans.add(new Product(productId, productName, productPrice, buyable, null, sizeId));
         }
         return ans;
     }
@@ -448,6 +448,7 @@ public class Client {
                 throw new GeneralClientException("Could not fetch list of raw products");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());            
             throw new GeneralClientException(e.toString());
         }
     }
@@ -617,13 +618,14 @@ public class Client {
         }
     }
 
-//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
-//        Client c = new Client("naama.zerg.fi", 5001, null);
-//        // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
-//        // System.out.println("registered user " + u.getUserName());
+    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException, ClientException {
+        Client c = new Client("naama.zerg.fi", 5001, new Station("aasd"));
+        // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
+        // System.out.println("registered user " + u.getUserName());
 //        IUser u = c.authenticateText("kerola");
+//        System.out.println(u.getUserName());
 //        for(SaldoItem i : u.getBalance()) {
 //            System.out.println(i.getGroupName() + ": " + i.getSaldo());
-//        }
-//    }
+          c.listRawProducts();
+    }
 }
