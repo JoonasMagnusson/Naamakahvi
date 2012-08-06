@@ -151,7 +151,7 @@ def rawsizes():
     for x,y in enumerate(rslt):
         z = y[1]*y[8]
         n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
-        ret.append(({"product_name":n,"size_id":y[0],"rawproduct_id":y[3],"group_id":y[6],"product_price":z}))
+        ret.append(({"product_name":n,"size_id":y[0],"product_id":y[3],"group_id":y[6],"product_price":z}))
 
     
     return resp_ok(raw_products=ret)
