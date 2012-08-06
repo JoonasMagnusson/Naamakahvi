@@ -144,24 +144,15 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setCountdown() {
-		final TextView countdown = (TextView) findViewById(R.id.cp_rec_countdown);
-		countdown.setText(getString(R.string.countdown_prefix) + " "
-				+ COUNTDOWN_LENGTH + getString(R.string.countdown_suffix));
-		
-		cd = new CountDownTimer(1000 * COUNTDOWN_LENGTH, 1000) {
+		cd = new CountDownTimer(6000 * COUNTDOWN_LENGTH, 1000) {
 			
 			@Override
 			public void onTick(long timeLeft) {
-				countdown.setText(getString(R.string.countdown_prefix) + " "
-						+ timeLeft / 1000
-						+ getString(R.string.countdown_suffix));
-
 			}
 			
 			@Override
 			public void onFinish() {
-				buyProducts();
-				setResult(RESULT_OK);
+				setResult(RESULT_CANCELED);
 				finish();
 			}
 		};

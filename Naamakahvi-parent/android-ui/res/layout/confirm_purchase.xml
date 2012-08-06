@@ -83,15 +83,7 @@
                     android:text="Cancel" />
 
             </LinearLayout>
-	
-       	<TextView
-                android:id="@+id/cp_rec_countdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Confriming in 7s"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-    
+
     </LinearLayout>
 
 </LinearLayout> 
