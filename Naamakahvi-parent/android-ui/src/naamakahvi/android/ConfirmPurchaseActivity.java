@@ -104,19 +104,14 @@ public class ConfirmPurchaseActivity extends Activity {
 		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
 
-		List<SaldoItem> userBalance = buyer.getBalance();
-
-		String[] userSaldoTexts = new String[2];
-		userSaldoTexts[0] = "aa";
-		userSaldoTexts[1] = "bb";
+		List<SaldoItem> userBalance = buyer.getBalance();	
+		String[] userSaldoTexts = new String[userBalance.size()];
 		
-//		String[] userSaldoTexts = new String[userBalance.size()];
-//		
-//		for (int i = 0; i < userBalance.size(); i++) {
-//			SaldoItem saldoItem = userBalance.get(i);
-//			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
-//					" + TODO later";
-//		}
+		for (int i = 0; i < userBalance.size(); i++) {
+			SaldoItem saldoItem = userBalance.get(i);
+			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
+					" + TODO later";
+		}
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
             	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
