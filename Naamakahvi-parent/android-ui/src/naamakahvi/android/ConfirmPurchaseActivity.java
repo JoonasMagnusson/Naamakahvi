@@ -131,7 +131,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	        	saldoChanges.put(productGroup, oldPrices + (amount*productPrice));
 	        }
 	        else
-	        	saldoChanges.put(productGroup, productPrice);
+	        	saldoChanges.put(productGroup, amount*productPrice);
 	    }
 //			saldoEspresso.setTextColor(Color.GREEN);
 //		else
