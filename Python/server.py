@@ -212,13 +212,15 @@ def buy():
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
     if request.method == 'POST':
-        productname = request.form['product_name']
+        #productname = request.form['product_name']
+        
         rawproductid = request.form['product_id']
-        stationname = request.form['station']
+        sizeid = request.form['size_id']
+        #stationname = request.form['station']
         amount = request.form['amount']
         user = request.form['username']
         
-        r = dbm.bring(rawproductid,amount,user)
+        r = dbm.bring(sizeid,rawproductid,amount,user)
         
         if r:
             return resp_ok()
