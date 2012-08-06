@@ -79,6 +79,7 @@ public class ShortList extends JPanel implements ActionListener{
 		List<SaldoItem> saldos = master.getSaldo();
 		if (saldos == null){
 			//TODO restore when saldos are working
+			System.err.println("Invalid saldo");
 			return;
 			//throw new NullPointerException("Could not retrieve user balance");
 		}
@@ -106,9 +107,10 @@ public class ShortList extends JPanel implements ActionListener{
 			if (s == userbuttons[i]){
 				container.closeView();
 				String username = userbuttons[i].getText();
-				master.switchUser(username);
-				selectedUser.setText(username);
-				loadBalance();
+				if (master.switchUser(username)){
+					selectedUser.setText(username);
+					loadBalance();
+				}
 			}
 		}
 	}

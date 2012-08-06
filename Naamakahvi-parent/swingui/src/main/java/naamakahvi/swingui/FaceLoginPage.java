@@ -12,7 +12,7 @@ public class FaceLoginPage extends JPanel implements ActionListener{
 	private FaceCanvas canvas;
 	private JButton login, cancel;
 	private JLabel helptext;
-	private String defaultHelp = "Press 'Take Picture' to start face recognition";
+	protected final static String DEFAULT_HELP = "Press 'Take Picture' to start face recognition";
 	
 	private CafeUI master;
 	
@@ -23,13 +23,14 @@ public class FaceLoginPage extends JPanel implements ActionListener{
 		//layout.setVgap(0);
 		setLayout(layout);
 		
-		helptext = new JLabel(defaultHelp);
+		helptext = new JLabel(DEFAULT_HELP);
 		helptext.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
 				master.Y_RES/8 - layout.getVgap()));
 		helptext.setFont(master.UI_FONT_SMALL);
 		add(helptext);
 		
 		canvas = master.getCanvas();
+		canvas.setName("canvas");
 		canvas.setPreferredSize(new Dimension(master.X_RES/4*3 - layout.getHgap(),
 				master.Y_RES/4*3 - layout.getVgap()));
 		add(canvas);
@@ -63,13 +64,16 @@ public class FaceLoginPage extends JPanel implements ActionListener{
 			canvas.deactivate();
 			master.continueLocation = CafeUI.VIEW_FRONT_PAGE;
 			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
-			setHelpText(defaultHelp);
+			setHelpText(DEFAULT_HELP);
 		}
 		if (s == login){
 			canvas.deactivate();
 			if (!master.validateImage()){
 				canvas.activate();
-				setHelpText(defaultHelp);
+				
+			}
+			else {
+				setHelpText(DEFAULT_HELP);
 			}
 		}
 	}

@@ -12,7 +12,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	private static final int countdownLength = 10;
 	
 	private JLabel countdownText;
-	private JButton ok, menu, cancel, switchUser;
+	private JButton ok, menu, cancel;
 	private Timer countdownTimer;
 	private int countdownSecs;
 	private IProduct[] products;
@@ -20,6 +20,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	private CafeUI master;
 	private JPanel purchasePanel;
 	private ShortList userlist;
+	protected boolean countingDown = false;
 	
 	public CheckoutPage(CafeUI master){
 		this.master = master;
@@ -67,11 +68,6 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		add(countdownText);
 		
 		countdownTimer = new Timer(1000, this);
-
-		switchUser = new JButton("Switch User");
-		switchUser.setFont(master.UI_FONT);
-		switchUser.addActionListener(this);
-		
 	}
 	
 	protected void setUsers(String[] usernames){
@@ -122,12 +118,14 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		countdownTimer.start();
 		countdownText.setText("The transaction will complete automatically in " + 
 				countdownSecs + " seconds");
+		countingDown = true;
 	}
 	/*
 	 * Pysäyttää automaattikirjausajastimen
 	 */
 	public void closeView(){
 		countdownTimer.stop();
+		countingDown = false;
 	}
 	
 	protected void setHelpText(String text){

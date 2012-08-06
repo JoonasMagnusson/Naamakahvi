@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class CafeUI extends JFrame{
 	//Käyttöliittymän näkymät
-	private JPanel container;
+	protected JPanel container;
 	private CardLayout viewSwitcher;
 	private FrontPage front;
 	private MenuPage menu;
@@ -70,13 +70,13 @@ public class CafeUI extends JFrame{
 	public static final String MODE_BRING = "bring";
 	
 	//Backendin osoite
-	public static final String ip = "naama.zerg.fi";
-	public static final int port = 5001;
+	public final String ADDRESS_IP;
+	public final int ADDRESS_PORT;
 	
 	/**Luo uuden Swing-käyttöliittymäikkunan ja näyttää Station-valintanäkymän
 	 * 
 	 */
-	public CafeUI(int xres, int yres, int camera, boolean doFaceDetect){
+	public CafeUI(int xres, int yres, int camera, boolean doFaceDetect, boolean camOffline, String ip, int port){
 		JLabel loading = new JLabel("Loading...");
 		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
 		add(loading);
@@ -93,6 +93,8 @@ public class CafeUI extends JFrame{
 		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, Y_RES/20);
 		UI_FONT_SMALL = new Font("Sans Serif", Font.PLAIN, Y_RES/40);
 		
+		ADDRESS_IP = ip;
+		ADDRESS_PORT = port;
 		
 		container = new JPanel();
 		
@@ -101,7 +103,7 @@ public class CafeUI extends JFrame{
 		
 		add(container);
 		
-		face = new FaceCapture(camera, doFaceDetect);
+		face = new FaceCapture(camera, doFaceDetect, camOffline);
 		new Thread(face).start();
 		
 		try {
@@ -114,9 +116,8 @@ public class CafeUI extends JFrame{
 			validate();
 		}
 		catch (ClientException e){
-			System.out.println("Error: Station information not received from server");
-			
-			e.printStackTrace();
+			System.err.println("Error: Station information not received from server");
+			System.err.println(e.getMessage());
 			return;
 		}
 		
@@ -124,7 +125,7 @@ public class CafeUI extends JFrame{
 	
 	protected void createStore(IStation station){
 		try{
-			cli = new Client(ip, port, station);
+			cli = new Client(ADDRESS_IP, ADDRESS_PORT, station);
 		}
 		catch (Exception e){
 			e.printStackTrace();
@@ -227,7 +228,10 @@ public class CafeUI extends JFrame{
 	}
 	
 	protected List<SaldoItem> getSaldo(){
-		if (user == null) return null;
+		if (user == null){
+			System.err.println("null user");
+			return null;
+		}
 		return user.getBalance();
 	}
 	
@@ -271,7 +275,7 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
-	protected boolean RegisterUser(String userName, String givenName,
+	protected boolean registerUser(String userName, String givenName,
 			String familyName, BufferedImage[] images){
 		try {
 			ByteArrayOutputStream[] streams = new ByteArrayOutputStream[images.length];
@@ -282,12 +286,13 @@ public class CafeUI extends JFrame{
 				}
 			}
 			
-			user = cli.registerUser(userName, givenName, familyName);
+			cli.registerUser(userName, givenName, familyName);
 			for (int i = 0; i< streams.length; i++){
-				cli.addImage(user.getUserName(), streams[i].toByteArray());
+				if (streams[i] != null)
+					cli.addImage(userName, streams[i].toByteArray());
 			}
-			register.setHelpText("Registered user " + user.getUserName());
-			this.usernames[0] = user.getUserName();
+			front.setHelpText("Registered user " + userName);
+			//this.usernames[0] = user.getUserName();
 			return true;
 		}
 		catch (ClientException ex) {
@@ -416,6 +421,9 @@ public class CafeUI extends JFrame{
 		int yres = 600;
 		int cam = 0;
 		boolean doFaceDetect = false;
+		boolean camOffline = false;
+		String ip = "naama.zerg.fi";
+		int port = 5001;
 		for(int i = 0; i < args.length; i++){
 			if (args[i].length() > 5 && 
 					"xres:".equalsIgnoreCase(args[i].substring(0, 5))){
@@ -450,12 +458,30 @@ public class CafeUI extends JFrame{
 							"Defaulting to 0");
 				}
 			}
+			if (args[i].length() > 3 && 
+					"ip:".equalsIgnoreCase(args[i].substring(0, 3))){
+				ip = args[i].substring(3);
+			}
+			if (args[i].length() > 5 && 
+					"port:".equalsIgnoreCase(args[i].substring(0, 5))){
+				try{
+					port = Integer.parseInt(args[i].substring(5));
+				}
+				catch (NumberFormatException e){
+					System.err.println(
+							"Error: could not parse port number: not an integer\n" +
+							"Defaulting to 5001");
+				}
+			}
 			if ("dofacedetect".equalsIgnoreCase(args[i])){
 				doFaceDetect = true;
 			}
+			if ("nocam".equalsIgnoreCase(args[i])){
+				camOffline = true;
+			}
 		}
 		
-		new CafeUI(xres, yres, cam, doFaceDetect);
+		new CafeUI(xres, yres, cam, doFaceDetect, camOffline, ip, port);
 		
 	}
 }

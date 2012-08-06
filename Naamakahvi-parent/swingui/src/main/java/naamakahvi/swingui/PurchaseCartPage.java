@@ -50,7 +50,13 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		cancelButton.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
 				master.Y_RES/8 - layout.getVgap()));
 		
-		confirmButton = new JButton("Buy selected products");
+		confirmButton = new JButton();
+		if (mode.equals(CafeUI.MODE_BUY)){
+			confirmButton.setText("Buy Selected Products");
+		}
+		if (mode.equals(CafeUI.MODE_BRING)){
+			confirmButton.setText("Bring Selected Products");
+		}
 		confirmButton.setFont(master.UI_FONT_BIG);
 		confirmButton.addActionListener(this);
 		confirmButton.setPreferredSize(new Dimension(master.X_RES/2 -layout.getVgap(),
@@ -85,7 +91,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 				master.Y_RES/8*6 - layout.getVgap()));
 		cartPanel.add(cartScroll);
 		
-		clearButton = new JButton("Clear cart");
+		clearButton = new JButton("Clear Cart");
 		clearButton.setFont(master.UI_FONT);
 		clearButton.addActionListener(this);
 		clearButton.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(), 
@@ -183,6 +189,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 			
 			JButton remove = new JButton("-");
 			remove.setFont(master.UI_FONT);
+			remove.setName("remove_" + p.getName());
 			remove.addActionListener(this);
 			cartConstraints.gridwidth = GridBagConstraints.REMAINDER;
 			cartLayout.setConstraints(remove, cartConstraints);
@@ -227,6 +234,9 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 			clearCart();
 		}
 		if (s == confirmButton){
+			if (cartContents.size() < 1){
+				return;
+			}
 			//~*~C A S T I N G T Y P E S~*~
 			IProduct[] p = new IProduct[cartContents.size()];
 			Integer[] a1 = new Integer[amounts.size()];

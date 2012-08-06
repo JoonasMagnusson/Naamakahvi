@@ -14,13 +14,13 @@ public class RegistrationPage extends JPanel implements ActionListener{
 	private JButton takePic, register, cancel;
 	private JLabel header, help, unLabel, fnLabel, lnLabel;
 	private CafeUI master;
-	private static final String defaultHelp = "Please enter the following information:";
+	protected static final String DEFAULT_HELP = "Please enter the following information:";
 	private JPanel actionPanel, thumbPanel;
 	private FaceCanvas canvas;
 	private Thumbnail[] thumbs;
 	private BufferedImage[] images;
 	private int thumbCount = 0;
-	private static int MAX_THUMBCOUNT = 5;
+	protected static final int MAX_THUMBCOUNT = 5;
 	private FlowLayout layout;
 	
 	public RegistrationPage(CafeUI master){
@@ -36,7 +36,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 				master.Y_RES/6 - layout.getHgap()));
 		add(header);
 		
-		help = new JLabel(defaultHelp, SwingConstants.CENTER);
+		help = new JLabel(DEFAULT_HELP, SwingConstants.CENTER);
 		help.setFont(master.UI_FONT_SMALL);
 		help.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
 				master.Y_RES/6 - layout.getHgap()));
@@ -45,6 +45,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		canvas = master.getCanvas();
 		canvas.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
 				master.Y_RES/3 - layout.getHgap()));
+		canvas.setName("canvas");
 		add(canvas);
 		
 		actionPanel = new JPanel();
@@ -58,6 +59,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		actionPanel.add(unLabel);
 		
 		userName = new JTextField();
+		userName.setName("un");
 		userName.setFont(master.UI_FONT_BIG);
 		userName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionPanel.add(userName);
@@ -68,6 +70,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		actionPanel.add(fnLabel);
 		
 		firstName = new JTextField();
+		firstName.setName("fn");
 		firstName.setFont(master.UI_FONT_BIG);
 		firstName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionPanel.add(firstName);
@@ -78,6 +81,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		actionPanel.add(lnLabel);
 		
 		lastName = new JTextField();
+		lastName.setName("ln");
 		lastName.setFont(master.UI_FONT_BIG);
 		lastName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionPanel.add(lastName);
@@ -123,6 +127,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 				master.X_RES/10  - layout.getHgap() : master.Y_RES/6  - layout.getHgap());
 		for (int i=0; i < thumbs.length; i++){
 			thumbs[i] = new Thumbnail(size, size);
+			thumbs[i].setName("thumb"+i);
 			thumbPanel.add(thumbs[i]);
 		}
 		images = new BufferedImage[MAX_THUMBCOUNT];
@@ -154,20 +159,20 @@ public class RegistrationPage extends JPanel implements ActionListener{
 			if (thumbCount == thumbs.length){
 				thumbCount = 0;
 			}
-			setHelpText(defaultHelp);
+			setHelpText(DEFAULT_HELP);
 		}
 		
 		if (s == register){
-			if (master.RegisterUser(userName.getText(),
+			if (master.registerUser(userName.getText(),
 					firstName.getText(), lastName.getText(), images)){
-				setHelpText(defaultHelp);
-				master.switchPage(CafeUI.VIEW_MENU_PAGE);
+				setHelpText(DEFAULT_HELP);
+				master.switchPage(CafeUI.VIEW_FRONT_PAGE);
 				canvas.deactivate();
 				resetPage();
 			}
 		}
 		if (s == cancel){
-			setHelpText(defaultHelp);
+			setHelpText(DEFAULT_HELP);
 			master.switchPage(CafeUI.VIEW_FRONT_PAGE);
 			canvas.deactivate();
 			resetPage();

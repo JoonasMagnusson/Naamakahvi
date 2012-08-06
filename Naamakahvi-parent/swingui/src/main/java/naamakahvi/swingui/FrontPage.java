@@ -13,7 +13,7 @@ import naamakahvi.naamakahviclient.IProduct;
  */
 public class FrontPage extends JPanel implements ActionListener{
 	private JButton register, manlogin, buycart, bringcart;
-	private JButton[][] buyprodButtons, bringprodButtons;
+	protected JButton[][] buyprodButtons, bringprodButtons;
 	private IProduct[] buyproducts, bringproducts;
 	private JLabel helpText;
 	private JPanel buyProdView, bringProdView;
@@ -140,6 +140,7 @@ public class FrontPage extends JPanel implements ActionListener{
 				buyprodButtons[i][j] = new JButton("" + (j+1));
 				buyprodButtons[i][j].setFont(master.UI_FONT_SMALL);
 				buyprodButtons[i][j].addActionListener(this);
+				buyprodButtons[i][j].setName("buy" + i + ":" + j);
 				prodline.add(buyprodButtons[i][j]);
 			}
 		}
@@ -165,6 +166,7 @@ public class FrontPage extends JPanel implements ActionListener{
 				bringprodButtons[i][j] = new JButton("" + (j+1));
 				bringprodButtons[i][j].setFont(master.UI_FONT_SMALL);
 				bringprodButtons[i][j].addActionListener(this);
+				bringprodButtons[i][j].setName("bring" + i + ":" + j);
 				prodline.add(bringprodButtons[i][j]);
 			}
 		}

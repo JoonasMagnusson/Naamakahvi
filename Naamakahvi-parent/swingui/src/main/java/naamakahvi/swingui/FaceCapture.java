@@ -59,7 +59,7 @@ public class FaceCapture implements Runnable{
 	 * do active face recognition.
 	 */
 	protected FaceCapture(){
-		initialize(0, false);
+		initialize(0, false, false);
 	}
 	
 	/**Creates a new FaceCapture object that can be started with the run()
@@ -75,14 +75,25 @@ public class FaceCapture implements Runnable{
 	 * 						If set to false, the object will only do face
 	 * 						detection when asked to detect currently visible
 	 * 						faces via the takePic() method.
+	 * @param offline		A boolean specifying whether the object should
+	 * 						receive input from a camera or not. If true is
+	 * 						passed, the created object will not attempt to
+	 * 						receive camera input of do face detection, but
+	 * 						will behave otherwise normally. This parameter
+	 * 						is mainly intended for use in testing or situations
+	 * 						where the OpenCV library is not available.
 	 */
-	protected FaceCapture(int camera, boolean doFaceDetect){
-		initialize(camera, doFaceDetect);
+	protected FaceCapture(int camera, boolean doFaceDetect, boolean offline){
+		initialize(camera, doFaceDetect, offline);
 	}
 	
-	private void initialize(int camera, boolean doFaceDetect){
+	private void initialize(int camera, boolean doFaceDetect, boolean offline){
+		canvases = new ArrayList<FaceCanvas>();
 		this.doFaceDetect = doFaceDetect;
-		
+		this.offline = offline;
+		if (offline){
+			return;
+		}
 		try{
 			//The haar cascade must be located in the same folder as
 			//FaceCapture.class in order to be loaded properly
@@ -116,7 +127,7 @@ public class FaceCapture implements Runnable{
 					"Camera functionality disabled");
 			offline = true;
 		}
-		canvases = new ArrayList<FaceCanvas>();
+		
 	}
 	
 	/**Creates a new FaceCanvas UI component associated with this FaceCapture

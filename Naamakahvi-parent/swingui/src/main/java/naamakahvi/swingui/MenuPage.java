@@ -86,7 +86,7 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		prodPanel.add(bringscroll);
 		//add(buycart);
 		//add(bringcart);
-		getProducts();
+		setProducts();
 		
 		add(logout);
 	}
@@ -98,7 +98,7 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		userlist.setUsers(usernames);
 	}
 	
-	private void getProducts(){
+	private void setProducts(){
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;
@@ -163,6 +163,7 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 				buyprodButtons[i][j] = new JButton("" + (j+1));
 				buyprodButtons[i][j].setFont(master.UI_FONT_SMALL);
 				buyprodButtons[i][j].addActionListener(this);
+				buyprodButtons[i][j].setName("buy"+i+":"+j);
 				prodline.add(buyprodButtons[i][j]);
 			}
 		}
@@ -189,6 +190,7 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 				bringprodButtons[i][j] = new JButton("" + (j+1));
 				bringprodButtons[i][j].setFont(master.UI_FONT_SMALL);
 				bringprodButtons[i][j].addActionListener(this);
+				bringprodButtons[i][j].setName("bring"+i+":"+j);
 				prodline.add(bringprodButtons[i][j]);
 			}
 		}
