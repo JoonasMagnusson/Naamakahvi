@@ -1,5 +1,6 @@
 package naamakahvi.android;
 
+import java.util.Arrays;
 import java.util.List;
 
 import naamakahvi.android.R;
@@ -52,7 +53,7 @@ public class LoginwithusernameActivity extends Activity {
 					Client c = new Client(Config.SERVER_URL,
 							Config.SERVER_PORT, s.get(0));
 					final String[] users = c.listUsernames();
-
+					Arrays.sort(users, String.CASE_INSENSITIVE_ORDER);
 					hand.post(new Runnable() {
 
 						public void run() {
