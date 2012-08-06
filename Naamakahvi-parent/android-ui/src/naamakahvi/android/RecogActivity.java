@@ -1,7 +1,13 @@
 package naamakahvi.android;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,8 +31,8 @@ public class RecogActivity extends Activity {
 	private Basket mOrder;
 	private ShotTimer mShotTimer;
 
-	public static final String TAG ="RecogActivity";
-	
+	public static final String TAG = "RecogActivity";
+
 	class ShotTimer extends Thread {
 		private Handler hand;
 		private boolean canceled = false;
@@ -47,43 +53,52 @@ public class RecogActivity extends Activity {
 		public void run() {
 			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 			List<IStation> s;
-	
+
 			try {
-				Thread.sleep(4000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-		
+
+			final String[][] namearrays = new String[5][];
+			int identifycount = 0;
 			while (!isCanceled()) {
 				try {
-					Log.d(TAG,"canceled thread: "+isCanceled());
+					Log.d(TAG, "canceled thread: " + isCanceled());
 					s = Client.listStations(Config.SERVER_URL,
 							Config.SERVER_PORT);
+
+					Client client = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, s.get(0));
 
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
 					byte[] bitmapdata = bos.toByteArray();
 
-					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, s.get(0));
-
 					final String[] users = client.identifyImage(bitmapdata);
 
-					hand.post(new Runnable() {
-						public void run() {
-							Intent i = new Intent();
-							i.putExtra(ExtraNames.USERS, users);
-							i.putExtra(ExtraNames.PRODUCTS, mOrder);
-							setResult(RESULT_OK, i);
-							finish();
-						}
-					});
+					namearrays[identifycount] = users;
+					identifycount++;
+
+					if (identifycount == 5) {
+						this.cancel();
+						
+						hand.post(new Runnable() {
+							public void run() {
+								Intent i = new Intent();
+								i.putExtra(ExtraNames.USERS, rankNames(namearrays));
+								i.putExtra(ExtraNames.PRODUCTS, mOrder);
+								setResult(RESULT_OK, i);
+								finish();
+							}
+						});
+					}
 
 				} catch (Exception e) {
 					e.printStackTrace();
 					try {
-						Thread.sleep(500);
+						Thread.sleep(100);
 					} catch (InterruptedException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -109,7 +124,7 @@ public class RecogActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		mShotTimer.cancel();
-		Log.d(TAG,"canceled: "+mShotTimer.isCanceled());
+		Log.d(TAG, "canceled: " + mShotTimer.isCanceled());
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.releaseCamera();
 
@@ -168,6 +183,60 @@ public class RecogActivity extends Activity {
 
 			}
 		}).start();
+	}
+
+	private class ValueComparator implements Comparator<String> {
+		private Map<String, Double> m;
+
+		public ValueComparator(Map<String, Double> m) {
+			this.m = m;
+		}
+
+		public int compare(String a, String b) {
+			if (a == null && b != null)
+				return 1;
+			if (a != null && b == null)
+				return -1;
+			if (a == null && b == null)
+				return 0;
+
+			if (m.get(a) < m.get(b)) {
+				return 1;
+			} else if (m.get(a) == m.get(b)) {
+				return 0;
+			} else {
+				return -1;
+			}
+
+		}
+
+	}
+
+	private String[] rankNames(String[][] params) {
+		if (params.length < 1)
+			return null;
+		else if (params.length == 1)
+			return params[0];
+
+		HashMap<String, Double> namePoints = new HashMap<String, Double>();
+
+		for (String[] names : params) {
+			double score = 1.0;
+			for (String s : names) {
+				Double d = namePoints.get(s);
+				if (d == null) {
+					namePoints.put(s, score);
+				} else {
+					namePoints.put(s, d + score);
+				}
+				score /= 2;
+			}
+		}
+		Comparator<String> comp = new ValueComparator(namePoints);
+		TreeMap<String, Double> sortedNames = new TreeMap<String, Double>(comp);
+		sortedNames.putAll(namePoints);
+		Object[] nameList = sortedNames.keySet().toArray();
+		return Arrays.copyOf(nameList, nameList.length, String[].class);
 	}
 
 	@Override
