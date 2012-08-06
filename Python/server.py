@@ -188,17 +188,6 @@ def productPrices():
     return resp_ok(product_prices=rslt)
 
 
-#List all balances of a user
-#input: username
-@app.route('/list_user_saldos/',methods=['POST','GET'])
-def listUserBalances():
-    if request.method == 'POST':
-        user = request.form['username']
-        rslt = dbm.selectUserBalances(user)
-        return resp_ok(saldo_list=rslt)
-    else:
-        return resp_failure('Error')
-
 
 #Allows the user to buy products.
 #input : username,productid,amount
@@ -250,7 +239,7 @@ def getBalance(user):
     for x,y in enumerate(rslt):
         retz = {}
         retz['id'] = y[0]
-        retz['saldo'] = y[4]
+        retz['groupName'] = y[2]
         ret.append(retz)
         
     return ret
