@@ -227,7 +227,7 @@ public class Client {
             if (!obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 throw new RegistrationException("Registration failed: Try another username");
             }
-            
+
         } catch (RegistrationException e) {
             throw e;
         } catch (Exception e) {
@@ -269,27 +269,30 @@ public class Client {
      * Gets user data related to the specified username from the server and creates a User 
      * instance.
      * Method: Post
-     * Path: /authenticate_text/
+     * Path: /get_user/
      * Parameters: username
      * 
      * Example server response: 
      * 
      * {
      *      "status":"ok",
-     *      "username":"example",
-     *      "given":"example given name",
-     *      "family":"example family name",
-     *      "balance": 
-     *      [
-     *          {
-     *            "groupName":"example group"
-     *            "saldo": 11.1
-     *          },
-     *          {
-     *            "groupName":"example group 2"
-     *            "saldo": 22.2
-     *          }
-     *      ]
+     *      "data": 
+     *      {
+     *          "username":"example",
+     *          "given":"example given name",
+     *          "family":"example family name",
+     *          "balance": 
+     *          [
+     *              {
+     *              "groupName":"example group"
+     *              "saldo": 11.1
+     *              },
+     *              {
+     *              "groupName":"example group 2"
+     *              "saldo": 22.2
+     *              }
+     *          ]
+     *      }
      * }
      * 
      * @param username username
@@ -297,17 +300,17 @@ public class Client {
      */
     public IUser authenticateText(String username) throws AuthenticationException {
         try {
-            JsonObject obj = doPost("/authenticate_text/",
+            JsonObject obj = doPost("/get_user/",
                     "username", username);
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                obj.remove("status");
-                User responseUser = new Gson().fromJson(obj, User.class);
-                if (!responseUser.getUserName().equals(username)) {
-                    throw new AuthenticationException("username returned from server doesn't match given username");
-                }
-
-                return responseUser;
+                JsonObject data = obj.get("data").getAsJsonObject();
+                String uname = data.get("username").getAsString();
+                String given = data.get("given").getAsString();
+                String family = data.get("family").getAsString();
+                List<SaldoItem> balance = jsonToSaldoList(data.get("balance").getAsJsonArray());
+                
+                return new User(uname, given, family, balance);
             } else {
                 throw new AuthenticationException("Authentication failed");
             }
@@ -527,9 +530,9 @@ public class Client {
         List<SaldoItem> ans = new ArrayList();
         for (JsonElement e : ar) {
             JsonObject saldoitem = e.getAsJsonObject();
-            String group_name = saldoitem.get("group_name").getAsString();
+            String groupName = saldoitem.get("groupName").getAsString();
             double saldo = saldoitem.get("saldo").getAsDouble();
-            ans.add(new SaldoItem(group_name, saldo));
+            ans.add(new SaldoItem(groupName, saldo));
         }
         return ans;
     }
@@ -547,11 +550,11 @@ public class Client {
      *      "saldo_list":
      *      [
      *        {
-     *          "group_name":"coffee",
+     *          "groupName":"coffee",
      *          "saldo":-30
      *        },
      *        {
-     *          "group_name":"espresso",
+     *          "groupName":"espresso",
      *          "saldo":7
      *        }
      *      ]
@@ -613,13 +616,14 @@ public class Client {
             throw new GeneralClientException(e.toString());
         }
     }
-    //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
-    //        Client c = new Client("naama.zerg.fi", 5001, null);
-    //       // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
-    //       // System.out.println("registered user " + u.getUserName());
-    //        String[] identifyImage = c.identifyImage(new File("1.pgm"));
-    //        for (String name : identifyImage) {
-    //            System.out.println(name);
-    //        }
-    //    }
+
+//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException {
+//        Client c = new Client("naama.zerg.fi", 5001, null);
+//        // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
+//        // System.out.println("registered user " + u.getUserName());
+//        IUser u = c.authenticateText("kerola");
+//        for(SaldoItem i : u.getBalance()) {
+//            System.out.println(i.getGroupName() + ": " + i.getSaldo());
+//        }
+//    }
 }
