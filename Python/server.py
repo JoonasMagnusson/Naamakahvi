@@ -117,7 +117,7 @@ def login():
             udata = dbm.selectUserData(user)
             print "############"
             print udata
-            bal = dbm.selectUserBalances(user)
+            bal = getBalance(user)
             resp["username"] = user
             resp["given"] = udata[1]
             resp["family"] = udata[2]
@@ -158,10 +158,11 @@ def rawsizes():
     
     ret = []
     rslt = dbm.selectProductsizes()
+    print rslt
     for x,y in enumerate(rslt):
-        z = y[1]*y[8]*-1
+        z = y[1]*y[8]
         n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
-        ret.append(({"product_name":n,"group_id":y[6],"product_price":z}))
+        ret.append(({"product_name":n,"size_id":y[0],"rawproduct_id":y[3],"group_id":y[6],"product_price":z}))
 
     
     return resp_ok(raw_products=ret)
@@ -239,6 +240,21 @@ def bring():
 def stations():
     stations = ["Station1","Station2"]
     return resp_ok(stations=stations)
+
+def getBalance(user):
+    
+    rslt = dbm.selectUserBalances(user)
+    ret = []
+    
+    #print rslt
+    for x,y in enumerate(rslt):
+        retz = {}
+        retz['id'] = y[0]
+        retz['saldo'] = y[4]
+        ret.append(retz)
+        
+    return ret
+    
 
 if __name__ == '__main__':
     app.debug = True
