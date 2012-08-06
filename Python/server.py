@@ -107,12 +107,23 @@ def register():
 
 
 #Logs user in. Good for checking if user exists.
-@app.route('/authenticate_text/',methods=['POST','GET'])
+@app.route('/get_user/',methods=['POST','GET'])
 def login():
     if request.method == 'POST':
         user = request.form['username']
         if(dbm.login(user)):
-            return resp_ok(username=user)
+            resp = {}
+            
+            udata = dbm.selectUserData(user)
+            print "############"
+            print udata
+            bal = getBalance(user)
+            resp["username"] = user
+            resp["given"] = udata[1]
+            resp["family"] = udata[2]
+            resp["balance"] = bal
+            
+            return resp_ok(data=resp)
         else:
             return resp_failure('NoSuchUserError')
     else:
@@ -147,10 +158,11 @@ def rawsizes():
     
     ret = []
     rslt = dbm.selectProductsizes()
+    print rslt
     for x,y in enumerate(rslt):
-        z = y[1]*y[8]*-1
+        z = y[1]*y[8]
         n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
-        ret.append(({"product_name":n,"group_id":y[6],"product_price":z}))
+        ret.append(({"product_name":n,"size_id":y[0],"rawproduct_id":y[3],"group_id":y[6],"product_price":z}))
 
     
     return resp_ok(raw_products=ret)
@@ -175,17 +187,6 @@ def productPrices():
     rslt = dbm.getFinalproducts()
     return resp_ok(product_prices=rslt)
 
-
-#List all balances of a user
-#input: username
-@app.route('/list_user_saldos/',methods=['POST','GET'])
-def listUserBalances():
-    if request.method == 'POST':
-        user = request.form['username']
-        rslt = dbm.selectUserBalances(user)
-        return resp_ok(saldo_list=rslt)
-    else:
-        return resp_failure('Error')
 
 
 #Allows the user to buy products.
@@ -228,6 +229,21 @@ def bring():
 def stations():
     stations = ["Station1","Station2"]
     return resp_ok(stations=stations)
+
+def getBalance(user):
+    
+    rslt = dbm.selectUserBalances(user)
+    ret = []
+    
+    #print rslt
+    for x,y in enumerate(rslt):
+        retz = {}
+        retz['saldo'] = y[4]
+        retz['groupName'] = y[2]
+        ret.append(retz)
+        
+    return ret
+    
 
 if __name__ == '__main__':
     app.debug = True
