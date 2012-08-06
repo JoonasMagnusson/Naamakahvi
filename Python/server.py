@@ -143,17 +143,6 @@ def buyableProducts():
 
 #Lists raw products
 @app.route('/list_raw_products/',methods=['POST','GET'])
-def bringableProducts():
-    
-    ret = []
-    rslt = dbm.selectRawProductNames()
-    for x,y in enumerate(rslt):
-        ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[5],"product_price":1}))
-
-
-    return resp_ok(raw_products=ret)
-
-@app.route('/list_productsizes/',methods=['POST','GET'])
 def rawsizes():
     
     ret = []
