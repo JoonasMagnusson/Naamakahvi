@@ -66,7 +66,7 @@ def identify():
             id,prob = cvm.identify(secure_filename(file.filename))
             print id
             print prob
-            return resp_ok(idlist=id,acc=prob)
+            return resp_ok(idlist=id,acc=str(prob))
         else:
             return resp_failure('Error')
             
