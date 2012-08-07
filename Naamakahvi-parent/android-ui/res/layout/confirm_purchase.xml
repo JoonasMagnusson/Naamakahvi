@@ -29,7 +29,7 @@
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:text="The nearest hits that might be you:"
-            	android:textAppearance="?android:attr/textAppearanceLarge" />
+            	android:textSize="30sp" />
             
         	<ListView
         		android:id="@+id/possibleUsers"
@@ -50,7 +50,7 @@
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:text="This would show what you bought but theres been an error"
-            	android:textAppearance="?android:attr/textAppearanceLarge" />
+            	android:textSize="30sp" />
             
            <ListView
         		android:id="@+id/coffeeSaldos"

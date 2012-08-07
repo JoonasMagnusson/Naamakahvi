@@ -75,7 +75,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	
 	private void setListView(ListView listView, String[] list) {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            	android.R.layout.simple_list_item_1, android.R.id.text1, list);
+            	R.layout.new_list_bigger_text, android.R.id.text1, list);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new OnItemClickListener() {
         	public void onItemClick(AdapterView<?> parent, View view,
@@ -117,7 +117,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		}
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+            	R.layout.new_list_bigger_text, android.R.id.text1, userSaldoTexts);
 		coffeeSaldoView.setAdapter(adapter);
 		
 //			saldoEspresso.setTextColor(Color.GREEN);

@@ -78,13 +78,14 @@ public final class R {
         public static final int loginwithusername=0x7f030003;
         public static final int main=0x7f030004;
         public static final int menu=0x7f030005;
-        public static final int new_user=0x7f030006;
-        public static final int product_cart_view=0x7f030007;
-        public static final int product_gridview=0x7f030008;
-        public static final int product_single_view=0x7f030009;
-        public static final int product_table_row=0x7f03000a;
-        public static final int recog_user=0x7f03000b;
-        public static final int thumb_layout=0x7f03000c;
+        public static final int new_list_bigger_text=0x7f030006;
+        public static final int new_user=0x7f030007;
+        public static final int product_cart_view=0x7f030008;
+        public static final int product_gridview=0x7f030009;
+        public static final int product_single_view=0x7f03000a;
+        public static final int product_table_row=0x7f03000b;
+        public static final int recog_user=0x7f03000c;
+        public static final int thumb_layout=0x7f03000d;
     }
     public static final class raw {
         public static final int _lbpcascade_frontalface=0x7f040000;
