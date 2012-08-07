@@ -338,7 +338,7 @@ public class Client {
             if (!buyable) {
                 sizeId = product.get("size_id").getAsInt();
             }
-            //        String productGroup = product.get("product_group").getAsString();
+//            String productGroup = product.get("product_group").getAsString();
             ans.add(new Product(productId, productName, productPrice, buyable, null, sizeId));
         }
         return ans;

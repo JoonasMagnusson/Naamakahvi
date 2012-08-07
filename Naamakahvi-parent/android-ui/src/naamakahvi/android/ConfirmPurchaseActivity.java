@@ -100,14 +100,10 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setSaldos(IUser buyer) {
-		Basket producstThatCustomerIsBuying = intent.getParcelableExtra(ExtraNames.PRODUCTS);
-		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
-
 		List<SaldoItem> userBalance = buyer.getBalance();	
 		String[] userSaldoTexts = new String[userBalance.size()];
-		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
-		Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
+		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		IProduct product = (IProduct) productAndAmountPair.getKey();
 		int amount = (Integer) productAndAmountPair.getValue();
 		for (int i = 0; i < userBalance.size(); i++) {
@@ -152,26 +148,16 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void buyProducts() {
-		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
-		Map<IProduct, Integer> itemsBought = b.getItems();
-		Iterator productsAndAmounts = itemsBought.entrySet().iterator();
-		startBuyingThread(productsAndAmounts);
-	}
-	
-	private void startBuyingThread(Iterator its) {
-		final Iterator productsAndAmounts = its;
 		new Thread(new Runnable() {
 			public void run() {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
 					IUser buyer = c.authenticateText(username);
-					while (productsAndAmounts.hasNext()) {
-				        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
-				        IProduct product = (IProduct) productAndAmountPair.getKey();
-				        int amount = (Integer) productAndAmountPair.getValue();
-				        c.buyProduct(buyer, product, amount);
-				    }
+				    Map.Entry productAndAmountPair = convertBasketIntoProduct();
+				    IProduct product = (IProduct) productAndAmountPair.getKey();
+				    int amount = (Integer) productAndAmountPair.getValue();
+				    c.buyProduct(buyer, product, amount);
 				}
 				catch (final ClientException ex) {
 					Log.d(TAG, ex.getMessage());
@@ -181,6 +167,12 @@ public class ConfirmPurchaseActivity extends Activity {
 		}).start();
 	}
 	
+	private Map.Entry convertBasketIntoProduct() {
+		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
+		Map<IProduct, Integer> itemsBought = b.getItems();
+		Iterator productsAndAmounts = itemsBought.entrySet().iterator();
+		return (Map.Entry)productsAndAmounts.next();
+	}
 	
 	public void onCPCancelClick(View v) {
 		setResult(RESULT_CANCELED);

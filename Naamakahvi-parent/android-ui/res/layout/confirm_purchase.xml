@@ -45,6 +45,13 @@
             android:layout_weight="1"
             android:orientation="vertical">
         	
+            <TextView
+            	android:id="@+id/whatYouBought"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:text="This would show what you bought but theres been an error"
+            	android:textAppearance="?android:attr/textAppearanceLarge" />
+            
            <ListView
         		android:id="@+id/coffeeSaldos"
         		android:layout_width="wrap_content"
