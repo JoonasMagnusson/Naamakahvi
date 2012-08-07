@@ -49,6 +49,7 @@ public class ConfirmPurchaseActivity extends Activity {
         String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
         setListView(possibleUsersListView, listOfPossibleUsers);
         configureUserView(listOfPossibleUsers[0]);
+        setWhatYouAreBuyingText();
 	}
 	
 	private void startGetIUserThread() {
@@ -108,7 +109,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		int amount = (Integer) productAndAmountPair.getValue();
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
-			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
+			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() +
 					" + " + (amount*product.getPrice());
 //			if (product.getProductGroup() == null) {
 //				userSaldoTexts[i] = "BÖÖ!";
@@ -165,6 +166,14 @@ public class ConfirmPurchaseActivity extends Activity {
 				}
 			}			
 		}).start();
+	}
+	
+	private void setWhatYouAreBuyingText() {
+		Map.Entry productAndAmountPair = convertBasketIntoProduct();
+		TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
+		IProduct product = (IProduct) productAndAmountPair.getKey();
+		whatYouAreBuying.setText("You are buying " + productAndAmountPair.getValue() + " "
+				+ product.getName() + "(s)");
 	}
 	
 	private Map.Entry convertBasketIntoProduct() {
