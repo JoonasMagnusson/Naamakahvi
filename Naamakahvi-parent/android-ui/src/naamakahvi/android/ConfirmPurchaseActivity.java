@@ -110,7 +110,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
 			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() +
-					" + " + (amount*product.getPrice());
+					" - " + (amount*product.getPrice());
 //			if (product.getProductGroup() == null) {
 //				userSaldoTexts[i] = "BÖÖ!";
 //			}
