@@ -106,33 +106,23 @@ public class ConfirmPurchaseActivity extends Activity {
 
 		List<SaldoItem> userBalance = buyer.getBalance();	
 		String[] userSaldoTexts = new String[userBalance.size()];
-		
+		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
+		Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
+		IProduct product = (IProduct) productAndAmountPair.getKey();
+		int amount = (Integer) productAndAmountPair.getValue();
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
 			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
-					" + TODO later";
+					" + " + (amount*product.getPrice());
+//			if (product.getProductGroup() == null) {
+//				userSaldoTexts[i] = "BÖÖ!";
+//			}
 		}
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
             	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
 		coffeeSaldoView.setAdapter(adapter);
 		
-		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
-		HashMap<String, Double> saldoChanges = new HashMap<String, Double>();
-	    while (productsAndAmounts.hasNext()) {
-	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
-	        IProduct product = (IProduct) productAndAmountPair.getKey();
-	        int amount = (Integer) productAndAmountPair.getValue();
-	        String productGroup = product.getProductGroup();
-	        double productPrice = product.getPrice();
-	        if (saldoChanges.containsKey(productGroup)) {
-	        	double oldPrices = saldoChanges.get(productGroup);
-	        	saldoChanges.remove(productGroup);
-	        	saldoChanges.put(productGroup, oldPrices + (amount*productPrice));
-	        }
-	        else
-	        	saldoChanges.put(productGroup, amount*productPrice);
-	    }
 //			saldoEspresso.setTextColor(Color.GREEN);
 //		else
 //			saldoEspresso.setTextColor(Color.RED);
