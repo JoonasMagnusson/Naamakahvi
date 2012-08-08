@@ -1,12 +1,10 @@
 package naamakahvi.naamakahviclient;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,16 +35,6 @@ public class ClientTest {
     private IStation station;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    private class ResponseUser extends User {
-
-        private final String status;
-
-        private ResponseUser(String uname, String given, String family, String success, List<SaldoItem> balance) {
-            super(uname, given, family, balance);
-            this.status = success;
-        }
-    }
     private HttpRequestHandler registrationHandler = new HttpRequestHandler() {
 
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
@@ -67,19 +55,34 @@ public class ClientTest {
 
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             HashMap<String, String> userData = getUserData(request);
+            JsonObject ans = new JsonObject();
+
             String username = userData.get("username");
-            IUser user;
-            SaldoItem saldo = new SaldoItem("group", 1.3);
-            List<SaldoItem> balance = new ArrayList<SaldoItem>();
-            balance.add(saldo);
 
             if (users.containsKey(username)) {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "ok", balance);
+                IUser user = users.get(username);
+                JsonObject data = new JsonObject();
+                data.add("username", new JsonPrimitive(username));
+                data.add("given", new JsonPrimitive(user.getGivenName()));
+                data.add("family", new JsonPrimitive(user.getFamilyName()));
+
+                JsonArray balance = new JsonArray();
+                List<SaldoItem> userBalance = user.getBalance();
+                for (SaldoItem i : userBalance) {
+                    JsonObject item = new JsonObject();
+                    item.add("groupName", new JsonPrimitive(i.getGroupName()));
+                    item.add("saldo", new JsonPrimitive(i.getSaldo()));
+                    balance.add(item);
+                }
+
+                data.add("balance", balance);
+                ans.add("status", new JsonPrimitive("ok"));
+                ans.add("data", data);
             } else {
-                user = new ResponseUser(username, userData.get("given"), userData.get("family"), "fail", balance);
+                ans.add("status", new JsonPrimitive("fail"));
             }
 
-            makeResponseFromUser(user, response);
+            stringResponse(response, ans.toString());
         }
     };
 
@@ -164,11 +167,13 @@ public class ClientTest {
                 JsonObject product = new JsonObject();
                 final int price = 1;
                 final int id = 1;
+                final int size = 2;
                 String productGroup = "group0";
                 product.add("product_name", new JsonPrimitive(s));
                 product.add("product_price", new JsonPrimitive(price));
                 product.add("product_id", new JsonPrimitive(id));
                 product.add("product_group", new JsonPrimitive(productGroup));
+                product.add("size_id", new JsonPrimitive(size));
                 ar.add(product);
             }
             ans.add("raw_products", ar);
@@ -252,12 +257,6 @@ public class ClientTest {
         }
     };
 
-    private void makeResponseFromUser(IUser user, HttpResponse response) throws IllegalStateException, UnsupportedCharsetException {
-        StringEntity stringEntity = new StringEntity(new Gson().toJson(user, ResponseUser.class), ContentType.create("text/plain", "UTF-8"));
-        response.setEntity(stringEntity);
-        response.setStatusCode(200);
-    }
-
     private HashMap<String, String> getUserData(HttpRequest request) throws IOException {
         HttpEntity entity = null;
         if (request instanceof HttpEntityEnclosingRequest) {
@@ -276,11 +275,13 @@ public class ClientTest {
 
     @Before
     public void setUp() {
-        users.put("Teemu", new User("Teemu", "Teemu", "Lahti", null));
+        List<SaldoItem> balance = new ArrayList<SaldoItem>();
+        balance.add(new SaldoItem("group", 1.3));
+        users.put("Teemu", new User("Teemu", "Teemu", "Lahti", balance));
 
         server = new LocalTestServer(null, null);
         server.register("/register/*", registrationHandler);
-        server.register("/authenticate_text/*", textAuthenticationHandler);
+        server.register("/get_user/*", textAuthenticationHandler);
         server.register("/list_usernames/*", listUsernamesHandler);
         server.register("/list_buyable_products/*", listBuyableProductsHandler);
         server.register("/list_default_products/*", listDefaultProductsHandler);
@@ -300,7 +301,7 @@ public class ClientTest {
             station = Client.listStations(host, port).get(0);
             System.out.println("HOST: " + host + ", PORT: " + port);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("Starting the test server failed: " + ex.getMessage());
         }
 
         client = new Client(host, port, station);
@@ -451,8 +452,9 @@ public class ClientTest {
     @Test
     public void saldoTest() throws ClientException {
         IUser u = client.authenticateText("Teemu");
-        List<SaldoItem> saldos = client.listUserSaldos(u);
-        assertTrue(saldos.size() == 2);
+        List<SaldoItem> balance = u.getBalance();
+        assertTrue(balance.size() == 1);
+
     }
 
     @Test
