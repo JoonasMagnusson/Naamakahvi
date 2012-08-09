@@ -16,7 +16,6 @@ import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
-import naamakahvi.naamakahviclient.IStation;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +51,6 @@ public class RecogActivity extends Activity {
 		@Override
 		public void run() {
 			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
-			List<IStation> s;
 
 			try {
 				Thread.sleep(1000);
@@ -66,11 +64,9 @@ public class RecogActivity extends Activity {
 			while (!isCanceled()) {
 				try {
 					Log.d(TAG, "canceled thread: " + isCanceled());
-					s = Client.listStations(Config.SERVER_URL,
-							Config.SERVER_PORT);
 
 					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, s.get(0));
+							Config.SERVER_PORT, Config.STATION);
 
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
@@ -148,43 +144,7 @@ public class RecogActivity extends Activity {
 	}
 
 	public void onBackClick(View v) {
-		final Context con = this;
-		final Handler hand = new Handler(getMainLooper());
-		new Thread(new Runnable() {
-
-			public void run() {
-				FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
-				List<IStation> s;
-				try {
-					s = Client.listStations(Config.SERVER_URL,
-							Config.SERVER_PORT);
-
-					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
-					byte[] bitmapdata = bos.toByteArray();
-
-					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, s.get(0));
-
-					final String[] users = client.identifyImage(bitmapdata);
-
-					hand.post(new Runnable() {
-						public void run() {
-							Intent i = new Intent();
-							i.putExtra(ExtraNames.USERS, users);
-							i.putExtra(ExtraNames.PRODUCTS, mOrder);
-							setResult(RESULT_OK, i);
-							finish();
-						}
-					});
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		}).start();
+		this.onBackPressed();
 	}
 
 	private class ValueComparator implements Comparator<String> {
