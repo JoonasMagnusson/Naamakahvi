@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.List;
 /**
  * Käyttöliittymän pääluokka, joka huolehtii tiedonsiirrosta clientin ja näkymien
@@ -43,8 +44,8 @@ public class CafeUI extends JFrame{
 	private String mode;
 	
 	//käyttöiittymän resoluutio
-	public final int X_RES;
-	public final int Y_RES;
+	//public final int X_RES;
+	//public final int Y_RES;
 	//fontit
 	public final Font UI_FONT;
 	public final Font UI_FONT_BIG;
@@ -77,21 +78,17 @@ public class CafeUI extends JFrame{
 	 * 
 	 */
 	public CafeUI(int xres, int yres, int camera, boolean doFaceDetect, boolean camOffline, String ip, int port){
-		JLabel loading = new JLabel("Loading...");
+		JLabel loading = new JLabel("Loading...", SwingConstants.CENTER);
 		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
 		add(loading);
-		setTitle("Facecafe");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
-		setSize(xres, yres);
 		
 		Insets insets = getInsets();
-		X_RES = xres - insets.left - insets.right;
-		Y_RES = yres - insets.top - insets.bottom;
+		//X_RES = xres - insets.left - insets.right;
+		//Y_RES = yres - insets.top - insets.bottom;
 		
-		UI_FONT = new Font("Sans Serif", Font.PLAIN, Y_RES/30);
-		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, Y_RES/20);
-		UI_FONT_SMALL = new Font("Sans Serif", Font.PLAIN, Y_RES/40);
+		UI_FONT = new Font("Sans Serif", Font.PLAIN, 20);
+		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, 30);
+		UI_FONT_SMALL = new Font("Sans Serif", Font.PLAIN, 15);
 		
 		ADDRESS_IP = ip;
 		ADDRESS_PORT = port;
@@ -123,7 +120,7 @@ public class CafeUI extends JFrame{
 		
 	}
 	
-	protected void createStore(IStation station){
+	protected void createStore(String station){
 		try{
 			cli = new Client(ADDRESS_IP, ADDRESS_PORT, station);
 		}
@@ -336,6 +333,7 @@ public class CafeUI extends JFrame{
 		}
 		catch (ClientException e){
 			e.printStackTrace();
+			System.err.println(e.getMessage());
 			return null;
 		}
 	}
@@ -481,7 +479,11 @@ public class CafeUI extends JFrame{
 			}
 		}
 		
-		new CafeUI(xres, yres, cam, doFaceDetect, camOffline, ip, port);
+		CafeUI window = new CafeUI(xres, yres, cam, doFaceDetect, camOffline, ip, port);
+		window.setTitle("Facecafe");
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.setVisible(true);
+		window.setSize(xres, yres);
 		
 	}
 }

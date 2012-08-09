@@ -16,51 +16,58 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 	private JButton buycart, bringcart, logout;
 	private JButton[][] buyprodButtons, bringprodButtons;
 	private IProduct[] buyproducts, bringproducts;
-	private JPanel buyprodPanel, bringprodPanel, prodPanel;
+	private JPanel buyprodPanel, bringprodPanel;
 	private CafeUI master;
 	private JScrollPane buyscroll, bringscroll;
 	private ShortList userlist;
 	
 	public MenuPage(CafeUI master){
 		this.master = master;
-		FlowLayout layout = new FlowLayout();
-		//layout.setHgap(0);
-		//layout.setVgap(0);
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.insets = new Insets(3,3,3,3);
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weightx = 1.0;
+		constraints.weighty = 1.0;
 		setLayout(layout);
 		
-		/*
-		username = new JLabel("Placeholder", SwingConstants.CENTER);
-		username.setFont(master.UI_FONT_BIG);
-		username.setPreferredSize(new Dimension(master.X_RES-20, master.Y_RES/8));
-		*/
+		constraints.gridheight = 8;
+		constraints.gridwidth = 1;
 		
 		userlist = new ShortList(master, this);
-		userlist.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));
-		
+		layout.setConstraints(userlist, constraints);
+		add(userlist);
+		//userlist.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
+		//		master.Y_RES/8*7 - layout.getVgap()));
+		/*
 		prodPanel = new JPanel();
 		prodPanel.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));
+				master.Y_RES/8*7 - layout.getVgap()));*/
 		
 		buyprodPanel = new JPanel();
-		buyprodPanel.setLayout(new GridBagLayout());
 		//buyprodPanel.setPreferredSize(new Dimension(master.X_RES/2-20, master.Y_RES/2-20));
+		
+		constraints.gridheight = 4;
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
 		buyscroll = new JScrollPane(buyprodPanel,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		buyscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-				master.Y_RES/16*7 - layout.getVgap()));
+		layout.setConstraints(buyscroll, constraints);
+		add(buyscroll);
+		//buyscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
+		//		master.Y_RES/16*7 - layout.getVgap()));
 		
 		bringprodPanel = new JPanel();
-		bringprodPanel.setLayout(new GridBagLayout());
 		//bringprodPanel.setPreferredSize(new Dimension(master.X_RES/2-20, master.Y_RES/2-20));
 		
 		bringscroll = new JScrollPane(bringprodPanel,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		bringscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-				master.Y_RES/16*7 - layout.getVgap()));
+		layout.setConstraints(bringscroll, constraints);
+		add(bringscroll);
+		//bringscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
+		//		master.Y_RES/16*7 - layout.getVgap()));
 		
 		/*
 		buycart = new JButton("Buy multiple products");
@@ -73,22 +80,28 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		bringcart.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
 		bringcart.addActionListener(this);
 		*/
+		constraints.gridheight = 1;
+		
 		logout = new JButton("Log Out");
 		logout.setFont(master.UI_FONT_BIG);
-		logout.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-				master.Y_RES/8 - layout.getVgap()));
+		//logout.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+		//		master.Y_RES/8 - layout.getVgap()));
 		logout.addActionListener(this);
+		layout.setConstraints(logout, constraints);
+		add(logout);
 		
-		//add(username);
+		setProducts();
+		
+		/*/add(username);
 		add(userlist);
-		add(prodPanel);
+		//add(prodPanel);
 		prodPanel.add(buyscroll);
 		prodPanel.add(bringscroll);
 		//add(buycart);
 		//add(bringcart);
 		setProducts();
 		
-		add(logout);
+		add(logout);*/
 	}
 	
 	/*
@@ -105,11 +118,16 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		List<IProduct> tempbuy = master.getBuyableProducts();
 		List<IProduct> tempbring = master.getRawProducts();
 		
-		GridBagLayout buyLayout = (GridBagLayout)buyprodPanel.getLayout();
-		GridBagLayout bringLayout = (GridBagLayout)bringprodPanel.getLayout();
+		if (tempbuy == null) return;
+		
+		GridBagLayout buyLayout = new GridBagLayout();
+		GridBagLayout bringLayout = new GridBagLayout();
 		
 		buyprodPanel.removeAll();
 		bringprodPanel.removeAll();
+		
+		buyprodPanel.setLayout(buyLayout);
+		bringprodPanel.setLayout(bringLayout);
 		
 		JLabel buyheader = new JLabel("Buy Products:");
 		buyheader.setFont(master.UI_FONT);

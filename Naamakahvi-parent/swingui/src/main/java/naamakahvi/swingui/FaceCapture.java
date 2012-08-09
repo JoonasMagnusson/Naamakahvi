@@ -8,6 +8,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
@@ -290,6 +291,7 @@ public class FaceCapture implements Runnable{
 			if (img != null && active && ready && !offline){
 				ready = false;
 				BufferedImage bimg = img.getBufferedImage();
+				//setSize(new Dimension(bimg.getWidth(), bimg.getHeight()));
 				
 				if (doFaceDetect && detectedFaces != null){
 					Graphics2D gimg = bimg.createGraphics();
@@ -301,10 +303,12 @@ public class FaceCapture implements Runnable{
 					}
 					gimg.dispose();
 				}
-				BufferedImage resize = new BufferedImage(this.getWidth(),
-						this.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+				int x = Math.min(this.getWidth(), this.getHeight()/3*4);
+				int y = Math.min(this.getHeight(), this.getWidth()/4*3);
+				BufferedImage resize = new BufferedImage(x,
+						y, BufferedImage.TYPE_4BYTE_ABGR);
 				Graphics2D gimg = resize.createGraphics();
-				gimg.drawImage(flip.filter(bimg, null), 0, 0, this.getWidth(), this.getHeight(), null);
+				gimg.drawImage(flip.filter(bimg, null), 0, 0, x, y, null);
 				gimg.dispose();
 				
 				g.drawImage(resize, 0,0,null);
@@ -312,7 +316,7 @@ public class FaceCapture implements Runnable{
 				ready = true;
 			}
 
-			g.drawRect(0, 0, this.getWidth()-1, this.getHeight()-1);
+			//g.drawRect(0, 0, this.getWidth()-1, this.getHeight()-1);
 			g.dispose();
 		}
 		public void update(Graphics g){

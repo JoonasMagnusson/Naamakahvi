@@ -9,7 +9,7 @@ import naamakahvi.naamakahviclient.IProduct;
  * Oston vahvistusnäkymä
  */
 public class CheckoutPage extends JPanel implements ActionListener, CloseableView{
-	private static final int countdownLength = 10;
+	private static final int countdownLength = 90;
 	
 	private JLabel countdownText;
 	private JButton ok, menu, cancel;
@@ -24,29 +24,44 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	
 	public CheckoutPage(CafeUI master){
 		this.master = master;
-		FlowLayout layout = new FlowLayout();
-		//layout.setHgap(0);
-		//layout.setVgap(0);
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.insets = new Insets(3,3,3,3);
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weightx = 1.0;
+		constraints.weighty = 1.0;
 		setLayout(layout);
 		
+		constraints.gridheight = 6;
+		constraints.gridwidth = 1;
+		
 		userlist = new ShortList(master, this);
-		userlist.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-				master.Y_RES/4*3 - layout.getVgap()));
+		//userlist.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+		//		master.Y_RES/4*3 - layout.getVgap()));
+		layout.setConstraints(userlist, constraints);
 		add(userlist);
 		//userPanel.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/4*3));
 		//add(userPanel);
 		
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		
 		purchasePanel = new JPanel();
-		purchasePanel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-				master.Y_RES/4*3 - layout.getVgap()));
+		//purchasePanel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+		//		master.Y_RES/4*3 - layout.getVgap()));
 		purchasePanel.setLayout(new GridLayout(0,1));
+		layout.setConstraints(purchasePanel, constraints);
 		add(purchasePanel);
+		
+		constraints.gridheight = 1;
+		constraints.gridwidth = 1;
+		constraints.weighty = 0.2;
 		
 		ok = new JButton("OK");
 		ok.setFont(master.UI_FONT_BIG);
-		ok.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-				master.Y_RES/8 - layout.getVgap()));
+		//ok.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+		//		master.Y_RES/8 - layout.getVgap()));
 		ok.addActionListener(this);
+		layout.setConstraints(ok, constraints);
 		add(ok);	
 		
 		menu = new JButton("Change Products");
@@ -54,17 +69,21 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		//menu.setPreferredSize(new Dimension(master.X_RES/2 - 10, master.Y_RES/4));
 		menu.addActionListener(this);
 		
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		
 		cancel = new JButton("Cancel");
 		cancel.setFont(master.UI_FONT_BIG);
-		cancel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-				master.Y_RES/8 - layout.getVgap()));
+		//cancel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+		//		master.Y_RES/8 - layout.getVgap()));
 		cancel.addActionListener(this);	
+		layout.setConstraints(cancel, constraints);
 		add(cancel);
 		
 		countdownText = new JLabel("Placeholder", SwingConstants.CENTER);
 		countdownText.setFont(master.UI_FONT);
-		countdownText.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-				master.Y_RES/6 - layout.getVgap()));
+		//countdownText.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
+		//		master.Y_RES/6 - layout.getVgap()));
+		layout.setConstraints(countdownText, constraints);
 		add(countdownText);
 		
 		countdownTimer = new Timer(1000, this);
@@ -116,7 +135,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 	protected void startCountdown(){
 		countdownSecs = countdownLength;
 		countdownTimer.start();
-		countdownText.setText("The transaction will complete automatically in " + 
+		countdownText.setText("The transaction will be automatically canceled in " + 
 				countdownSecs + " seconds");
 		countingDown = true;
 	}
@@ -138,12 +157,12 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 		if (s == countdownTimer){
 			countdownSecs--;
 			if (countdownSecs > 0){
-				countdownText.setText("The transaction will complete automatically in " + 
+				countdownText.setText("The transaction will be automatically canceled in " + 
 						countdownSecs + " seconds");
 				countdownTimer.restart();
 			}
 			else {
-				ok.doClick();
+				cancel.doClick();
 			}
 		}
 		if (s == menu){

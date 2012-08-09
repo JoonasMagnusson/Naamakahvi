@@ -10,7 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import naamakahvi.naamakahviclient.SaldoItem;
+import naamakahvi.naamakahviclient.*;
 
 public class ShortList extends JPanel implements ActionListener{
 	private CafeUI master;
@@ -84,6 +84,7 @@ public class ShortList extends JPanel implements ActionListener{
 			//throw new NullPointerException("Could not retrieve user balance");
 		}
 		saldolist.removeAll();
+		saldolist.setLayout(new GridLayout(0, 1));
 		Iterator<SaldoItem> i = saldos.iterator();
 		while (i.hasNext()){
 			SaldoItem s = i.next();

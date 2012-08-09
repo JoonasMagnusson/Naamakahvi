@@ -30,8 +30,8 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 	private JScrollPane cartScroll, menuScroll;
 	private CafeUI master;
 	
-	private GridBagLayout cartLayout;
-	private GridBagConstraints cartConstraints;
+	private GridBagLayout cartIntLayout;
+	private GridBagConstraints cartIntConstraints;
 	
 	private String mode;
 	private ShortList userlist;
@@ -39,16 +39,92 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 	public PurchaseCartPage(CafeUI master, String mode){
 		this.master = master;
 		this.mode = mode;
-		FlowLayout layout = new FlowLayout();
-		//layout.setHgap(0);
-		//layout.setVgap(0);
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.insets = new Insets(3,3,3,3);
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weightx = 0.0;
+		constraints.weighty = 1.0;
 		setLayout(layout);
 		
-		cancelButton = new JButton("Cancel");
-		cancelButton.setFont(master.UI_FONT_BIG);
-		cancelButton.addActionListener(this);
-		cancelButton.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-				master.Y_RES/8 - layout.getVgap()));
+		constraints.gridheight = 9;
+		constraints.gridwidth = 2;
+		
+		userlist = new ShortList(master, this);
+		//userlist.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+		//		master.Y_RES/8*7 - layout.getVgap()));
+		layout.setConstraints(userlist, constraints);
+		add(userlist);
+		
+		//Ostoskori
+		
+		cartPanel = new JPanel();
+		GridBagLayout cartExtLayout = new GridBagLayout();
+		cartPanel.setLayout(cartExtLayout);
+		//cartPanel.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+		//		master.Y_RES/8*7 - layout.getVgap()));
+		
+		
+		cartView = new JPanel();
+		cartIntLayout = new GridBagLayout();
+		cartView.setLayout(cartIntLayout);
+		cartIntConstraints = new GridBagConstraints();
+		cartIntConstraints.weightx = 1.0;
+		cartIntConstraints.fill = GridBagConstraints.BOTH;
+		
+		GridBagConstraints cartExtConstraints = new GridBagConstraints();
+		cartExtConstraints.fill = GridBagConstraints.BOTH;
+		cartExtConstraints.weightx = 1.0;
+		cartExtConstraints.weighty = 1.0;
+		
+		cartExtConstraints.gridheight = GridBagConstraints.RELATIVE;
+		cartExtConstraints.gridwidth = GridBagConstraints.REMAINDER;
+		cartScroll = new JScrollPane(cartView, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		//cartScroll.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
+		//		master.Y_RES/8*6 - layout.getVgap()));
+		cartExtLayout.setConstraints(cartScroll, cartExtConstraints);
+		cartPanel.add(cartScroll);
+		
+		cartExtConstraints.gridheight = GridBagConstraints.REMAINDER;
+		cartExtConstraints.weighty = 0.2;
+		
+		clearButton = new JButton("Clear Cart");
+		clearButton.setFont(master.UI_FONT);
+		clearButton.addActionListener(this);
+		//clearButton.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(), 
+		//		master.Y_RES/8 - layout.getVgap()));
+		cartExtLayout.setConstraints(clearButton, cartExtConstraints);
+		cartPanel.add(clearButton);
+		
+		header = new JLabel("Buying:");
+		header.setFont(master.UI_FONT);
+		
+		clearCart();
+		layout.setConstraints(cartPanel, constraints);
+		add(cartPanel);
+		
+		//Tuotelista
+		constraints.weightx = 1.0;
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		menuView = new JPanel();
+		//menuView.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
+		//		master.Y_RES/8*7 - layout.getVgap()));
+		menuView.setLayout(new GridLayout(0, 1));
+		menuScroll = new JScrollPane(menuView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		//menuScroll.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
+		//		master.Y_RES/8*7 - layout.getVgap()));
+		layout.setConstraints(menuScroll, constraints);
+		add(menuScroll);
+		
+		
+		loadProducts(mode);
+		
+		constraints.gridheight = 1;
+		constraints.gridwidth = 3;
+		constraints.weightx = 0.0;
+		constraints.weighty = 0.2;
 		
 		confirmButton = new JButton();
 		if (mode.equals(CafeUI.MODE_BUY)){
@@ -59,73 +135,26 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		}
 		confirmButton.setFont(master.UI_FONT_BIG);
 		confirmButton.addActionListener(this);
-		confirmButton.setPreferredSize(new Dimension(master.X_RES/2 -layout.getVgap(),
-				master.Y_RES/8 - layout.getVgap()));
-		
-		
-		userlist = new ShortList(master, this);
-		userlist.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));
-		add(userlist);
-		
-		//Ostoskori
-		cartPanel = new JPanel();
-		FlowLayout cartflow = new FlowLayout();
-		cartflow.setHgap(0);
-		cartflow.setVgap(0);
-		cartPanel.setLayout(cartflow);
-		cartPanel.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));
-		
-		
-		cartView = new JPanel();
-		cartLayout = new GridBagLayout();
-		cartView.setLayout(cartLayout);
-		cartConstraints = new GridBagConstraints();
-		cartConstraints.weightx = 1.0;
-		cartConstraints.fill = GridBagConstraints.BOTH;
-		
-		cartScroll = new JScrollPane(cartView, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		cartScroll.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-				master.Y_RES/8*6 - layout.getVgap()));
-		cartPanel.add(cartScroll);
-		
-		clearButton = new JButton("Clear Cart");
-		clearButton.setFont(master.UI_FONT);
-		clearButton.addActionListener(this);
-		clearButton.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(), 
-				master.Y_RES/8 - layout.getVgap()));
-		cartPanel.add(clearButton);
-		
-		header = new JLabel("Buying:");
-		header.setFont(master.UI_FONT);
-		
-		clearCart();
-		add(cartPanel);
-		
-		//Tuotelista
-		menuView = new JPanel();
-		menuView.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));
-		menuView.setLayout(new GridLayout(0, 1));
-		menuScroll = new JScrollPane(menuView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		menuScroll.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));
-		add(menuScroll);
-		
-		
-		loadProducts(mode);
-		
+		//confirmButton.setPreferredSize(new Dimension(master.X_RES/2 -layout.getVgap(),
+		//		master.Y_RES/8 - layout.getVgap()));
+		layout.setConstraints(confirmButton, constraints);
 		add(confirmButton);
+		
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		
+		cancelButton = new JButton("Cancel");
+		cancelButton.setFont(master.UI_FONT_BIG);
+		cancelButton.addActionListener(this);
+		//cancelButton.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
+		//		master.Y_RES/8 - layout.getVgap()));
+		layout.setConstraints(cancelButton, constraints);
 		add(cancelButton);
 	}
 	
 	protected void clearCart(){
 		cartView.removeAll();
-		cartConstraints.gridwidth = GridBagConstraints.REMAINDER;
-		cartLayout.setConstraints(header, cartConstraints);
+		cartIntConstraints.gridwidth = GridBagConstraints.REMAINDER;
+		cartIntLayout.setConstraints(header, cartIntConstraints);
 		cartView.add(header);
 
 		cartContents = new ArrayList<IProduct>();
@@ -182,8 +211,8 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 			cartContents.add(p);
 			amounts.add(1);
 			JLabel label = new JLabel(p.getName() + " x " + 1);
-			cartConstraints.gridwidth = GridBagConstraints.RELATIVE;
-			cartLayout.setConstraints(label, cartConstraints);
+			cartIntConstraints.gridwidth = GridBagConstraints.RELATIVE;
+			cartIntLayout.setConstraints(label, cartIntConstraints);
 			cartLabels.add(label);
 			cartView.add(label);
 			
@@ -191,8 +220,8 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 			remove.setFont(master.UI_FONT);
 			remove.setName("remove_" + p.getName());
 			remove.addActionListener(this);
-			cartConstraints.gridwidth = GridBagConstraints.REMAINDER;
-			cartLayout.setConstraints(remove, cartConstraints);
+			cartIntConstraints.gridwidth = GridBagConstraints.REMAINDER;
+			cartIntLayout.setConstraints(remove, cartIntConstraints);
 			removebuttons.add(remove);
 			cartView.add(remove);
 			
