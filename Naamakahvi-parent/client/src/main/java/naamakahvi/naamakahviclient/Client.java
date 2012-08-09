@@ -333,13 +333,14 @@ public class Client {
             String productName = product.get("product_name").getAsString();
             double productPrice = product.get("product_price").getAsDouble();
             int productId = product.get("product_id").getAsInt();
+            int groupId = product.get("group_id").getAsInt();
             int sizeId = -1;
             
             if (!buyable) {
                 sizeId = product.get("size_id").getAsInt();
             }
-            //        String productGroup = product.get("product_group").getAsString();
-            ans.add(new Product(productId, productName, productPrice, buyable, null, sizeId));
+            
+            ans.add(new Product(productId, productName, productPrice, buyable, groupId, sizeId));
         }
         return ans;
     }
@@ -535,8 +536,9 @@ public class Client {
         for (JsonElement e : ar) {
             JsonObject saldoitem = e.getAsJsonObject();
             String groupName = saldoitem.get("groupName").getAsString();
+            int groupId = saldoitem.get("group_id").getAsInt();
             double saldo = saldoitem.get("saldo").getAsDouble();
-            ans.add(new SaldoItem(groupName, saldo));
+            ans.add(new SaldoItem(groupName, groupId, saldo));
         }
         return ans;
     }
@@ -621,15 +623,9 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException, ClientException {
-        Client c = new Client("naama.zerg.fi", 5001, new Station("aasd"));
-        // IUser u = c.registerUser("afdsafds", "asd", "as", new File("3.pgm"));
-        // System.out.println("registered user " + u.getUserName());
-//        IUser u = c.authenticateText("kerola");
-//        System.out.println(u.getUserName());
-//        for(SaldoItem i : u.getBalance()) {
-//            System.out.println(i.getGroupName() + ": " + i.getSaldo());
-        c.listRawProducts();
-        c.listBuyableProducts();
-    }
-}
+//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException, ClientException {
+//        Client c = new Client("naama.zerg.fi", 5001, new Station("aasd"));
+//        c.listRawProducts();
+//        c.listBuyableProducts();
+//    }
+} 

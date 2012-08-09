@@ -5,11 +5,11 @@ class Product implements IProduct {
     private final double price;
     private final int id;
     private final int sizeId;
-    private final String productGroup;
+    private final int productGroup;
     private final boolean buyable;
 
     Product(int id, String name, double price, boolean buyable,
-            String productGroup, int sizeId) {
+            int productGroup, int sizeId) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -26,7 +26,7 @@ class Product implements IProduct {
         return this.price;
     }
 
-    public String getProductGroup() {
+    public int getProductGroup() {
         return this.productGroup;
     }
 
