@@ -273,11 +273,13 @@ public class Client {
      *          "balance": 
      *          [
      *              {
-     *              "groupName":"example group"
+     *              "groupName":"example group",
+     *              "group_id":1,
      *              "saldo": 11.1
      *              },
      *              {
-     *              "groupName":"example group 2"
+     *              "groupName":"example group 2",
+     *              "group_id":2,
      *              "saldo": 22.2
      *              }
      *          ]
@@ -346,12 +348,14 @@ public class Client {
      *        {
      *          "product_name":"coffee",
      *          "product_price":1,
-     *          "product_id":1
+     *          "product_id":1,
+     *          "group_id":2
      *        },
      *        {
      *          "product_name":"espresso",
      *          "product_price":1,
-     *          "product_id":2
+     *          "product_id":2,
+     *          "group_id":1
      *        }
      *      ]
      * }
@@ -402,12 +406,14 @@ public class Client {
      *        {
      *          "product_name":"coffee beans",
      *          "product_price":1,
-     *          "product_id":3
+     *          "product_id":3,
+     *          "group_id":2
      *        },
      *        {
      *          "product_name":"filter",
      *          "product_price":1,
-     *          "product_id":4
+     *          "product_id":4,
+     *          "group_id":1
      *        }
      *      ]
      * }
@@ -492,37 +498,6 @@ public class Client {
             ans.add(new SaldoItem(groupName, groupId, saldo));
         }
         return ans;
-    }
-
-    /**
-     * Gets a user's product balances from the server.
-     * Method: Get
-     * Path: /list_user_saldos/
-     * Parameters: username
-     * 
-     * Example server response: 
-     * 
-     * {
-     *      "status":"ok",
-     *      "saldo_list":
-     *      [
-     *        {
-     *          "groupName":"coffee",
-     *          "saldo":-30
-     *        },
-     *        {
-     *          "groupName":"espresso",
-     *          "saldo":7
-     *        }
-     *      ]
-     * }
-     * 
-     * @param user the user whose balance is wanted
-     * @return list of the user's balances of different products
-     * @throws ClientException 
-     */
-    public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
-        return jsonToSaldoList(doGet("/list_user_saldos/", "username", user.getUserName()).get("saldo_list").getAsJsonArray());
     }
 
     /**
