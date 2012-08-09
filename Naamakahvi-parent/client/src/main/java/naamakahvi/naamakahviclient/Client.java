@@ -53,23 +53,7 @@ public class Client {
      * @return the list of station names
      */
     public static List<String> listStations(String host, int port) throws ClientException {
-        try {
-            JsonObject obj = new Client(host, port, null).doGet("/list_stations/");
-
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                List<String> ans = new ArrayList();
-                
-                for (JsonElement e : obj.get("stations").getAsJsonArray()) {
-                    ans.add(e.getAsString());
-                }
-                
-                return ans;
-            } else {
-                throw new GeneralClientException("Could not fetch list of stations");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
+        return jsonArrayToStringList(new Client(host, port, null).doGet("/list_stations/").get("stations").getAsJsonArray());
     }
 
     /**
@@ -96,70 +80,98 @@ public class Client {
         return ans;
     }
 
+    private static List<String> jsonArrayToStringList(JsonArray jsonArray) {
+        ArrayList<String> ans = new ArrayList(jsonArray.size());
+
+        for (JsonElement e : jsonArray) {
+            ans.add(e.getAsString());
+        }
+
+        return ans;
+    }
+
     private static JsonParser parser = new JsonParser();
 
-    private JsonObject responseToJson(HttpResponse response) throws IOException {
+    private JsonObject responseToJson(HttpResponse response) throws IOException, GeneralClientException {
         String s = Util.readStream(response.getEntity().getContent());
         JsonObject obj = parser.parse(s).getAsJsonObject();
-        return obj;
+        String status = obj.get("status").getAsString();
+
+        if (status.equalsIgnoreCase("ok")) {
+            return obj;
+        } else {
+            throw new GeneralClientException(status);
+        }
     }
 
     private URI buildURI(String path) throws Exception {
         return new URI("http://" + this.host + ":" + this.port + path);
     }
 
-    private JsonObject doPost(String path, String... params) throws Exception {
-        if ((params.length % 2) != 0) {
-            throw new IllegalArgumentException("Odd number of parameters");
-        }
-
-        final URI uri = buildURI(path);
-        final HttpClient c = new DefaultHttpClient();
-        final HttpPost post = new HttpPost(uri);
-        final List<NameValuePair> plist = new ArrayList<NameValuePair>();
-
-        for (int i = 0; i < params.length; i += 2) {
-            plist.add(new BasicNameValuePair(params[i], params[i + 1]));
-        }
-
-        post.setEntity(new UrlEncodedFormEntity(plist, "UTF-8"));
-        post.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        final HttpResponse resp = c.execute(post);
-        final int status = resp.getStatusLine().getStatusCode();
-
-        if (status == 200) {
-            return responseToJson(resp);
-        } else {
-            throw new GeneralClientException("Server returned HTTP-status code " + status);
+    private JsonObject doPost(String path, String... params) throws ClientException {
+        try{
+            if ((params.length % 2) != 0) {
+                throw new IllegalArgumentException("Odd number of parameters");
+            }
+            
+            final URI uri = buildURI(path);
+            final HttpClient c = new DefaultHttpClient();
+            final HttpPost post = new HttpPost(uri);
+            final List<NameValuePair> plist = new ArrayList<NameValuePair>();
+            
+            for (int i = 0; i < params.length; i += 2) {
+                plist.add(new BasicNameValuePair(params[i], params[i + 1]));
+            }
+            
+            post.setEntity(new UrlEncodedFormEntity(plist, "UTF-8"));
+            post.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            
+            final HttpResponse resp = c.execute(post);
+            final int status = resp.getStatusLine().getStatusCode();
+            
+            if (status == 200) {
+                return responseToJson(resp);
+            } else {
+                throw new GeneralClientException("Server returned HTTP-status code " + status);
+            }
+        } catch (ClientException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GeneralClientException("non-ClientException of class " + e.getClass() + " caught: " + e.getMessage());
         }
     }
 
-    private JsonObject doGet(String path, String... params) throws Exception {
-        if ((params.length % 2) != 0) {
-            throw new IllegalArgumentException("Odd number of parameters");
-        }
+    private JsonObject doGet(String path, String... params) throws ClientException {
+        try {
+            if ((params.length % 2) != 0) {
+                throw new IllegalArgumentException("Odd number of parameters");
+            }
 
-        final HttpClient c = new DefaultHttpClient();
+            final HttpClient c = new DefaultHttpClient();
 
-        String suri = "http://" + this.host + ":" + this.port + path + "?";
+            String suri = "http://" + this.host + ":" + this.port + path + "?";
 
-        for (int i = 0; i < params.length; i += 2) {
-            suri = suri + params[i] + "=" + params[i + 1] + "&";
-        }
+            for (int i = 0; i < params.length; i += 2) {
+                suri = suri + params[i] + "=" + params[i + 1] + "&";
+            }
 
-        final URI uri = new URI(suri);
-        final HttpGet get = new HttpGet(uri);
+            final URI uri = new URI(suri);
+            final HttpGet get = new HttpGet(uri);
 
-        get.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            get.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        final HttpResponse resp = c.execute(get);
-        final int status = resp.getStatusLine().getStatusCode();
+            final HttpResponse resp = c.execute(get);
+            final int status = resp.getStatusLine().getStatusCode();
 
-        if (status == 200) {
-            return responseToJson(resp);
-        } else {
-            throw new GeneralClientException("Server returned HTTP-status code " + status);
+            if (status == 200) {
+                return responseToJson(resp);
+            } else {
+                throw new GeneralClientException("Server returned HTTP-status code " + status);
+            }
+        } catch (ClientException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GeneralClientException("non-ClientException of class " + e.getClass() + " caught: " + e.getMessage());
         }
     }
 
@@ -177,17 +189,7 @@ public class Client {
      * @return list of all usernames
      */
     public String[] listUsernames() throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_usernames/");
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                JsonArray jarr = obj.get("usernames").getAsJsonArray();
-                return jsonArrayToStringArray(jarr);
-            } else {
-                throw new GeneralClientException("asdf");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.getMessage());
-        }
+        return jsonArrayToStringArray(doGet("/list_usernames/").get("usernames").getAsJsonArray());
     }
 
     /**
@@ -215,13 +217,8 @@ public class Client {
                     "username", username,
                     "given", givenName,
                     "family", familyName);
-
-            if (!obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                throw new RegistrationException("Registration failed: Try another username");
-            }
-
-        } catch (RegistrationException e) {
-            throw e;
+        } catch (ClientException e) {
+            throw new RegistrationException("Registration failed: Try another username");
         } catch (Exception e) {
             throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
         }
@@ -295,19 +292,15 @@ public class Client {
             JsonObject obj = doPost("/get_user/",
                     "username", username);
 
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                JsonObject data = obj.get("data").getAsJsonObject();
-                String uname = data.get("username").getAsString();
-                String given = data.get("given").getAsString();
-                String family = data.get("family").getAsString();
-                List<SaldoItem> balance = jsonToSaldoList(data.get("balance").getAsJsonArray());
-
-                return new User(uname, given, family, balance);
-            } else {
-                throw new AuthenticationException("Authentication failed");
-            }
-        } catch (AuthenticationException e) {
-            throw e;
+            JsonObject data = obj.get("data").getAsJsonObject();
+            String uname = data.get("username").getAsString();
+            String given = data.get("given").getAsString();
+            String family = data.get("family").getAsString();
+            List<SaldoItem> balance = jsonToSaldoList(data.get("balance").getAsJsonArray());
+            
+            return new User(uname, given, family, balance);
+        } catch (ClientException e) {
+            throw new AuthenticationException("Authentication failed");
         } catch (Exception e) {
             throw new AuthenticationException(e.toString());
         }
@@ -366,17 +359,9 @@ public class Client {
      * @return list of all buyable products
      */
     public List<IProduct> listBuyableProducts() throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_buyable_products/",
-                    "station_name", this.station);
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("buyable_products").getAsJsonArray(), true);
-            } else {
-                throw new GeneralClientException("Could not fetch list of buyable products");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.getMessage());
-        }
+        JsonObject obj = doGet("/list_buyable_products/",
+                               "station_name", this.station);
+        return jsonToProductList(obj.get("buyable_products").getAsJsonArray(), true);
     }
 
     /**
@@ -397,20 +382,11 @@ public class Client {
      * @param amount amount of bought product
      */
     public void buyProduct(IUser user, IProduct product, int amount) throws ClientException {
-        try {
-            JsonObject obj = doPost("/buy_product/",
-                    "product_id", Integer.toString(product.getId()),
-                    "amount", "" + amount,
-                    "username", user.getUserName());
+        doPost("/buy_product/",
+               "product_id", Integer.toString(product.getId()),
+               "amount", "" + amount,
+               "username", user.getUserName());
 
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return;
-            } else {
-                throw new GeneralClientException("Buying the product failed");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
     }
 
     /**
@@ -438,18 +414,7 @@ public class Client {
      * @return list of raw product objects
      */
     public List<IProduct> listRawProducts() throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_raw_products/",
-                    "station_name", this.station);
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return jsonToProductList(obj.get("raw_products").getAsJsonArray(), false);
-            } else {
-                throw new GeneralClientException("Could not fetch list of raw products");
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new GeneralClientException(e.toString());
-        }
+        return jsonToProductList(doGet("/list_raw_products/", "station_name", this.station).get("raw_products").getAsJsonArray(), false);
     }
 
     /**
@@ -471,21 +436,11 @@ public class Client {
      * @param amount the amount of the brought product
      */
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
-        try {
-            JsonObject obj = doPost("/bring_product/",
-                    "product_name", product.getName(),
-                    "station_name", this.station,
-                    "amount", "" + amount,
-                    "username", user.getUserName());
-
-            if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                return;
-            } else {
-                throw new GeneralClientException("Bringing the product failed");
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
+        doPost("/bring_product/",
+               "product_name", product.getName(),
+               "station_name", this.station,
+               "amount", "" + amount,
+               "username", user.getUserName());
     }
 
     /**
@@ -566,20 +521,7 @@ public class Client {
      * @throws ClientException 
      */
     public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_user_saldos/",
-                    "username", user.getUserName());
-
-            String status = obj.get("status").getAsString();
-
-            if (status.equalsIgnoreCase("ok")) {
-                return jsonToSaldoList(obj.get("saldo_list").getAsJsonArray());
-            } else {
-                throw new GeneralClientException("Failed to get user saldos: " + status);
-            }
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
+        return jsonToSaldoList(doGet("/list_user_saldos/", "username", user.getUserName()).get("saldo_list").getAsJsonArray());
     }
 
     /**
@@ -598,24 +540,7 @@ public class Client {
      * @throws ClientException 
      */
     public List<String> listProductGroups() throws ClientException {
-        try {
-            JsonObject obj = doGet("/list_product_groups/");
-
-            String status = obj.get("status").getAsString();
-
-            if (status.equalsIgnoreCase("ok")) {
-                List<String> ans = new ArrayList<String>();
-                for (JsonElement e : obj.get("product_groups").getAsJsonArray()) {
-                    ans.add(e.getAsString());
-                }
-                return ans;
-            } else {
-                throw new GeneralClientException("Failed to get product groups: " + status);
-            }
-
-        } catch (Exception e) {
-            throw new GeneralClientException(e.toString());
-        }
+        return jsonArrayToStringList(doGet("/list_product_groups/").get("product_groups").getAsJsonArray());
     }
 
 //    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException, ClientException {
