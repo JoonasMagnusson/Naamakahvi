@@ -15,7 +15,8 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
-        public static final int thumb_img_bg=0x7f020001;
+        public static final int list_header_gradient=0x7f020001;
+        public static final int thumb_img_bg=0x7f020002;
     }
     public static final class id {
         public static final int bQty1=0x7f08002b;
@@ -74,18 +75,19 @@ public final class R {
     public static final class layout {
         public static final int confirm_purchase=0x7f030000;
         public static final int custom_order=0x7f030001;
-        public static final int loading_screen=0x7f030002;
-        public static final int loginwithusername=0x7f030003;
-        public static final int main=0x7f030004;
-        public static final int menu=0x7f030005;
-        public static final int new_list_bigger_text=0x7f030006;
-        public static final int new_user=0x7f030007;
-        public static final int product_cart_view=0x7f030008;
-        public static final int product_gridview=0x7f030009;
-        public static final int product_single_view=0x7f03000a;
-        public static final int product_table_row=0x7f03000b;
-        public static final int recog_user=0x7f03000c;
-        public static final int thumb_layout=0x7f03000d;
+        public static final int list_header=0x7f030002;
+        public static final int loading_screen=0x7f030003;
+        public static final int loginwithusername=0x7f030004;
+        public static final int main=0x7f030005;
+        public static final int menu=0x7f030006;
+        public static final int new_list_bigger_text=0x7f030007;
+        public static final int new_user=0x7f030008;
+        public static final int product_cart_view=0x7f030009;
+        public static final int product_gridview=0x7f03000a;
+        public static final int product_single_view=0x7f03000b;
+        public static final int product_table_row=0x7f03000c;
+        public static final int recog_user=0x7f03000d;
+        public static final int thumb_layout=0x7f03000e;
     }
     public static final class raw {
         public static final int _lbpcascade_frontalface=0x7f040000;

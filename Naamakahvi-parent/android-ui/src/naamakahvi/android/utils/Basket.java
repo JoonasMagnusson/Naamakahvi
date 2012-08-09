@@ -7,11 +7,12 @@ import naamakahvi.naamakahviclient.IProduct;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 /**
  * Shopping cart for IProducts
  * 
  * @author Ossi
- *
+ * 
  */
 public class Basket implements Parcelable {
 	private Map<IProduct, Integer> items;
@@ -19,7 +20,7 @@ public class Basket implements Parcelable {
 	public Basket() {
 		items = new HashMap<IProduct, Integer>();
 	}
-	
+
 	public Map<IProduct, Integer> getItems() {
 		return items;
 	}
@@ -27,26 +28,33 @@ public class Basket implements Parcelable {
 	/**
 	 * Adds one unit of a product to the cart
 	 * 
-	 * @param product Product to be added
+	 * @param product
+	 *            Product to be added
 	 */
 	public void addProduct(IProduct product) {
 		addProduct(product, 1);
 	}
-	
+
 	/**
 	 * Adds a specified number of units of a product to the cart
-	 * @param product Product to be added
-	 * @param amount Number of units
+	 * 
+	 * @param product
+	 *            Product to be added
+	 * @param amount
+	 *            Number of units
 	 */
 	public void addProduct(IProduct product, int amount) {
 		Integer n = items.get(product);
-		if (n == null) n = 0;
+		if (n == null)
+			n = 0;
 		items.put(product, n + amount);
 	}
-    
+
 	/**
 	 * Removes all units of the product from the cart
-	 * @param product Product to be removed
+	 * 
+	 * @param product
+	 *            Product to be removed
 	 */
 	public void removeProduct(IProduct product) {
 		items.remove(product);
@@ -54,13 +62,17 @@ public class Basket implements Parcelable {
 
 	/**
 	 * Removes a specified number units of the product from the cart
-	 * @param product Product to be removed
-	 * @param amount Number of units
+	 * 
+	 * @param product
+	 *            Product to be removed
+	 * @param amount
+	 *            Number of units
 	 */
 	public void removeProduct(IProduct product, int amount) {
 		Integer n = items.get(product);
-		if (n == null) return;
-		if (n-amount <1){
+		if (n == null)
+			return;
+		if (n - amount < 1) {
 			removeProduct(product);
 			return;
 		}
@@ -71,21 +83,21 @@ public class Basket implements Parcelable {
 		this();
 		while (in.dataAvail() != 0) {
 			final String name = in.readString();
-			
-			
-                        IProduct i = ProductCache.getProduct(name);
-			
+
+			IProduct i = ProductCache.getProduct(name);
+
 			items.put(i, in.readInt());
 		}
 	}
 
 	public int describeContents() {
-		return 0; 
+		return 0;
 	}
-	
-	public int getCount(IProduct product){
+
+	public int getCount(IProduct product) {
 		Integer n = items.get(product);
-		if (n == null) return 0;
+		if (n == null)
+			return 0;
 		return n;
 	}
 

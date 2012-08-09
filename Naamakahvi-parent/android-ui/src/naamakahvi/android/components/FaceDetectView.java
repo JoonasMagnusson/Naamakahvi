@@ -29,8 +29,9 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class FaceDetectView extends SurfaceView implements
-		SurfaceHolder.Callback, Runnable {
+public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+
+	private static File CASCADEFILE = null;
 
 	public static final int GRAB_IMAGE_SIDE = 200;
 
@@ -47,7 +48,6 @@ public class FaceDetectView extends SurfaceView implements
 	private Mat mRgba;
 	private Mat mGray;
 
-	private File mCascadeFile;
 	private CascadeClassifier mDetector;
 
 	public FaceDetectView(Context context, AttributeSet attrs) {
@@ -60,31 +60,30 @@ public class FaceDetectView extends SurfaceView implements
 			// get the cascade file as a file object
 			// this is stupid
 			File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
-			mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+			if (CASCADEFILE == null) {
+				CASCADEFILE = new File(cascadeDir, "lbpcascade_frontalface.xml");
 
-			if (!mCascadeFile.exists()) {
-				InputStream is = context.getResources().openRawResource(
-						R.raw.lbpcascade_frontalface);
+				if (!CASCADEFILE.exists()) {
+					InputStream is = context.getResources().openRawResource(R.raw.lbpcascade_frontalface);
 
-				FileOutputStream os = new FileOutputStream(mCascadeFile);
+					FileOutputStream os = new FileOutputStream(CASCADEFILE);
 
-				byte[] buffer = new byte[4096];
-				int bytesRead;
-				while ((bytesRead = is.read(buffer)) != -1) {
-					os.write(buffer, 0, bytesRead);
+					byte[] buffer = new byte[4096];
+					int bytesRead;
+					while ((bytesRead = is.read(buffer)) != -1) {
+						os.write(buffer, 0, bytesRead);
+					}
+					is.close();
+					os.close();
 				}
-				is.close();
-				os.close();
 			}
 
-			mDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+			mDetector = new CascadeClassifier(CASCADEFILE.getAbsolutePath());
 			if (mDetector.empty()) {
 				Log.e(TAG, "Failed to load cascade classifier");
 				mDetector = null;
 			} else
-				Log.i(TAG,
-						"Loaded cascade classifier from "
-								+ mCascadeFile.getAbsolutePath());
+				Log.i(TAG, "Loaded cascade classifier from " + CASCADEFILE.getAbsolutePath());
 			cascadeDir.delete();
 
 		} catch (IOException e) {
@@ -151,8 +150,8 @@ public class FaceDetectView extends SurfaceView implements
 			MatOfRect faces = new MatOfRect();
 
 			if (mDetector != null)
-				mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(
-						mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+				mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize),
+						new Size());
 
 			Rect[] facesArray = faces.toArray();
 
@@ -163,25 +162,18 @@ public class FaceDetectView extends SurfaceView implements
 					throw new Exception("More than one face detected");
 				}
 			}
-			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE, GRAB_IMAGE_SIDE,
-					Bitmap.Config.ARGB_8888);
+			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE, GRAB_IMAGE_SIDE, Bitmap.Config.ARGB_8888);
 
 			Rect face = facesArray[0];
 
-
 			Size s = new Size(face.width, face.height);
-			Point p = new Point(face.x + (face.width / 2), face.y
-					+ (face.height / 2));
-			Log.d(TAG, "face x:" + face.x + "," + face.y + " face width:"
-					+ face.width + " face height:" + face.height + " m size:"
-					+ mGrabFrame.cols() + "," + mGrabFrame.rows());
+			Point p = new Point(face.x + (face.width / 2), face.y + (face.height / 2));
+			Log.d(TAG, "face x:" + face.x + "," + face.y + " face width:" + face.width + " face height:" + face.height
+					+ " m size:" + mGrabFrame.cols() + "," + mGrabFrame.rows());
 			Imgproc.getRectSubPix(mGrabFrame, s, p, mGrabFrame);
-			
-			
 
 			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = mirror the image
-			Imgproc.resize(mGrabFrame, mGrabFrame, new Size(200,
-					200)); // resize
+			Imgproc.resize(mGrabFrame, mGrabFrame, new Size(200, 200)); // resize
 
 			try {
 				Utils.matToBitmap(mGrabFrame, bmp);
@@ -224,17 +216,14 @@ public class FaceDetectView extends SurfaceView implements
 		MatOfRect faces = new MatOfRect();
 
 		if (mDetector != null)
-			mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(
-					mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+			mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
 
 		Rect[] facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++)
 			// tunnistetut naamat k�yd��n l�pi
-			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
-					FACE_RECT_COLOR, 3);
+			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
 
-		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),
-				Bitmap.Config.ARGB_8888);
+		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
 
 		Core.flip(mRgba, mRgba, 1); // 1 = peilaus vaakatasossa
 		try {
@@ -250,6 +239,11 @@ public class FaceDetectView extends SurfaceView implements
 
 	public void run() {
 		Log.d(TAG, "Thread running");
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		while (true) {
 			Bitmap bmp = null;
 
@@ -270,8 +264,7 @@ public class FaceDetectView extends SurfaceView implements
 			if (bmp != null) {
 				Canvas canvas = mHolder.lockCanvas();
 				if (canvas != null) {
-					canvas.drawBitmap(bmp,
-							(canvas.getWidth() - bmp.getWidth()) / 2,
+					canvas.drawBitmap(bmp, (canvas.getWidth() - bmp.getWidth()) / 2,
 							(canvas.getHeight() - bmp.getHeight()) / 2, null);
 					mHolder.unlockCanvasAndPost(canvas);
 				}
@@ -287,18 +280,14 @@ public class FaceDetectView extends SurfaceView implements
 				mGray.release();
 			if (mGrabFrame != null)
 				mGrabFrame.release();
-			if (mCascadeFile != null)
-				mCascadeFile.delete();
-
+			
 			mRgba = null;
 			mGray = null;
-			mCascadeFile = null;
 		}
 
 	}
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		Log.d(TAG, "surface change width:" + width + " height:" + height);
 		setupCamera(width, height);
 	}
