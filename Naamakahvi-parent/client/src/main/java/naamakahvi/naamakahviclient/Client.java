@@ -96,9 +96,12 @@ public class Client {
         return ans;
     }
 
+    private static JsonParser parser = new JsonParser();
+
     private JsonObject responseToJson(HttpResponse response) throws IOException {
         String s = Util.readStream(response.getEntity().getContent());
-        return new JsonParser().parse(s).getAsJsonObject();
+        JsonObject obj = parser.parse(s).getAsJsonObject();
+        return obj;
     }
 
     private URI buildURI(String path) throws Exception {
