@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import naamakahvi.android.R;
+import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
@@ -38,15 +39,18 @@ public class LoginwithusernameActivity extends Activity {
 	public static final String TAG = "LoginwithUsernameActivity";
 	private Resources mRes;
 	private LayoutInflater mInflater;
+	private Basket mOrder;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loading_screen);
 		mRes = getResources();
-
+        
 		mInflater = getLayoutInflater();
 
+		mOrder = getIntent().getExtras().getParcelable(ExtraNames.PRODUCTS);
+		
 		final Handler hand = new Handler(getMainLooper());
 
 		final Context con = this;
@@ -116,7 +120,8 @@ public class LoginwithusernameActivity extends Activity {
 				Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG)
 						.show();
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.SELECTED_USER, item);
+				i.putExtra(ExtraNames.USERS,new String[]{item});
+				i.putExtra(ExtraNames.PRODUCTS, mOrder);
 				setResult(RESULT_OK, i);
 				finish();
 			}

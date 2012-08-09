@@ -53,10 +53,13 @@ public class MainActivity extends Activity {
 		mPreferences = getPreferences(MODE_PRIVATE);
 		String server = mPreferences.getString("server", null);
 		int port = mPreferences.getInt("port", -1);
-
-		if (server == null || port < 1) {
+		String station = mPreferences.getString("station", null);
+		if (server == null || station == null || port < 1) {
 			showServerDialog();
 		} else {
+			Config.SERVER_URL = server;
+			Config.SERVER_PORT = port;
+			Config.STATION = station;
 			loadData();
 		}
 
@@ -90,7 +93,7 @@ public class MainActivity extends Activity {
 		final EditText portEdit = new EditText(this);
 		
 		final Handler hand = new Handler(getMainLooper());
-		
+		final Context con = this;
 		AlertDialog.Builder builder = new AlertDialog.Builder(
 				this);
 		builder.setCancelable(false);
@@ -110,10 +113,62 @@ public class MainActivity extends Activity {
 						}
 						Config.SERVER_PORT = port;
 						dialog.dismiss();	
+						
+						new Thread(new Runnable() {
+							
+							public void run() {
+								String[] stations = null;
+								try{
+									List<IStation> st = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT);
+									stations = new String[st.size()];
+									for (int i = 0; i < st.size(); ++i){
+										stations[i] = st.get(i).getName();
+									}
+								}catch (Exception e){
+									showErrorDialog(con,e);
+								}
+								
+								final String[] finalStations = stations;
+								hand.post(new Runnable() {
+									
+									public void run() {
+										
+										showStationDialog(finalStations);
+									}
+								});
+							}
+						}).start();
+						
+						
+						
+					}
+				});
+		builder.show();
+	}
+	
+	private void showStationDialog(final String[] stations){
+		
+		final Handler hand = new Handler(getMainLooper());
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				this);
+		builder.setCancelable(false);
+		builder.setTitle("Station");
+        builder.setItems(stations, 
+        		new DialogInterface.OnClickListener() {
+					public void onClick(
+							DialogInterface dialog,
+							int which) {
+						
+						
+						dialog.dismiss();	
 					    
+						Config.STATION = stations[which];
+						
 						Editor e = mPreferences.edit();
 						e.putString("server",Config.SERVER_URL);
 						e.putInt("port", Config.SERVER_PORT);
+						e.putString("station", Config.STATION);
 						e.commit();
 						
 						hand.post(new Runnable() {
@@ -155,28 +210,32 @@ public class MainActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									con);
-							builder.setCancelable(false);
-							builder.setTitle("Error");
-							builder.setMessage("Fetching data from server failed: "
-									+ ex.getMessage());
-							builder.setPositiveButton("OK",
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-											finish();
-										}
-									});
-							builder.show();
+							showErrorDialog(con,ex);
 						}
 					});
 				}
 			}
 		}).start();
 
+	}
+	
+	private void showErrorDialog(Context con, Exception ex){
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				con);
+		builder.setCancelable(false);
+		builder.setTitle("Error");
+		builder.setMessage("Fetching data from server failed: "
+				+ ex.getMessage());
+		builder.setPositiveButton("OK",
+				new DialogInterface.OnClickListener() {
+					public void onClick(
+							DialogInterface dialog,
+							int which) {
+						dialog.dismiss();
+						finish();
+					}
+				});
+		builder.show();
 	}
 
 	private void loaded() {
@@ -220,6 +279,18 @@ public class MainActivity extends Activity {
 					b.addProduct(product, qty);
 					in.putExtra(ExtraNames.PRODUCTS, b);
 					startActivityForResult(in, REQUEST_LOGIN);
+				}
+			});
+			
+			b.setOnLongClickListener(new View.OnLongClickListener() {
+
+				public boolean onLongClick(View v) {
+					Intent in = new Intent(c, LoginwithusernameActivity.class);
+					Basket b = new Basket();
+					b.addProduct(product, qty);
+					in.putExtra(ExtraNames.PRODUCTS, b);
+					startActivityForResult(in, REQUEST_LOGIN);
+					return true;
 				}
 			});
 		}

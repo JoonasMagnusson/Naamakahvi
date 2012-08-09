@@ -83,11 +83,12 @@ public class RecogActivity extends Activity {
 
 					if (identifycount == 5) {
 						this.cancel();
-						
+
 						hand.post(new Runnable() {
 							public void run() {
 								Intent i = new Intent();
-								i.putExtra(ExtraNames.USERS, rankNames(namearrays));
+								i.putExtra(ExtraNames.USERS,
+										rankNames(namearrays));
 								i.putExtra(ExtraNames.PRODUCTS, mOrder);
 								setResult(RESULT_OK, i);
 								finish();
@@ -142,6 +143,7 @@ public class RecogActivity extends Activity {
 
 	public void userListClick(View v) {
 		Intent i = new Intent(this, LoginwithusernameActivity.class);
+		i.putExtra(ExtraNames.PRODUCTS, mOrder);
 		startActivityForResult(i, SELECT_USERNAME);
 	}
 
@@ -245,9 +247,9 @@ public class RecogActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.USERS, new String[] { data.getExtras()
-						.getString(ExtraNames.SELECTED_USER) });
-				i.putExtra(ExtraNames.PRODUCTS, mOrder);
+				i.putExtra(ExtraNames.USERS,
+						data.getExtras().getStringArray(ExtraNames.USERS));
+				i.putExtra(ExtraNames.PRODUCTS,data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				setResult(RESULT_OK, i);
 				finish();
 				break;
