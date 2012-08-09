@@ -385,6 +385,7 @@ public class Client {
         doPost("/buy_product/",
                "product_id", Integer.toString(product.getId()),
                "amount", "" + amount,
+               "station_name", this.station,
                "username", user.getUserName());
 
     }
