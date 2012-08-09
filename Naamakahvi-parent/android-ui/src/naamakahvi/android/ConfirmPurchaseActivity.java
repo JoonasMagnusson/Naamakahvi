@@ -25,7 +25,6 @@ import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
-import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 import naamakahvi.naamakahviclient.SaldoItem;
 
@@ -56,8 +55,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
-					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
+					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, Config.STATION);
 					final IUser user = c.authenticateText(username);
 					handler.post(new Runnable() {
 						public void run() {
@@ -152,8 +150,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
-					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
+					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, Config.STATION);
 					IUser buyer = c.authenticateText(username);
 				    Map.Entry productAndAmountPair = convertBasketIntoProduct();
 				    IProduct product = (IProduct) productAndAmountPair.getKey();

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import naamakahvi.naamakahviclient.Client;
-import naamakahvi.naamakahviclient.IStation;
 import naamakahvi.naamakahviclient.IUser;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -96,11 +95,8 @@ public class NewUserActivity extends Activity {
 						}
 					});
 
-					List<IStation> s = Client.listStations(Config.SERVER_URL,
-							Config.SERVER_PORT);
-
 					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, s.get(0));
+							Config.SERVER_PORT, Config.STATION);
 
 					final String username = ((EditText) findViewById(R.id.editTextUsername))
 							.getText().toString();

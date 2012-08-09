@@ -12,7 +12,6 @@ import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
-import naamakahvi.naamakahviclient.IStation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -59,10 +58,8 @@ public class LoginwithusernameActivity extends Activity {
 
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations(Config.SERVER_URL,
-							Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, s.get(0));
+							Config.SERVER_PORT, Config.STATION);
 					final String[] users = c.listUsernames();
 
 					hand.post(new Runnable() {

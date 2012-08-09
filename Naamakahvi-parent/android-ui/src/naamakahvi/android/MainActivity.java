@@ -11,7 +11,6 @@ import naamakahvi.android.utils.ProductCache;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import naamakahvi.naamakahviclient.IProduct;
-import naamakahvi.naamakahviclient.IStation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -119,11 +118,7 @@ public class MainActivity extends Activity {
 							public void run() {
 								String[] stations = null;
 								try{
-									List<IStation> st = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT);
-									stations = new String[st.size()];
-									for (int i = 0; i < st.size(); ++i){
-										stations[i] = st.get(i).getName();
-									}
+									stations = (String[]) Client.listStations(Config.SERVER_URL, Config.SERVER_PORT).toArray();
 								}catch (Exception e){
 									showErrorDialog(con,e);
 								}
@@ -191,10 +186,8 @@ public class MainActivity extends Activity {
 
 			public void run() {
 				try {
-					List<IStation> s = Client.listStations(Config.SERVER_URL,
-							Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, s.get(0));
+							Config.SERVER_PORT, Config.STATION);
 
 					ProductCache.loadBuyableItems(c.listBuyableProducts());
 					ProductCache.loadRawItems(c.listRawProducts());
