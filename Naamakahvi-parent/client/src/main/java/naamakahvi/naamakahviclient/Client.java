@@ -33,19 +33,7 @@ import org.apache.http.message.BasicNameValuePair;
 public class Client {
     private String host;
     private int port;
-    private IStation station;
-
-    private static class Station implements IStation {
-        private String name;
-
-        Station(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-    }
+    private String station;
 
     /**
      * Using the specified host name and port number, sends a HTTP request to server 
@@ -64,15 +52,17 @@ public class Client {
      * @param port server port number
      * @return the list of station names
      */
-    public static List<IStation> listStations(String host, int port) throws ClientException {
+    public static List<String> listStations(String host, int port) throws ClientException {
         try {
             JsonObject obj = new Client(host, port, null).doGet("/list_stations/");
 
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
-                List<IStation> ans = new ArrayList();
+                List<String> ans = new ArrayList();
+                
                 for (JsonElement e : obj.get("stations").getAsJsonArray()) {
-                    ans.add(new Station(e.getAsString()));
+                    ans.add(e.getAsString());
                 }
+                
                 return ans;
             } else {
                 throw new GeneralClientException("Could not fetch list of stations");
@@ -90,7 +80,7 @@ public class Client {
      * @param port server port number
      * @param station coffee syndicate location
      */
-    public Client(String host, int port, IStation station) {
+    public Client(String host, int port, String station) {
         this.host = host;
         this.port = port;
         this.station = station;
@@ -328,6 +318,7 @@ public class Client {
 
     private List<IProduct> jsonToProductList(JsonArray ar, boolean buyable) {
         List<IProduct> ans = new ArrayList<IProduct>();
+        
         for (JsonElement e : ar) {
             JsonObject product = e.getAsJsonObject();
             String productName = product.get("product_name").getAsString();
@@ -341,6 +332,7 @@ public class Client {
             }
             
             ans.add(new Product(productId, productName, productPrice, buyable, groupId, sizeId));
+
         }
         return ans;
     }
@@ -373,7 +365,7 @@ public class Client {
     public List<IProduct> listBuyableProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_buyable_products/",
-                    "station_name", this.station.getName());
+                    "station_name", this.station);
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return jsonToProductList(obj.get("buyable_products").getAsJsonArray(), true);
             } else {
@@ -445,7 +437,7 @@ public class Client {
     public List<IProduct> listRawProducts() throws ClientException {
         try {
             JsonObject obj = doGet("/list_raw_products/",
-                    "station_name", this.station.getName());
+                    "station_name", this.station);
             if (obj.get("status").getAsString().equalsIgnoreCase("ok")) {
                 return jsonToProductList(obj.get("raw_products").getAsJsonArray(), false);
             } else {
@@ -479,7 +471,7 @@ public class Client {
         try {
             JsonObject obj = doPost("/bring_product/",
                     "product_name", product.getName(),
-                    "station_name", this.station.getName(),
+                    "station_name", this.station,
                     "amount", "" + amount,
                     "username", user.getUserName());
 

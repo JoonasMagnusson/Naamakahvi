@@ -49,6 +49,7 @@ public class ConfirmPurchaseActivity extends Activity {
         String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
         setListView(possibleUsersListView, listOfPossibleUsers);
         configureUserView(listOfPossibleUsers[0]);
+        setWhatYouAreBuyingText();
 	}
 	
 	private void startGetIUserThread() {
@@ -74,7 +75,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	
 	private void setListView(ListView listView, String[] list) {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            	android.R.layout.simple_list_item_1, android.R.id.text1, list);
+            	R.layout.new_list_bigger_text, android.R.id.text1, list);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new OnItemClickListener() {
         	public void onItemClick(AdapterView<?> parent, View view,
@@ -100,39 +101,25 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void setSaldos(IUser buyer) {
-		Basket producstThatCustomerIsBuying = intent.getParcelableExtra(ExtraNames.PRODUCTS);
-		Map<IProduct, Integer> productsToBeBought = producstThatCustomerIsBuying.getItems();
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
-
 		List<SaldoItem> userBalance = buyer.getBalance();	
 		String[] userSaldoTexts = new String[userBalance.size()];
-		
+		Map.Entry productAndAmountPair = convertBasketIntoProduct();
+		IProduct product = (IProduct) productAndAmountPair.getKey();
+		int amount = (Integer) productAndAmountPair.getValue();
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
-			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " is " + saldoItem.getSaldo() +
-					" + TODO later";
+			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() +
+					" - " + (amount*product.getPrice());
+//			if (product.getProductGroup() == null) {
+//				userSaldoTexts[i] = "BÖÖ!";
+//			}
 		}
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            	android.R.layout.simple_list_item_1, android.R.id.text1, userSaldoTexts);
+            	R.layout.new_list_bigger_text, android.R.id.text1, userSaldoTexts);
 		coffeeSaldoView.setAdapter(adapter);
 		
-		Iterator productsAndAmounts = productsToBeBought.entrySet().iterator();
-		HashMap<String, Double> saldoChanges = new HashMap<String, Double>();
-	    while (productsAndAmounts.hasNext()) {
-	        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
-	        IProduct product = (IProduct) productAndAmountPair.getKey();
-	        int amount = (Integer) productAndAmountPair.getValue();
-	        String productGroup = product.getProductGroup();
-	        double productPrice = product.getPrice();
-	        if (saldoChanges.containsKey(productGroup)) {
-	        	double oldPrices = saldoChanges.get(productGroup);
-	        	saldoChanges.remove(productGroup);
-	        	saldoChanges.put(productGroup, oldPrices + (amount*productPrice));
-	        }
-	        else
-	        	saldoChanges.put(productGroup, amount*productPrice);
-	    }
 //			saldoEspresso.setTextColor(Color.GREEN);
 //		else
 //			saldoEspresso.setTextColor(Color.RED);
@@ -162,26 +149,16 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	private void buyProducts() {
-		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
-		Map<IProduct, Integer> itemsBought = b.getItems();
-		Iterator productsAndAmounts = itemsBought.entrySet().iterator();
-		startBuyingThread(productsAndAmounts);
-	}
-	
-	private void startBuyingThread(Iterator its) {
-		final Iterator productsAndAmounts = its;
 		new Thread(new Runnable() {
 			public void run() {
 				try {
 					List<IStation> s = Client.listStations(Config.SERVER_URL,Config.SERVER_PORT);
 					Client c = new Client(Config.SERVER_URL,Config.SERVER_PORT, s.get(0));
 					IUser buyer = c.authenticateText(username);
-					while (productsAndAmounts.hasNext()) {
-				        Map.Entry productAndAmountPair = (Map.Entry)productsAndAmounts.next();
-				        IProduct product = (IProduct) productAndAmountPair.getKey();
-				        int amount = (Integer) productAndAmountPair.getValue();
-				        c.buyProduct(buyer, product, amount);
-				    }
+				    Map.Entry productAndAmountPair = convertBasketIntoProduct();
+				    IProduct product = (IProduct) productAndAmountPair.getKey();
+				    int amount = (Integer) productAndAmountPair.getValue();
+				    c.buyProduct(buyer, product, amount);
 				}
 				catch (final ClientException ex) {
 					Log.d(TAG, ex.getMessage());
@@ -191,6 +168,20 @@ public class ConfirmPurchaseActivity extends Activity {
 		}).start();
 	}
 	
+	private void setWhatYouAreBuyingText() {
+		Map.Entry productAndAmountPair = convertBasketIntoProduct();
+		TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
+		IProduct product = (IProduct) productAndAmountPair.getKey();
+		whatYouAreBuying.setText("You are buying " + productAndAmountPair.getValue() + " "
+				+ product.getName() + "(s)");
+	}
+	
+	private Map.Entry convertBasketIntoProduct() {
+		Basket b = intent.getParcelableExtra(ExtraNames.PRODUCTS);
+		Map<IProduct, Integer> itemsBought = b.getItems();
+		Iterator productsAndAmounts = itemsBought.entrySet().iterator();
+		return (Map.Entry)productsAndAmounts.next();
+	}
 	
 	public void onCPCancelClick(View v) {
 		setResult(RESULT_CANCELED);

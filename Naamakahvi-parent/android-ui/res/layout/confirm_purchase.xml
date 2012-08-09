@@ -22,14 +22,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="You were recognized as:"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textSize="40sp" />
             
             <TextView
             	android:id="@+id/possibleUsersHeader"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:text="The nearest hits that might be you:"
-            	android:textAppearance="?android:attr/textAppearanceMedium" />
+            	android:textSize="30sp" />
             
         	<ListView
         		android:id="@+id/possibleUsers"
@@ -45,6 +45,13 @@
             android:layout_weight="1"
             android:orientation="vertical">
         	
+            <TextView
+            	android:id="@+id/whatYouBought"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:text="This would show what you bought but theres been an error"
+            	android:textSize="30sp" />
+            
            <ListView
         		android:id="@+id/coffeeSaldos"
         		android:layout_width="wrap_content"
