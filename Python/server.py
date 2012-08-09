@@ -226,10 +226,11 @@ def getBalance(user):
     
     rslt = dbm.selectUserBalances(user)
     ret = []
-    
-    #print rslt
+    print "Saldos"
+    print rslt
     for x,y in enumerate(rslt):
         retz = {}
+        retz['group_id'] = y[0]
         retz['saldo'] = y[4]
         retz['groupName'] = y[2]
         ret.append(retz)
