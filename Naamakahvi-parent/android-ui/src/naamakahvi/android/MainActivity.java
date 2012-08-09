@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 	private LayoutInflater mInflater;
 
 	private SharedPreferences mPreferences;
-	
+
 	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO,
 			R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
 
@@ -48,7 +48,6 @@ public class MainActivity extends Activity {
 
 		mInflater = getLayoutInflater();
 
-		
 		mPreferences = getPreferences(MODE_PRIVATE);
 		String server = mPreferences.getString("server", null);
 		int port = mPreferences.getInt("port", -1);
@@ -66,9 +65,9 @@ public class MainActivity extends Activity {
 
 	private void showServerDialog() {
 		final EditText servEdit = new EditText(this);
-		
+
 		final Handler hand = new Handler(getMainLooper());
-		
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setCancelable(false);
 		builder.setTitle("Server address");
@@ -78,7 +77,7 @@ public class MainActivity extends Activity {
 				Config.SERVER_URL = servEdit.getText().toString();
 				dialog.dismiss();
 				hand.post(new Runnable() {
-					
+
 					public void run() {
 						showPortDialog();
 					}
@@ -88,92 +87,100 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
-	private void showPortDialog(){
+	private void showPortDialog() {
 		final EditText portEdit = new EditText(this);
-		
+
 		final Handler hand = new Handler(getMainLooper());
 		final Context con = this;
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setCancelable(false);
 		builder.setTitle("Port");
 		builder.setView(portEdit);
-		builder.setPositiveButton("OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(
-							DialogInterface dialog,
-							int which) {
-						int port;
-						try {
-						port = Integer.parseInt(portEdit.getText().toString());
-						}catch(Exception e){
-							e.printStackTrace();
-							return;
-						}
-						Config.SERVER_PORT = port;
-						dialog.dismiss();	
-						
-						new Thread(new Runnable() {
-							
-							public void run() {
-								String[] stations = null;
-								try{
-									stations = (String[]) Client.listStations(Config.SERVER_URL, Config.SERVER_PORT).toArray();
-								}catch (Exception e){
-									showErrorDialog(con,e);
-								}
-								
-								final String[] finalStations = stations;
-								hand.post(new Runnable() {
-									
-									public void run() {
-										
-										showStationDialog(finalStations);
-									}
-								});
-							}
-						}).start();
-						
-						
-						
-					}
-				});
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				int port;
+				try {
+					port = Integer.parseInt(portEdit.getText().toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+					return;
+				}
+				Config.SERVER_PORT = port;
+				dialog.dismiss();
+
+				fetchStations(con, hand);
+
+			}
+		});
 		builder.show();
 	}
-	
-	private void showStationDialog(final String[] stations){
-		
-		final Handler hand = new Handler(getMainLooper());
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				this);
-		builder.setCancelable(false);
-		builder.setTitle("Station");
-        builder.setItems(stations, 
-        		new DialogInterface.OnClickListener() {
-					public void onClick(
-							DialogInterface dialog,
-							int which) {
-						
-						
-						dialog.dismiss();	
-					    
-						Config.STATION = stations[which];
-						
-						Editor e = mPreferences.edit();
-						e.putString("server",Config.SERVER_URL);
-						e.putInt("port", Config.SERVER_PORT);
-						e.putString("station", Config.STATION);
-						e.commit();
-						
-						hand.post(new Runnable() {
-							
-							public void run() {
-								loadData();
-							}
-						});
+
+	private void fetchStations(final Context con, final Handler hand) {
+		new Thread(new Runnable() {
+
+			public void run() {
+				String[] stations = null;
+				try {
+
+					Object[] st = Client.listStations(Config.SERVER_URL,
+							Config.SERVER_PORT).toArray();
+					stations = new String[st.length];
+					for (int i = 0; i < st.length; ++i) {
+						stations[i] = (String) st[i];
+					}
+				} catch (final Exception e) {
+
+					hand.post(new Runnable() {
+
+						public void run() {
+
+							showErrorDialog(con, e);
+						}
+					});
+					return;
+				}
+
+				final String[] finalStations = stations;
+				hand.post(new Runnable() {
+
+					public void run() {
+
+						showStationDialog(finalStations);
 					}
 				});
+			}
+		}).start();
+
+	}
+
+	private void showStationDialog(final String[] stations) {
+
+		final Handler hand = new Handler(getMainLooper());
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setCancelable(false);
+		builder.setTitle("Station");
+		builder.setItems(stations, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+
+				dialog.dismiss();
+
+				Config.STATION = stations[which];
+
+				Editor e = mPreferences.edit();
+				e.putString("server", Config.SERVER_URL);
+				e.putInt("port", Config.SERVER_PORT);
+				e.putString("station", Config.STATION);
+				e.commit();
+
+				hand.post(new Runnable() {
+
+					public void run() {
+						loadData();
+					}
+				});
+			}
+		});
 		builder.show();
 	}
 
@@ -203,7 +210,7 @@ public class MainActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							showErrorDialog(con,ex);
+							showErrorDialog(con, ex);
 						}
 					});
 				}
@@ -211,23 +218,19 @@ public class MainActivity extends Activity {
 		}).start();
 
 	}
-	
-	private void showErrorDialog(Context con, Exception ex){
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				con);
+
+	private void showErrorDialog(Context con, Exception ex) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		builder.setCancelable(false);
 		builder.setTitle("Error");
 		builder.setMessage("Fetching data from server failed: "
 				+ ex.getMessage());
-		builder.setPositiveButton("OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(
-							DialogInterface dialog,
-							int which) {
-						dialog.dismiss();
-						finish();
-					}
-				});
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				finish();
+			}
+		});
 		builder.show();
 	}
 
@@ -274,7 +277,7 @@ public class MainActivity extends Activity {
 					startActivityForResult(in, REQUEST_LOGIN);
 				}
 			});
-			
+
 			b.setOnLongClickListener(new View.OnLongClickListener() {
 
 				public boolean onLongClick(View v) {
