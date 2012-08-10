@@ -316,7 +316,7 @@ public class CafeUI extends JFrame{
 	
 	protected boolean loginUser(String userName){
 		try {
-			user = cli.authenticateText(userName);
+			user = cli.getUser(userName);
 			this.usernames[0] = user.getUserName();
 			return true;
 		}

@@ -291,7 +291,7 @@ public class Client {
      * @param username username
      * @return the user instance
      */
-    public IUser authenticateText(String username) throws AuthenticationException {
+    public IUser getUser(String username) throws AuthenticationException {
         try {
             JsonObject obj = doPost("/get_user/",
                     "username", username);
