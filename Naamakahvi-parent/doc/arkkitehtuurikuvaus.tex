@@ -1,0 +1,148 @@
+% To generate a pdf from this document, use command "pdflatex arkkitehtuurikuvaus.text", t. Janne
+
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{soul}
+\usepackage{amssymb}
+% \usepackage{hyperref}
+
+
+\title{Architectural design document\\
+  Software Engineering Project Course\\
+  Naamakahvi\\
+  University of Helsinki}
+
+\author{Antti Hietasaari
+  \and Joonas Magnusson
+  \and Irina Mäkipaja
+  \and Samir Puuska
+  \and Janne Ronkonen
+  \and Eeva Terkki
+  \and Ossi Väre}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\setcounter{tocdepth}{3}
+\tableofcontents
+\vspace*{1cm}
+
+
+
+\section{Introduction: Architectural Overview}
+\label{sec-1}
+\begin{itemize}
+\item High-level description of overall architecture
+\item Main functionalities described in natural language
+\end{itemize}
+\section{System Purpose: Requirements}
+\label{sec-2}
+
+\subsection{Functional Requirements}
+\label{sec-2.1}
+
+   --> Bullet point list
+   --> e.g. must be able to bill customer credit cards, must be able to
+   insert a code snippet to customers site. etc.
+
+\subsection{Non-functional Requirements}
+\label{sec-2.2}
+
+   --> Bullet point list
+   --> e.g. expected unit test ratio, expected test coverage, expected
+   performance
+
+
+\section{Structure}
+\label{sec-3}
+
+\subsection{Overview: overall structure}
+\label{sec-3.1}
+
+   --> Diagram of all components and their collaboration with each other
+
+\subsection{Components}
+\label{sec-3.2}
+
+   for each component:
+\begin{itemize}
+\item description of the component
+\item components responsibilities
+\item interfaces that the component offers
+\item constraints
+\item collaboratoring components
+                  for each collaborating component:
+
+\begin{itemize}
+\item description of the collaboration
+\item interfaces used
+\item constraints
+\end{itemize}
+
+\end{itemize}
+   --> Just short listing of every component what should say,
+   e.g.
+   KujeProcessor is responsible for XX and YY, 
+   interfaces: removes processed data from kuje-table, inserts data for WebApp,
+   collaborates: with KujeServer and WebApp, but KujeServer does not
+   collaborate (directly) with WebApp.
+   collaborates:
+   KujeServer: takes kuje records from KujeServer database and afterwards
+   removes them
+   WebApp: updates the reports which are represented by WebApp
+   for each component interface:
+\begin{itemize}
+\item description of the interface
+\item operations
+
+\begin{itemize}
+\item constraints on the order of operation
+\end{itemize}
+
+\end{itemize}
+\section{Dynamic Behavior}
+\label{sec-4}
+
+\subsection{Scenarios: main scenarios when the system is running}
+\label{sec-4.1}
+
+       for each scenario:
+\begin{itemize}
+\item type: system operation or use case
+\item description of the scenario
+\item how scenario interacts with components
+\end{itemize} 
+\section{Other Views}
+\label{sec-5}
+
+\subsection{Process: in a running system, how components are divided as processes}
+\label{sec-5.1}
+
+   --> e.g. There are can be multiple instances of KujeProcessor, but can
+   there be multiple instances of KujeServer?
+   --> Has multiple instances of KujeProcessor ever been tested? Has
+   multiple instances of KujeServer ever been tested?
+
+\subsection{Development: Where in code the codebase components are implemented}
+\label{sec-5.2}
+
+
+\subsection{Physical: How components are separated in the hardware level}
+\label{sec-5.3}
+
+   --> e.g. Division between the frontend and the backend; list also all physical
+   dependencies between components, e.g. ``KujeProcessor and WebApp must stay
+   on the same physical server because\ldots{}''
+
+\subsection{Deployment: How components are deployed and possible constraints}
+\label{sec-5.4}
+
+
+\end{document}
