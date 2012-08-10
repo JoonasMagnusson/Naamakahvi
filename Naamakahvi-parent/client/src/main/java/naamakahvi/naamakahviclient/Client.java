@@ -219,10 +219,8 @@ public class Client {
                     "username", username,
                     "given", givenName,
                     "family", familyName);
-        } catch (ClientException e) {
-            throw new RegistrationException("Registration failed: Try another username");
         } catch (Exception e) {
-            throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
+            throw new RegistrationException(e.getClass().toString() + ": " + e.getMessage());
         }
     }
 
@@ -250,7 +248,9 @@ public class Client {
             entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
             entity.addPart("username", new StringBody(username, "text/plain", Charset.forName("UTF-8")));
             post.setEntity(entity);
-            httpClient.execute(post);
+            
+            HttpResponse response = httpClient.execute(post);
+            responseToJson(response);
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
@@ -475,16 +475,12 @@ public class Client {
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
 
-            JsonObject jsonResponse = responseToJson(response);
-            String status = jsonResponse.get("status").getAsString();
-            if (status.equalsIgnoreCase("ok")) {
-
-                JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
-
-                return jsonArrayToStringArray(jarr);
-            } else {
-                throw new AuthenticationException("Failed to identify user");
-            }
+            JsonObject jsonResponse = responseToJson(response);         
+            checkResponseStatus(jsonResponse);
+            
+            JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
+            return jsonArrayToStringArray(jarr);
+            
         } catch (Exception ex) {
             throw new AuthenticationException(ex.toString());
         }
