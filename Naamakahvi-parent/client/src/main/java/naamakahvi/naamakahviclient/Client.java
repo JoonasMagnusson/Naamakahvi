@@ -70,6 +70,22 @@ public class Client {
         this.station = station;
     }
 
+    private void checkStatusCode(final HttpResponse resp) throws GeneralClientException {
+        final int status = resp.getStatusLine().getStatusCode();
+        
+        if (status != 200) {
+            throw new GeneralClientException("Server returned HTTP-status code " + status);
+        }
+    }
+    
+    private void checkResponseStatus(JsonObject obj) throws GeneralClientException {
+        String status = obj.get("status").getAsString();
+        
+        if (!status.equalsIgnoreCase("ok")) {
+            throw new GeneralClientException(status);
+        }
+    }    
+
     private String[] jsonArrayToStringArray(JsonArray jsonArray) {
         String[] ans = new String[jsonArray.size()];
 
@@ -91,14 +107,7 @@ public class Client {
     }
 
     private static JsonParser parser = new JsonParser();
-
-    private static void checkResponseStatus(JsonObject obj) throws GeneralClientException {
-        String status = obj.get("status").getAsString();
-        if (!status.equalsIgnoreCase("ok")) {
-            throw new GeneralClientException(status);
-        }
-    }
-
+    
     private JsonObject responseToJson(HttpResponse response) throws IOException, GeneralClientException {
         String s = Util.readStream(response.getEntity().getContent());
         JsonObject obj = parser.parse(s).getAsJsonObject();
@@ -129,13 +138,9 @@ public class Client {
             post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             
             final HttpResponse resp = c.execute(post);
-            final int status = resp.getStatusLine().getStatusCode();
+            checkStatusCode(resp);
             
-            if (status == 200) {
-                return responseToJson(resp);
-            } else {
-                throw new GeneralClientException("Server returned HTTP-status code " + status);
-            }
+            return responseToJson(resp);
         } catch (ClientException e) {
             throw e;
         } catch (Exception e) {
@@ -163,13 +168,9 @@ public class Client {
             get.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
             final HttpResponse resp = c.execute(get);
-            final int status = resp.getStatusLine().getStatusCode();
-
-            if (status == 200) {
-                return responseToJson(resp);
-            } else {
-                throw new GeneralClientException("Server returned HTTP-status code " + status);
-            }
+            checkStatusCode(resp);
+            
+            return responseToJson(resp);
         } catch (ClientException e) {
             throw e;
         } catch (Exception e) {
@@ -219,10 +220,8 @@ public class Client {
                     "username", username,
                     "given", givenName,
                     "family", familyName);
-        } catch (ClientException e) {
-            throw new RegistrationException("Registration failed: Try another username");
         } catch (Exception e) {
-            throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
+            throw new RegistrationException(e.getClass().toString() + ": " + e.getMessage());
         }
     }
 
@@ -250,7 +249,9 @@ public class Client {
             entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
             entity.addPart("username", new StringBody(username, "text/plain", Charset.forName("UTF-8")));
             post.setEntity(entity);
-            httpClient.execute(post);
+            
+            HttpResponse response = httpClient.execute(post);
+            responseToJson(response);
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
@@ -475,16 +476,12 @@ public class Client {
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
 
-            JsonObject jsonResponse = responseToJson(response);
-            String status = jsonResponse.get("status").getAsString();
-            if (status.equalsIgnoreCase("ok")) {
-
-                JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
-
-                return jsonArrayToStringArray(jarr);
-            } else {
-                throw new AuthenticationException("Failed to identify user");
-            }
+            JsonObject jsonResponse = responseToJson(response);         
+            checkResponseStatus(jsonResponse);
+            
+            JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
+            return jsonArrayToStringArray(jarr);
+            
         } catch (Exception ex) {
             throw new AuthenticationException(ex.toString());
         }

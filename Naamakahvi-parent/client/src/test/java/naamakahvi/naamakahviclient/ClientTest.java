@@ -340,7 +340,7 @@ public class ClientTest {
     @Test
     public void registrationWithExistingNameFails() throws RegistrationException {
         thrown.expect(ClientException.class);
-        thrown.expectMessage("Registration failed: Try another username");
+        thrown.expectMessage("fail");
 
         client.registerUser("Teemu", "Teemu", "Lahti");
     }

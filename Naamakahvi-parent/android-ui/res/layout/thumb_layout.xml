@@ -6,9 +6,9 @@
 
     <ImageView
         android:id="@+id/imageView1"
-        android:layout_width="197dp"
-        android:layout_height="132dp"
-        android:layout_margin="2dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_margin="3dp"
         android:adjustViewBounds="true"
         android:background="@drawable/thumb_img_bg"
         android:padding="3px" />

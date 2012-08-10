@@ -227,7 +227,7 @@ public class LoginwithusernameActivity extends Activity {
 				if (getItemViewType(position) == TYPE_HEADER)
 					convertView = inflater.inflate(R.layout.list_header, null);
 				else
-					convertView = inflater.inflate(R.layout.new_list_bigger_text, null);
+					convertView = inflater.inflate(R.layout.list_item_text, null);
 			}
 			int headerIndex = indices.indexOf(position);
 			if (headerIndex >= 0) {
