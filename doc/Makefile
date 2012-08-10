@@ -1,0 +1,3 @@
+
+arkkitehtuurikuvaus:
+	pdflatex arkkitehtuurikuvaus.tex
