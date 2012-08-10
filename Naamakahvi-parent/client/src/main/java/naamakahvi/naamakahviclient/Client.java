@@ -92,16 +92,18 @@ public class Client {
 
     private static JsonParser parser = new JsonParser();
 
+    private static void checkResponseStatus(JsonObject obj) throws GeneralClientException {
+        String status = obj.get("status").getAsString();
+        if (!status.equalsIgnoreCase("ok")) {
+            throw new GeneralClientException(status);
+        }
+    }
+
     private JsonObject responseToJson(HttpResponse response) throws IOException, GeneralClientException {
         String s = Util.readStream(response.getEntity().getContent());
         JsonObject obj = parser.parse(s).getAsJsonObject();
-        String status = obj.get("status").getAsString();
-
-        if (status.equalsIgnoreCase("ok")) {
-            return obj;
-        } else {
-            throw new GeneralClientException(status);
-        }
+        checkResponseStatus(obj);
+        return obj;
     }
 
     private URI buildURI(String path) throws Exception {
