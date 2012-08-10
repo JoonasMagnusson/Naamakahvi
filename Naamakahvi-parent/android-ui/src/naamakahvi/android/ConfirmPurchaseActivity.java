@@ -56,7 +56,7 @@ public class ConfirmPurchaseActivity extends Activity {
 			public void run() {
 				try {
 					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-					final IUser user = c.authenticateText(username);
+					final IUser user = c.getUser(username);
 					handler.post(new Runnable() {
 						public void run() {
 							setSaldos(user);
@@ -108,7 +108,7 @@ public class ConfirmPurchaseActivity extends Activity {
 			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
 					+ (amount * product.getPrice());
 			// if (product.getProductGroup() == null) {
-			// userSaldoTexts[i] = "BÖÖ!";
+			// userSaldoTexts[i] = "Bï¿½ï¿½!";
 			// }
 		}
 
@@ -149,7 +149,7 @@ public class ConfirmPurchaseActivity extends Activity {
 			public void run() {
 				try {
 					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-					IUser buyer = c.authenticateText(username);
+					IUser buyer = c.getUser(username);
 					Map.Entry productAndAmountPair = convertBasketIntoProduct();
 					IProduct product = (IProduct) productAndAmountPair.getKey();
 					int amount = (Integer) productAndAmountPair.getValue();
