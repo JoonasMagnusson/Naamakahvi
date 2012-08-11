@@ -38,7 +38,7 @@ public class ColorStringAdapter extends BaseAdapter {
 	    }
 		
 		String text = getItem(position);
-		TextView dur = (TextView) v.findViewById(R.id.text1);
+		TextView dur = (TextView) v.findViewById(android.R.id.text1);
 		dur.setText(text);
 		if (text.contains("-"))
 			dur.setTextColor(Color.RED);
