@@ -1,6 +1,7 @@
 package naamakahvi.android;
 
-import android.R;
+
+import android.app.Service;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -11,11 +12,11 @@ import android.widget.TextView;
 
 public class ColorStringAdapter extends BaseAdapter {
 	private String[] items;
-	private Context context;
+	private LayoutInflater inflater;
 	
 	public ColorStringAdapter(Context context, String[] items) {
 	    this.items = items;
-	    this.context = context;
+	    inflater = (LayoutInflater) context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
 	}
 	
 	public int getCount() {
@@ -30,17 +31,15 @@ public class ColorStringAdapter extends BaseAdapter {
 		return position;
 	}
 
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = convertView;
+	public View getView(int position, View v, ViewGroup parent) {
 		
 	    if(v == null) {
-	    	LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	        v = vi.inflate(naamakahvi.android.R.layout.new_list_bigger_text, null);
+	        v = inflater.inflate(naamakahvi.android.R.layout.new_list_bigger_text, null);
 	    }
 		
-		String text = items[position];
+		String text = getItem(position);
 		TextView dur = (TextView) v.findViewById(R.id.text1);
-		dur.setText(items[position]);
+		dur.setText(text);
 		if (text.contains("-"))
 			dur.setTextColor(Color.RED);
 		else
