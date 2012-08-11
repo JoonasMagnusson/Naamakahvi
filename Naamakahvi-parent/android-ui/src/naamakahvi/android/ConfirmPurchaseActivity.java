@@ -96,6 +96,13 @@ public class ConfirmPurchaseActivity extends Activity {
 		recognized.setText(newRecognizedText);
 	}
 
+	private void setWhatYouAreBuyingText() {
+		Map.Entry productAndAmountPair = convertBasketIntoProduct();
+		TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
+		IProduct product = (IProduct) productAndAmountPair.getKey();
+		whatYouAreBuying.setText("You are buying " + productAndAmountPair.getValue() + " " + product.getName() + "(s)");
+	}
+	
 	private void setSaldos(IUser buyer) {
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
 		List<SaldoItem> userBalance = buyer.getBalance();
@@ -109,8 +116,7 @@ public class ConfirmPurchaseActivity extends Activity {
 			userSaldoTexts[i] = generateSaldoText(product, saldoItem, amount);
 		}
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.new_list_bigger_text, android.R.id.text1,
-				userSaldoTexts);
+		ColorStringAdapter adapter = new ColorStringAdapter(userSaldoTexts);
 		coffeeSaldoView.setAdapter(adapter);
 
 		// saldoEspresso.setTextColor(Color.GREEN);
@@ -119,7 +125,7 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 
 	private String generateSaldoText(IProduct product, SaldoItem saldoItem, int amount) {
-		if (product.getId() == saldoItem.getGroupId())
+		if (product.getProductGroup() == saldoItem.getGroupId())
 			return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
 				+ (amount * product.getPrice());
 		return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo();
@@ -143,21 +149,16 @@ public class ConfirmPurchaseActivity extends Activity {
 
 	public void onCPOkClick(View v) {
 		cd.cancel();
-		buyProducts();
+		startBuyingThread();
 		setResult(RESULT_OK);
 		finish();
 	}
 
-	private void buyProducts() {
+	private void startBuyingThread() {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-					IUser buyer = c.getUser(username);
-					Map.Entry productAndAmountPair = convertBasketIntoProduct();
-					IProduct product = (IProduct) productAndAmountPair.getKey();
-					int amount = (Integer) productAndAmountPair.getValue();
-					c.buyProduct(buyer, product, amount);
+					buyProducts();
 				} catch (final ClientException ex) {
 					Log.d(TAG, ex.getMessage());
 					ex.printStackTrace();
@@ -165,12 +166,14 @@ public class ConfirmPurchaseActivity extends Activity {
 			}
 		}).start();
 	}
-
-	private void setWhatYouAreBuyingText() {
+	
+	private void buyProducts() throws ClientException {
+		Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+		IUser buyer = c.getUser(username);
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
-		TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
 		IProduct product = (IProduct) productAndAmountPair.getKey();
-		whatYouAreBuying.setText("You are buying " + productAndAmountPair.getValue() + " " + product.getName() + "(s)");
+		int amount = (Integer) productAndAmountPair.getValue();
+		c.buyProduct(buyer, product, amount);
 	}
 
 	private Map.Entry convertBasketIntoProduct() {
