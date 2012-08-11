@@ -123,7 +123,6 @@ public class ConfirmPurchaseActivity extends Activity {
 			return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
 				+ (amount * product.getPrice());
 		return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo();
-
 	}
 	
 	private void setCountdown() {
