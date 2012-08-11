@@ -11,9 +11,11 @@ import android.widget.TextView;
 
 public class ColorStringAdapter extends BaseAdapter {
 	private String[] items;
+	private Context context;
 	
-	public ColorStringAdapter(String[] items) {
+	public ColorStringAdapter(Context context, String[] items) {
 	    this.items = items;
+	    this.context = context;
 	}
 	
 	public int getCount() {
@@ -32,12 +34,13 @@ public class ColorStringAdapter extends BaseAdapter {
 		View v = convertView;
 		
 	    if(v == null) {
-	        LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	        v = vi.inflate(R.layout.new_list_bigger_text, null);
+	    	LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	        v = vi.inflate(naamakahvi.android.R.layout.new_list_bigger_text, null);
 	    }
 		
 		String text = items[position];
-		TextView dur = (TextView) v.findViewById(R.id.bi);
+		TextView dur = (TextView) v.findViewById(R.id.text1);
+		dur.setText(items[position]);
 		if (text.contains("-"))
 			dur.setTextColor(Color.RED);
 		else

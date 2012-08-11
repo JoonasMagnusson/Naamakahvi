@@ -116,7 +116,7 @@ public class ConfirmPurchaseActivity extends Activity {
 			userSaldoTexts[i] = generateSaldoText(product, saldoItem, amount);
 		}
 		
-		ColorStringAdapter adapter = new ColorStringAdapter(userSaldoTexts);
+		ColorStringAdapter adapter = new ColorStringAdapter(this, userSaldoTexts);
 		coffeeSaldoView.setAdapter(adapter);
 
 		// saldoEspresso.setTextColor(Color.GREEN);
