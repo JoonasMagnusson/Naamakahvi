@@ -103,15 +103,12 @@ public class ConfirmPurchaseActivity extends Activity {
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		IProduct product = (IProduct) productAndAmountPair.getKey();
 		int amount = (Integer) productAndAmountPair.getValue();
+		
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
-			userSaldoTexts[i] = "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
-					+ (amount * product.getPrice());
-			// if (product.getProductGroup() == null) {
-			// userSaldoTexts[i] = "B��!";
-			// }
+			userSaldoTexts[i] = generateSaldoText(product, saldoItem, amount);
 		}
-
+		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.new_list_bigger_text, android.R.id.text1,
 				userSaldoTexts);
 		coffeeSaldoView.setAdapter(adapter);
@@ -121,6 +118,14 @@ public class ConfirmPurchaseActivity extends Activity {
 		// saldoEspresso.setTextColor(Color.RED);
 	}
 
+	private String generateSaldoText(IProduct product, SaldoItem saldoItem, int amount) {
+		if (product.getId() == saldoItem.getGroupId())
+			return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
+				+ (amount * product.getPrice());
+		return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo();
+
+	}
+	
 	private void setCountdown() {
 		cd = new CountDownTimer(6000 * COUNTDOWN_LENGTH, 1000) {
 
