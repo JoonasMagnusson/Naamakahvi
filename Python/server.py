@@ -99,8 +99,12 @@ def register():
         given = request.form['given']
         family = request.form['family']
         if(not dbm.login(user)):
-            dbm.register(user,given,family)
-            return resp_ok(username=user)
+            r = dbm.register(user,given,family)
+            if r:
+                return resp_ok(username=user)
+            else:
+                return resp_failure('UserCreationFailed')
+        
         else:
             return resp_failure('UserAlreadyExistsError')
     else:

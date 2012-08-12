@@ -329,7 +329,7 @@ public class ClientTest {
     @Test
     public void authenticationWithExistingNameSuccessful() throws Exception {
         try {
-            IUser u = client.authenticateText("Teemu");
+            IUser u = client.getUser("Teemu");
             assertEquals(u.getUserName(), "Teemu");
         } catch (Exception ex) {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -340,7 +340,7 @@ public class ClientTest {
     @Test
     public void registrationWithExistingNameFails() throws RegistrationException {
         thrown.expect(ClientException.class);
-        thrown.expectMessage("Registration failed: Try another username");
+        thrown.expectMessage("fail");
 
         client.registerUser("Teemu", "Teemu", "Lahti");
     }
@@ -350,7 +350,7 @@ public class ClientTest {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");
 
-        client.authenticateText("Matti");
+        client.getUser("Matti");
     }
 
     @Test
@@ -389,7 +389,7 @@ public class ClientTest {
     @Test
     public void buyProduct() throws ClientException {
         IProduct p = client.listBuyableProducts().get(0);
-        IUser u = client.authenticateText("Teemu");
+        IUser u = client.getUser("Teemu");
         final int amount = 3;
         client.buyProduct(u, p, 3);
         System.out.println("Bought " + amount + " " + p.getName() + "(s)");
@@ -416,7 +416,7 @@ public class ClientTest {
     @Test
     public void bringProduct() throws ClientException {
         IProduct p = client.listBuyableProducts().get(0);
-        IUser u = client.authenticateText("Teemu");
+        IUser u = client.getUser("Teemu");
         final int amount = 3;
         client.bringProduct(u, p, 3);
         System.out.println("Brought " + amount + " " + p.getName() + "(s)");
@@ -451,7 +451,7 @@ public class ClientTest {
 
     @Test
     public void saldoTest() throws ClientException {
-        IUser u = client.authenticateText("Teemu");
+        IUser u = client.getUser("Teemu");
         List<SaldoItem> balance = u.getBalance();
         assertTrue(balance.size() == 1);
 

@@ -21,5 +21,6 @@
     <string name="username">Username:</string>
     <string name="first_name">First name:</string>
     <string name="last_name">Last name:</string>
+    <string name="takepic_instruction">Touch preview to take picture</string>
 
 </resources>

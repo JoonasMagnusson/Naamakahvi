@@ -59,10 +59,15 @@ class psqldb:
 	def register(self,user, given, family):
 			
 		q = self.getQuery("insertUserdata")
-		print q
+		
 		admin = False
 		lang = 'eng'
 		reg = 1
+		
+		
+		if (not(user and family and given)):
+			return False
+		
 		try:
 			self.cur.execute(q, (user, given, family, reg, lang, admin))
 		except Exception, exc:

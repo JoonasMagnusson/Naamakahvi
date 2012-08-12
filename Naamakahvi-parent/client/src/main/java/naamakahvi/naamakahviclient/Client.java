@@ -70,6 +70,22 @@ public class Client {
         this.station = station;
     }
 
+    private void checkStatusCode(final HttpResponse resp) throws GeneralClientException {
+        final int status = resp.getStatusLine().getStatusCode();
+        
+        if (status != 200) {
+            throw new GeneralClientException("Server returned HTTP-status code " + status);
+        }
+    }
+    
+    private void checkResponseStatus(JsonObject obj) throws GeneralClientException {
+        String status = obj.get("status").getAsString();
+        
+        if (!status.equalsIgnoreCase("ok")) {
+            throw new GeneralClientException(status);
+        }
+    }    
+
     private String[] jsonArrayToStringArray(JsonArray jsonArray) {
         String[] ans = new String[jsonArray.size()];
 
@@ -91,17 +107,12 @@ public class Client {
     }
 
     private static JsonParser parser = new JsonParser();
-
+    
     private JsonObject responseToJson(HttpResponse response) throws IOException, GeneralClientException {
         String s = Util.readStream(response.getEntity().getContent());
         JsonObject obj = parser.parse(s).getAsJsonObject();
-        String status = obj.get("status").getAsString();
-
-        if (status.equalsIgnoreCase("ok")) {
-            return obj;
-        } else {
-            throw new GeneralClientException(status);
-        }
+        checkResponseStatus(obj);
+        return obj;
     }
 
     private URI buildURI(String path) throws Exception {
@@ -127,13 +138,9 @@ public class Client {
             post.addHeader("Content-Type", "application/x-www-form-urlencoded");
             
             final HttpResponse resp = c.execute(post);
-            final int status = resp.getStatusLine().getStatusCode();
+            checkStatusCode(resp);
             
-            if (status == 200) {
-                return responseToJson(resp);
-            } else {
-                throw new GeneralClientException("Server returned HTTP-status code " + status);
-            }
+            return responseToJson(resp);
         } catch (ClientException e) {
             throw e;
         } catch (Exception e) {
@@ -161,13 +168,9 @@ public class Client {
             get.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
             final HttpResponse resp = c.execute(get);
-            final int status = resp.getStatusLine().getStatusCode();
-
-            if (status == 200) {
-                return responseToJson(resp);
-            } else {
-                throw new GeneralClientException("Server returned HTTP-status code " + status);
-            }
+            checkStatusCode(resp);
+            
+            return responseToJson(resp);
         } catch (ClientException e) {
             throw e;
         } catch (Exception e) {
@@ -217,10 +220,8 @@ public class Client {
                     "username", username,
                     "given", givenName,
                     "family", familyName);
-        } catch (ClientException e) {
-            throw new RegistrationException("Registration failed: Try another username");
         } catch (Exception e) {
-            throw new RegistrationException(e.getClass().toString() + ": " + e.toString());
+            throw new RegistrationException(e.getClass().toString() + ": " + e.getMessage());
         }
     }
 
@@ -248,7 +249,9 @@ public class Client {
             entity.addPart("file", new ByteArrayBody(imagedata, "snapshot.jpg", "image/jpeg"));
             entity.addPart("username", new StringBody(username, "text/plain", Charset.forName("UTF-8")));
             post.setEntity(entity);
-            httpClient.execute(post);
+            
+            HttpResponse response = httpClient.execute(post);
+            responseToJson(response);
         } catch (Exception ex) {
             throw new GeneralClientException(ex.toString());
         }
@@ -273,11 +276,13 @@ public class Client {
      *          "balance": 
      *          [
      *              {
-     *              "groupName":"example group"
+     *              "groupName":"example group",
+     *              "group_id":1,
      *              "saldo": 11.1
      *              },
      *              {
-     *              "groupName":"example group 2"
+     *              "groupName":"example group 2",
+     *              "group_id":2,
      *              "saldo": 22.2
      *              }
      *          ]
@@ -287,7 +292,7 @@ public class Client {
      * @param username username
      * @return the user instance
      */
-    public IUser authenticateText(String username) throws AuthenticationException {
+    public IUser getUser(String username) throws AuthenticationException {
         try {
             JsonObject obj = doPost("/get_user/",
                     "username", username);
@@ -346,12 +351,14 @@ public class Client {
      *        {
      *          "product_name":"coffee",
      *          "product_price":1,
-     *          "product_id":1
+     *          "product_id":1,
+     *          "group_id":2
      *        },
      *        {
      *          "product_name":"espresso",
      *          "product_price":1,
-     *          "product_id":2
+     *          "product_id":2,
+     *          "group_id":1
      *        }
      *      ]
      * }
@@ -402,12 +409,14 @@ public class Client {
      *        {
      *          "product_name":"coffee beans",
      *          "product_price":1,
-     *          "product_id":3
+     *          "product_id":3,
+     *          "group_id":2
      *        },
      *        {
      *          "product_name":"filter",
      *          "product_price":1,
-     *          "product_id":4
+     *          "product_id":4,
+     *          "group_id":1
      *        }
      *      ]
      * }
@@ -467,16 +476,12 @@ public class Client {
             post.setEntity(entity);
             HttpResponse response = httpClient.execute(post);
 
-            JsonObject jsonResponse = responseToJson(response);
-            String status = jsonResponse.get("status").getAsString();
-            if (status.equalsIgnoreCase("ok")) {
-
-                JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
-
-                return jsonArrayToStringArray(jarr);
-            } else {
-                throw new AuthenticationException("Failed to identify user");
-            }
+            JsonObject jsonResponse = responseToJson(response);         
+            checkResponseStatus(jsonResponse);
+            
+            JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
+            return jsonArrayToStringArray(jarr);
+            
         } catch (Exception ex) {
             throw new AuthenticationException(ex.toString());
         }
@@ -492,37 +497,6 @@ public class Client {
             ans.add(new SaldoItem(groupName, groupId, saldo));
         }
         return ans;
-    }
-
-    /**
-     * Gets a user's product balances from the server.
-     * Method: Get
-     * Path: /list_user_saldos/
-     * Parameters: username
-     * 
-     * Example server response: 
-     * 
-     * {
-     *      "status":"ok",
-     *      "saldo_list":
-     *      [
-     *        {
-     *          "groupName":"coffee",
-     *          "saldo":-30
-     *        },
-     *        {
-     *          "groupName":"espresso",
-     *          "saldo":7
-     *        }
-     *      ]
-     * }
-     * 
-     * @param user the user whose balance is wanted
-     * @return list of the user's balances of different products
-     * @throws ClientException 
-     */
-    public List<SaldoItem> listUserSaldos(IUser user) throws ClientException {
-        return jsonToSaldoList(doGet("/list_user_saldos/", "username", user.getUserName()).get("saldo_list").getAsJsonArray());
     }
 
     /**

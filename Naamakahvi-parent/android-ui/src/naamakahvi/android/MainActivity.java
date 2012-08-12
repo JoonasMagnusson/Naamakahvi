@@ -37,8 +37,7 @@ public class MainActivity extends Activity {
 
 	private SharedPreferences mPreferences;
 
-	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO,
-			R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
+	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO, R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
 
 	/** Called when the activity is first created. */
 	@Override
@@ -122,8 +121,7 @@ public class MainActivity extends Activity {
 				String[] stations = null;
 				try {
 
-					Object[] st = Client.listStations(Config.SERVER_URL,
-							Config.SERVER_PORT).toArray();
+					Object[] st = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT).toArray();
 					stations = new String[st.length];
 					for (int i = 0; i < st.length; ++i) {
 						stations[i] = (String) st[i];
@@ -193,8 +191,7 @@ public class MainActivity extends Activity {
 
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, Config.STATION);
+					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 
 					ProductCache.loadBuyableItems(c.listBuyableProducts());
 					ProductCache.loadRawItems(c.listRawProducts());
@@ -223,8 +220,7 @@ public class MainActivity extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		builder.setCancelable(false);
 		builder.setTitle("Error");
-		builder.setMessage("Fetching data from server failed: "
-				+ ex.getMessage());
+		builder.setMessage("Fetching data from server failed: " + ex.getMessage());
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
@@ -253,8 +249,7 @@ public class MainActivity extends Activity {
 	}
 
 	private TableRow makeProductRow(final IProduct product) {
-		TableRow t = (TableRow) mInflater.inflate(R.layout.product_table_row,
-				null);
+		TableRow t = (TableRow) mInflater.inflate(R.layout.product_table_row, null);
 		TextView name = (TextView) t.findViewById(R.id.product_name);
 		name.setText(product.getName());
 
@@ -305,10 +300,8 @@ public class MainActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
-				i.putExtra(ExtraNames.USERS,
-						data.getExtras().getStringArray(ExtraNames.USERS));
-				i.putExtra(ExtraNames.PRODUCTS,
-						data.getExtras().getParcelable(ExtraNames.PRODUCTS));
+				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				startActivity(i);
 				break;
 			case RESULT_CANCELED:

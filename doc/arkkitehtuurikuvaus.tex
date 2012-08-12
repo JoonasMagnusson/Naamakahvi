@@ -1,0 +1,181 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{soul}
+\usepackage{amssymb}
+% \usepackage{hyperref}
+
+
+\title{Architectural design document\\
+  Software Engineering Project Course\\
+  Naamakahvi\\
+  University of Helsinki}
+
+\author{Antti Hietasaari
+  \and Joonas Magnusson
+  \and Irina Mäkipaja
+  \and Samir Puuska
+  \and Janne Ronkonen
+  \and Eeva Terkki
+  \and Ossi Väre}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% \setcounter{tocdepth}{3}
+\tableofcontents
+% \vspace*{1cm}
+
+
+
+\section{Introduction: Architectural Overview}
+% \begin{itemize}
+% \item High-level description of overall architecture
+% \item Main functionalities described in natural language
+% \end{itemize}
+
+The staff of the Department of Computer Science has two coffee syndicates, both of which provide an espresso machine. The other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters.
+
+\section{System Purpose: Requirements}
+
+
+\subsection{Functional Requirements}
+   % --> Bullet point list
+   % --> e.g. must be able to bill customer credit cards, must be able to
+   % insert a code snippet to customers site. etc.
+
+\begin{itemize}
+\item{The user can register on the system}
+\item{The user can be authenticated using face recognition}
+\item{The user can be authenticated using their username}  
+\item{The user can buy one or more coffees}
+\item{The user can bring products}
+\item{The user can check their balance}
+\item{The user can add new images after registration}
+\end{itemize}  
+
+\subsection{Non-functional Requirements}
+   % --> Bullet point list
+   % --> e.g. expected unit test ratio, expected test coverage, expected
+   % performance
+
+\begin{itemize}
+\item{The application can be used on an Android tablet or a desktop equipped with touch screen}
+\item{The software is simple to use and the core functionalities do not require many clicks}
+\item{The user does not have to wait for very long}  
+\end{itemize}
+
+\section{Structure}
+
+\subsection{Overview: overall structure}
+% --> Diagram of all components and their collaboration with each other
+\includegraphics[scale=0.5]{overall-structure.png}
+
+
+\subsection{Components}
+   % for each component:
+   %   - description of the component
+   %   - components responsibilities
+   %   -interfaces that the component offers
+   %   - constraints
+   %   - collaboratoring components
+   %                for each collaborating component:
+   %                  -  description of the collaboration
+   %                  - interfaces used
+   %                  - constraints
+
+   % --> Just short listing of every component what should say,
+   % e.g.
+   % KujeProcessor is responsible for XX and YY, 
+   % interfaces: removes processed data from kuje-table, inserts data for WebApp,
+   % collaborates: with KujeServer and WebApp, but KujeServer does not
+   % collaborate (directly) with WebApp.
+   % collaborates:
+   % KujeServer: takes kuje records from KujeServer database and afterwards
+   % removes them
+   % WebApp: updates the reports which are represented by WebApp
+   % for each component interface:
+   %   - description of the interface
+   %   -  operations
+   %   - constraints on the order of operation
+
+\subsubsection{Client/frontend}
+The client is implemented as a Java library and its responsibility is to offer an interface
+for UI-components, abstracting away the communication protocols used between the client and server.
+
+The client communicates with the server via HTTP, sending GET and POST requests, and receiving JSON-objects from the server.
+
+
+\subsubsection{Backend/server}
+% redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
+% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu.
+The server updates the database and gets data from it on client requests and tells the client whether or not the requested operation was successful.
+
+\subsubsection{Android-UI}
+% android-ui ihmiset voisivat kirjoittaa tästä
+\subsubsection{Swing-UI}
+% swing-ui ihmiset voisivat kirjoittaa tästä
+     
+
+\section{Dynamic Behavior}
+\subsection{Scenarios}
+% for each scenario:
+% - type: system operation or use case
+% - description of the scenario
+% - how scenario interacts with components
+
+\subsubsection{Registration}
+Type: Use case\\
+Description:\\
+Component interaction:\\
+   
+\subsubsection{Authentication using face recognition}
+Type: Use case\\
+Description:\\
+Component interaction:\\
+   
+\subsubsection{Authentication using username}
+Type: Use case\\
+Description:\\
+Component interaction:\\
+
+\subsubsection{Buying coffee}
+Type: Use case\\
+Description:\\
+Component interaction:\\
+
+\subsubsection{Bringing a product (paying)}
+Type: Use case\\
+Description:\\
+Component interaction:\\
+
+\subsubsection{Adding new photographs}
+Type: Use case\\
+Description:\\
+Component interaction:\\
+
+
+\section{Other Views}
+
+
+\subsection{Process: in a running system, how components are divided as processes}
+% --> e.g. There are can be multiple instances of KujeProcessor, but can
+% there be multiple instances of KujeServer?
+% --> Has multiple instances of KujeProcessor ever been tested? Has
+% multiple instances of KujeServer ever been tested?
+
+\subsection{Development: Where in code the codebase components are implemented}
+\subsection{Physical: How components are separated in the hardware level}
+% --> e.g. Division between the frontend and the backend; list also all physical
+% dependencies between components, e.g. ``KujeProcessor and WebApp must stay
+% on the same physical server because ...
+
+\subsection{Deployment: How components are deployed and possible constraints}
+
+\end{document}

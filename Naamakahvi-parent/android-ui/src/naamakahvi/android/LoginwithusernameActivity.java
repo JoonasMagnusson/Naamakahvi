@@ -45,11 +45,11 @@ public class LoginwithusernameActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loading_screen);
 		mRes = getResources();
-        
+
 		mInflater = getLayoutInflater();
 
 		mOrder = getIntent().getExtras().getParcelable(ExtraNames.PRODUCTS);
-		
+
 		final Handler hand = new Handler(getMainLooper());
 
 		final Context con = this;
@@ -58,8 +58,7 @@ public class LoginwithusernameActivity extends Activity {
 
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, Config.STATION);
+					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 					final String[] users = c.listUsernames();
 
 					hand.post(new Runnable() {
@@ -74,20 +73,15 @@ public class LoginwithusernameActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									con);
+							AlertDialog.Builder builder = new AlertDialog.Builder(con);
 							builder.setCancelable(false);
-							builder.setMessage("Fetching data from server failed. Reason: "
-									+ ex.getMessage());
-							builder.setPositiveButton("OK",
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-											finish();
-										}
-									});
+							builder.setMessage("Fetching data from server failed. Reason: " + ex.getMessage());
+							builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.dismiss();
+									finish();
+								}
+							});
 							builder.show();
 						}
 					});
@@ -111,13 +105,12 @@ public class LoginwithusernameActivity extends Activity {
 		userlistView.setFastScrollAlwaysVisible(true);
 
 		userlistView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				String item = (String) parent.getAdapter().getItem(position);
-				Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG)
-						.show();
+				if (item == null) return;
+				Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG).show();
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.USERS,new String[]{item});
+				i.putExtra(ExtraNames.USERS, new String[] { item });
 				i.putExtra(ExtraNames.PRODUCTS, mOrder);
 				setResult(RESULT_OK, i);
 				finish();
@@ -126,65 +119,124 @@ public class LoginwithusernameActivity extends Activity {
 
 	}
 
-	private static class AlphabeticalStringArrayAdapter extends BaseAdapter
-			implements SectionIndexer {
+	private static class AlphabeticalStringArrayAdapter extends BaseAdapter implements SectionIndexer {
+
+		public static final int TYPE_HEADER = 0, TYPE_USERNAME = 1;
 
 		private LayoutInflater inflater;
-		private String[] data;
-		private TreeMap<String,Integer> sections;
+		private List<String> data;
+		List<String> names;
+		List<Integer> indices;
 
-		public AlphabeticalStringArrayAdapter(Context con,String[] data) {
-			Arrays.sort(data,String.CASE_INSENSITIVE_ORDER);
+		public AlphabeticalStringArrayAdapter(Context con, String[] data) {
+			Arrays.sort(data, String.CASE_INSENSITIVE_ORDER);
+
 			inflater = LayoutInflater.from(con);
-			sections = new TreeMap<String, Integer>();
-			for (int i = 0; i < data.length; ++i) {
+			this.data = new ArrayList<String>();
+			this.names = new ArrayList<String>();
+			this.indices = new ArrayList<Integer>();
+
+			int numSections = 0;
+
+			for (int i = 0; i < data.length; ++i) { // initialize sections
 				String s = data[i];
 				char firstletter = s.toUpperCase().charAt(0);
-				if (sections.isEmpty() || sections.lastKey().charAt(0) != firstletter) {
-					sections.put(Character.toString(firstletter),i);
+
+				if (isEmpty() || lastSectionName().charAt(0) != firstletter) { // new
+																				// section
+					this.data.add("-- HEADER -- SHOULD NOT BE VISIBLE --");
+					// add placeholder in data for easier indexing
+					this.addSection(Character.toString(firstletter), i + numSections);
+					++numSections; // keep track of index offset caused by
+									// section headers
 				}
+				this.data.add(s);
 			}
-			this.data = data;
 		}
 
-		public int getPositionForSection(int sectionIndex) {
-			return sections.get(sections.keySet().toArray()[sectionIndex]);
+		private void addSection(String name, int index) {
+			names.add(name);
+			indices.add(index);
+		}
+
+		public int getPositionForSection(int sectionid) {
+			if (sectionid < 0 || sectionid >= indices.size())
+				return -1;
+			return indices.get(sectionid);
 		}
 
 		public int getSectionForPosition(int position) {
-			if (position < 0 || position >= data.length) return -1;
-			Entry<String,Integer> current = sections.firstEntry();
-			int sectionIndex = 0;
-			while ((current = sections.higherEntry(current.getKey()) ) != null){
-				if (position <= current.getValue()) return sectionIndex;
-				sectionIndex++;
+			if (position < 0)
+				return 0;
+			if (position >= data.size())
+				return indices.size() - 1;
+			for (int i = 1; i < indices.size(); ++i) {
+				if (position >= indices.get(i - 1) && position < indices.get(i)) {
+					return i - 1;
+				}
 			}
-			return sectionIndex-1;
+			return indices.size() - 1;
+
+		}
+
+		/**
+		 * Returns the name of the latest added section
+		 * 
+		 * @return name of latest section
+		 */
+		private String lastSectionName() {
+			if (isEmpty())
+				return null;
+			else
+				return names.get(names.size() - 1);
+		}
+
+		public boolean isEmpty() {
+			return names.size() == 0;
 		}
 
 		public Object[] getSections() {
-			return sections.keySet().toArray();
+			return names.toArray();
 		}
 
 		public int getCount() {
-			return data.length;
+			return data.size();
 		}
 
 		public Object getItem(int position) {
-			if (position < 0 || position >= data.length) return null;
-			return data[position];
+			if (position < 0 || position >= data.size() || (indices.indexOf(position) >= 0))
+				return null;
+			return data.get(position);
 		}
 
 		public long getItemId(int position) {
 			return position;
 		}
 
+		public int getViewTypeCount() {
+			return 2;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			return (indices.indexOf(position) >= 0) ? TYPE_HEADER : TYPE_USERNAME;
+		}
+
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null){
-				convertView =inflater.inflate(R.layout.new_list_bigger_text, null);
+			if (convertView == null) {
+				if (getItemViewType(position) == TYPE_HEADER)
+					convertView = inflater.inflate(R.layout.list_header, null);
+				else
+					convertView = inflater.inflate(R.layout.list_item_text, null);
 			}
-			String item = (String) getItem(position);
-			((TextView)convertView).setText(item);
+			int headerIndex = indices.indexOf(position);
+			if (headerIndex >= 0) {
+				((TextView) convertView).setText(names.get(headerIndex));
+			} else {
+				String item = (String) getItem(position);
+				((TextView) convertView).setText(item);
+			}
+
 			return convertView;
 		}
 

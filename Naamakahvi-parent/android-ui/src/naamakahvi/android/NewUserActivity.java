@@ -37,19 +37,17 @@ public class NewUserActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_user);
-		
+
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
-		
+
 		mPics = new ArrayList<Bitmap>();
 
-		
 		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
-		
+
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));
 
 		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ThumbAdapter a = (ThumbAdapter) parent.getAdapter();
 				if (a.getItem(position) != null) {
 
@@ -95,22 +93,17 @@ public class NewUserActivity extends Activity {
 						}
 					});
 
-					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, Config.STATION);
+					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 
-					final String username = ((EditText) findViewById(R.id.editTextUsername))
-							.getText().toString();
-					String etunimi = ((EditText) findViewById(R.id.editTextEtunimi))
-							.getText().toString();
-					String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi))
-							.getText().toString();
+					final String username = ((EditText) findViewById(R.id.editTextUsername)).getText().toString();
+					String etunimi = ((EditText) findViewById(R.id.editTextEtunimi)).getText().toString();
+					String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi)).getText().toString();
 
 					client.registerUser(username, etunimi, sukunimi);
 
 					for (Bitmap b : mPics) {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */,
-								bos);
+						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);
 						byte[] bitmapdata = bos.toByteArray();
 						client.addImage(username, bitmapdata);
 					}
@@ -121,8 +114,7 @@ public class NewUserActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							Toast.makeText(getApplicationContext(),
-									"Successfully registered as: " + username,
+							Toast.makeText(getApplicationContext(), "Successfully registered as: " + username,
 									Toast.LENGTH_LONG).show();
 						}
 					});
@@ -138,26 +130,21 @@ public class NewUserActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									con);
+							AlertDialog.Builder builder = new AlertDialog.Builder(con);
 							builder.setCancelable(false);
-							builder.setMessage("Registration failed: "
-									+ ex.getMessage());
+							builder.setMessage("Registration failed: " + ex.getMessage());
 							builder.setTitle("Error");
-							builder.setPositiveButton("OK",
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-											finish();
-										}
-									});
+							builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.dismiss();
+									finish();
+								}
+							});
 							builder.show();
 						}
 					});
 				}
-				
+
 				hand.post(new Runnable() {
 					public void run() {
 						pd.dismiss();
@@ -173,8 +160,7 @@ public class NewUserActivity extends Activity {
 		if (mPics.size() < 6) {
 			Bitmap bmp;
 			try {
-				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
-						.grabFrame();
+				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1)).grabFrame();
 			} catch (Exception e) {
 				Log.d(TAG, "Exception: " + e.getMessage());
 				e.printStackTrace();
@@ -219,12 +205,10 @@ public class NewUserActivity extends Activity {
 			final Bitmap bmp = getItem(position);
 
 			if (convertView == null) {
-				convertView = this.inflater
-						.inflate(R.layout.thumb_layout, null);
+				convertView = this.inflater.inflate(R.layout.thumb_layout, null);
 			}
 
-			ImageView thumb = ((ImageView) convertView
-					.findViewById(R.id.imageView1));
+			ImageView thumb = ((ImageView) convertView.findViewById(R.id.imageView1));
 			thumb.setImageBitmap(bmp);
 			thumb.setMaxHeight(100);
 			return convertView;

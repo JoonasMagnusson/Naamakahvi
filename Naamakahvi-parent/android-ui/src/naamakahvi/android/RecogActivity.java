@@ -65,8 +65,7 @@ public class RecogActivity extends Activity {
 				try {
 					Log.d(TAG, "canceled thread: " + isCanceled());
 
-					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, Config.STATION);
+					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
@@ -83,8 +82,7 @@ public class RecogActivity extends Activity {
 						hand.post(new Runnable() {
 							public void run() {
 								Intent i = new Intent();
-								i.putExtra(ExtraNames.USERS,
-										rankNames(namearrays));
+								i.putExtra(ExtraNames.USERS, rankNames(namearrays));
 								i.putExtra(ExtraNames.PRODUCTS, mOrder);
 								setResult(RESULT_OK, i);
 								finish();
@@ -207,9 +205,8 @@ public class RecogActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.USERS,
-						data.getExtras().getStringArray(ExtraNames.USERS));
-				i.putExtra(ExtraNames.PRODUCTS,data.getExtras().getParcelable(ExtraNames.PRODUCTS));
+				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				setResult(RESULT_OK, i);
 				finish();
 				break;
