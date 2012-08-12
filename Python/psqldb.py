@@ -43,13 +43,19 @@ class psqldb:
 	def login(self,user):
 		
 		q = self.getQuery("isUserRegistered")
-
+		
+		
 		try:
 			self.cur.execute(q,(user,))		
 		except  Exception ,e:
+			self.con.rollback()
 			print e
 		
-		if self.cur.fetchone()[0] == 'true':
+		print self.cur.rowcount
+		if (self.cur.rowcount > 0):
+			r = self.cur.fetchone()[0]
+
+		if r == 'true':
 			return True
 		else: 
 			return False
@@ -71,11 +77,27 @@ class psqldb:
 		try:
 			self.cur.execute(q, (user, given, family, reg, lang, admin))
 		except Exception, exc:
+			self.con.rollback()
 			return exc
 		else:
 			self.con.commit()
 			return True
-	
+
+
+	def deleteUser(self,user):
+		
+		q = self.getQuery("deleteUser")
+		
+		
+		try:
+			self.cur.execute(q, (user,))
+		except Exception, exc:
+			self.con.rollback()
+			return exc
+		else:
+			self.con.commit()
+			return True
+		
 	
 	#New importable product
 	def insertImportProduct(self,groupid,value,sizeunit,finname,engname,svename):
@@ -87,6 +109,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (groupid, value,sizeunit, finname, engname, svename))
 		except  Exception ,e:
+			self.con.rollback()
 			return e
 		self.con.commit()
 		return True
@@ -100,6 +123,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (finname,engname,svename))
 		except  Exception ,e:
+			self.con.rollback()
 			return e
 		self.con.commit()
 		return True	
@@ -111,6 +135,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (groupid, value,finname, engname, swename))
 		except  Exception ,e:
+			self.con.rollback()			
 			return e
 		self.con.commit()
 		return True
@@ -122,6 +147,7 @@ class psqldb:
 		try:
 			self.cur.execute(q)		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -134,6 +160,7 @@ class psqldb:
 		try:
 			self.cur.execute(q)		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -147,6 +174,7 @@ class psqldb:
 		try:
 			self.cur.execute(q)		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -160,6 +188,7 @@ class psqldb:
 		try:
 			self.cur.execute(q,(user,))		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -172,7 +201,9 @@ class psqldb:
 		try:
 			self.cur.execute(q, (balance,group,user))
 		except  Exception ,e:
+			self.con.rollback()		
 			return e
+		
 		self.con.commit()
 		return True	
 	
@@ -184,6 +215,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (balance,group,user))
 		except  Exception ,e:
+			self.con.rollback()			
 			return e
 		self.con.commit()
 		return True
@@ -196,7 +228,8 @@ class psqldb:
 		try:
 			self.cur.execute(q, (balance,group,user))
 		except  Exception ,e:
-			return e
+			self.con.rollback()
+			return e		
 		self.con.commit()
 		return True
 	
@@ -207,6 +240,7 @@ class psqldb:
 		try:
 			self.cur.execute(q)		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -218,6 +252,7 @@ class psqldb:
 		try:
 			self.cur.execute(q,(user,))		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchone()
@@ -232,6 +267,7 @@ class psqldb:
 		try:
 			self.cur.execute(q,(user,))		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -243,6 +279,7 @@ class psqldb:
 		try:
 			self.cur.execute(q)		
 		except  Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		result = self.cur.fetchall()
@@ -256,7 +293,9 @@ class psqldb:
 		try:
 			self.cur.execute(q, (dec,group,))
 		except  Exception ,e:
+			self.con.rollback()		
 			return e
+		
 		self.con.commit()
 		return True
 		
@@ -267,6 +306,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (product))
 		except	Exception ,e:
+			self.con.rollback()			
 			return e
 		data = self.cur.fetchone()
 		
@@ -300,6 +340,7 @@ class psqldb:
 		try:
 			self.cur.execute(q_rawdata, (rawproduct,))
 		except	 Exception ,e:
+			self.con.rollback()			
 			print e
 			
 		raw = self.cur.fetchone()
@@ -327,12 +368,14 @@ class psqldb:
 		try:
 			self.cur.execute(q_gbal, (amount,group))
 		except  Exception ,e:
+			self.con.rollback()		
 			return e
 		
 		q_ubal = self.getQuery("updateUserBalancesAdd")
 		try:
 			self.cur.execute(q_ubal, (amount,group,user,))
 		except  Exception ,e:
+			self.con.rollback()			
 			return e
 			
 		self.insertBring(user,rawproduct,sizeid,amount)
@@ -343,6 +386,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (user,finalproduct,value,))
 		except  Exception ,e:
+			self.con.rollback()			
 			return e
 		self.con.commit()
 	
@@ -351,6 +395,7 @@ class psqldb:
 		try:
 			self.cur.execute(q, (user,rawproduct,productsize,value,))
 		except  Exception ,e:
+			self.con.rollback()			
 			return e
 		self.con.commit()
 
@@ -361,6 +406,7 @@ class psqldb:
 		try:
 			self.cur.execute(q)
 		except  Exception ,e:
+			self.con.rollback()
 			return e
 		self.con.commit()
 		return True	
