@@ -4,7 +4,14 @@ import java.awt.event.*;
 import java.awt.*;
 
 import javax.swing.*;
-
+/**A class implementing a list of all registered usernames for the Facecafe
+ * swingui component.
+ * The page allows the user to choose their username and log in to the system
+ * from a list of all registered usernames.
+ * 
+ * @author Antti Hietasaari
+ *
+ */
 public class UserListPage extends JPanel implements ActionListener{
 	private String[] usernames;
 	private JButton[] userButtons;
@@ -13,8 +20,16 @@ public class UserListPage extends JPanel implements ActionListener{
 	private JScrollPane userScroll;
 	private CafeUI master;
 	private JLabel helptext;
-	private String defaulthelp = "Please select your username from the list below:";
-
+	/**
+	 * The default help text that is visible when the page is initially shown
+	 */
+	public static String defaulthelp = "Please select your username from the list below:";
+	/**Creates a new UserListPage.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The user list page accesses the methods of the
+	 * 					CafeUI object when responding to user input.
+	 */
 	public UserListPage(CafeUI master){
 		this.master = master;
 		GridBagLayout layout = new GridBagLayout();
@@ -30,8 +45,6 @@ public class UserListPage extends JPanel implements ActionListener{
 		
 		helptext = new JLabel(defaulthelp);
 		helptext.setFont(master.UI_FONT_SMALL);
-		//helptext.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/10 - layout.getVgap()));
 		layout.setConstraints(helptext, constraints);
 		add(helptext);
 		
@@ -44,8 +57,6 @@ public class UserListPage extends JPanel implements ActionListener{
 		userScroll = new JScrollPane(userPanel, 
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		//userScroll.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/5*4 - layout.getVgap()));
 		layout.setConstraints(userScroll, constraints);
 		add(userScroll);
 		
@@ -53,16 +64,16 @@ public class UserListPage extends JPanel implements ActionListener{
 		constraints.weighty = 0.1;
 		
 		cancel = new JButton("Cancel");
-		//cancel.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/10 - layout.getVgap()));
 		cancel.addActionListener(this);
 		cancel.setFont(master.UI_FONT_BIG);
 		layout.setConstraints(cancel, constraints);
 		add(cancel);
-		
-		
 	}
-	
+	/**Creates a list of buttons corresponding to the usernames registered
+	 * in the system.
+	 * 
+	 * @param users		A String array containing all usernames.
+	 */
 	protected void listUsers(String[] users){
 		userPanel.removeAll();
 		
@@ -78,7 +89,10 @@ public class UserListPage extends JPanel implements ActionListener{
 		}
 		userPanel.revalidate();
 	}
-	
+	/**Shows the user a message, e.g. help or an error message.
+	 * 
+	 * @param text		A String containing the text to be shown
+	 */
 	protected void setHelpText(String s){
 		helptext.setText(s);
 	}

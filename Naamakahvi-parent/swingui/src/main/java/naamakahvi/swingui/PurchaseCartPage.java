@@ -11,8 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-/*
- * Kälin erikoistoimintosivu
+/**A class implementing a shopping cart view for the Facecafe swingui component.
+ * The page allows the user to select multiple produts of different types to
+ * buy or bring simultaneously.
+ * 
+ * @author Antti Hietasaari
+ *
  */
 public class PurchaseCartPage extends JPanel implements ActionListener, CloseableView{
 	private JButton cancelButton, confirmButton, clearButton;
@@ -35,9 +39,24 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 	
 	private String mode;
 	private ShortList userlist;
-	
+	/**Creates a new shopping cart view.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The cart page accesses the methods of the CafeUI
+	 * 					object when responding to user input.
+	 * @param mode		A String indicating whether the view should be used
+	 * 					to buy or bring products. CafeUI.MODE_BUY indicates
+	 * 					that the cart is for buyable products while
+	 * 					CAFEUI.MODE_BRING indicates that the cart view should
+	 * 					be used to bring products.
+	 * @throws IllegalArgumentException		The mode parameter passed to the
+	 * 		constructor was neither CafeUI.MODE_BUY nor CafeUI.MODE_BRING.
+	 */
 	public PurchaseCartPage(CafeUI master, String mode){
 		this.master = master;
+		if (!mode.equals(CafeUI.MODE_BUY) && !mode.equals(CafeUI.MODE_BRING)){
+			throw new IllegalArgumentException("selected purchase mode was neither buy nor bring");
+		}
 		this.mode = mode;
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -50,20 +69,17 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		constraints.gridheight = 9;
 		constraints.gridwidth = 2;
 		
+		//User list
+		
 		userlist = new ShortList(master, this);
-		//userlist.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-		//		master.Y_RES/8*7 - layout.getVgap()));
 		layout.setConstraints(userlist, constraints);
 		add(userlist);
 		
-		//Ostoskori
+		//Shopping cart
 		
 		cartPanel = new JPanel();
 		GridBagLayout cartExtLayout = new GridBagLayout();
-		cartPanel.setLayout(cartExtLayout);
-		//cartPanel.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-		//		master.Y_RES/8*7 - layout.getVgap()));
-		
+		cartPanel.setLayout(cartExtLayout);		
 		
 		cartView = new JPanel();
 		cartIntLayout = new GridBagLayout();
@@ -81,8 +97,6 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		cartExtConstraints.gridwidth = GridBagConstraints.REMAINDER;
 		cartScroll = new JScrollPane(cartView, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		//cartScroll.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-		//		master.Y_RES/8*6 - layout.getVgap()));
 		cartExtLayout.setConstraints(cartScroll, cartExtConstraints);
 		cartPanel.add(cartScroll);
 		
@@ -92,8 +106,6 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		clearButton = new JButton("Clear Cart");
 		clearButton.setFont(master.UI_FONT);
 		clearButton.addActionListener(this);
-		//clearButton.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(), 
-		//		master.Y_RES/8 - layout.getVgap()));
 		cartExtLayout.setConstraints(clearButton, cartExtConstraints);
 		cartPanel.add(clearButton);
 		
@@ -104,27 +116,24 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		layout.setConstraints(cartPanel, constraints);
 		add(cartPanel);
 		
-		//Tuotelista
+		//Product list
 		constraints.weightx = 1.0;
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		menuView = new JPanel();
-		//menuView.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
-		//		master.Y_RES/8*7 - layout.getVgap()));
 		menuView.setLayout(new GridLayout(0, 1));
 		menuScroll = new JScrollPane(menuView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		//menuScroll.setPreferredSize(new Dimension(master.X_RES/2  - layout.getHgap(),
-		//		master.Y_RES/8*7 - layout.getVgap()));
 		layout.setConstraints(menuScroll, constraints);
 		add(menuScroll);
-		
-		
+				
 		loadProducts(mode);
 		
 		constraints.gridheight = 1;
 		constraints.gridwidth = 3;
 		constraints.weightx = 0.0;
 		constraints.weighty = 0.2;
+		
+		//confirm/cancel buttons
 		
 		confirmButton = new JButton();
 		if (mode.equals(CafeUI.MODE_BUY)){
@@ -135,8 +144,6 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		}
 		confirmButton.setFont(master.UI_FONT_BIG);
 		confirmButton.addActionListener(this);
-		//confirmButton.setPreferredSize(new Dimension(master.X_RES/2 -layout.getVgap(),
-		//		master.Y_RES/8 - layout.getVgap()));
 		layout.setConstraints(confirmButton, constraints);
 		add(confirmButton);
 		
@@ -145,12 +152,12 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		cancelButton = new JButton("Cancel");
 		cancelButton.setFont(master.UI_FONT_BIG);
 		cancelButton.addActionListener(this);
-		//cancelButton.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-		//		master.Y_RES/8 - layout.getVgap()));
 		layout.setConstraints(cancelButton, constraints);
 		add(cancelButton);
 	}
-	
+	/**
+	 * Empties the shopping cart.
+	 */
 	protected void clearCart(){
 		cartView.removeAll();
 		cartIntConstraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -163,8 +170,18 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		removebuttons = new ArrayList<JButton>();
 		
 		cartView.revalidate();
+
+		cartView.repaint();
 	}
-	
+	/**Loads products from the server and generates buttons that allow the user
+	 * to add them to the shopping cart.
+	 * 
+	 * @param mode		A String indicating whether the method should load
+	 * 					buyable or raw products. CafeUI.MODE_BUY indicates
+	 * 					buyable, CafeUI.MODE_BRING indicates raw.
+	 * @throws IllegalArgumentException		If the passed mode parameter is
+	 * 		neither CafeUI.MODE_BUY nor CafeUI.MODE_BRING
+	 */
 	protected void loadProducts(String mode){
 		
 		List<IProduct> prodlist;
@@ -189,7 +206,12 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 					": " + products[i].getPrice(), menuView);
 		}
 	}
-	
+	/**Initializes a JButton and adds it to a JPanel
+	 * 
+	 * @param name		The text on the button
+	 * @param panel		The panel that the button should be added to
+	 * @return			The initialized button
+	 */
 	private JButton initProductButton(String name, JPanel panel){
 		JButton button = new JButton(name);
 		button.setFont(master.UI_FONT);
@@ -197,7 +219,10 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		button.addActionListener(this);
 		return button;
 	}
-	
+	/**Adds a product to the user's shopping cart.
+	 * 
+	 * @param p		An IProduct object specifying the product to be added.
+	 */
 	private void addToCart(IProduct p){
 		int index = cartContents.indexOf(p);
 		if (index != -1){
@@ -228,7 +253,11 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		}
 		cartView.revalidate();
 	}
-	
+	/**Removes a product from the shopping cart.
+	 * 
+	 * @param index		An integer indicating the position of the product
+	 * 					in the shopping cart.
+	 */
 	private void removeFromCart(int index){
 		int amount = amounts.get(index);
 		amount--;
@@ -248,8 +277,16 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 			removebuttons.remove(index);
 		}
 		cartView.revalidate();
+		cartView.repaint();
 	}
-	
+	/**Sets the recognized users for this page. The first user on the list
+	 * is assumed to be logged in.
+	 * 
+	 * @see	ShortList.setUsers()
+	 * 
+	 * @param usernames		A String array containing the usernames of the
+	 * 						recognized users.
+	 */
 	protected void setUsers(String[] users){
 		userlist.setUsers(users);
 	}
@@ -258,6 +295,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		Object s = e.getSource();
 		if (s == cancelButton){
 			master.switchPage(CafeUI.VIEW_MENU_PAGE);
+			clearCart();
 		}
 		if (s == clearButton){
 			clearCart();
@@ -280,6 +318,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 			master.selectProduct(p, a2);
 			master.setPurchaseMode(mode);
 			master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
+			clearCart();
 		}
 		for (int i = 0; i < prodButtons.length; i++){
 			if (s == prodButtons[i]){
@@ -293,7 +332,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 	}
 
 	public void closeView() {
-		// Nothing to close
+		clearCart();
 		
 	}
 

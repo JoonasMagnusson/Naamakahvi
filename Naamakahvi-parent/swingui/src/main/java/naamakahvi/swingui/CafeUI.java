@@ -29,6 +29,7 @@ public class CafeUI extends JFrame{
 	private StationSelect stations;
 	private UserListPage userlist;
 	private FaceLoginPage facelogin;
+	private AddPicturePage add;
 	//Sivu, jolle jatketaan välisivuilta (esim. käyttäjälistasta)
 	protected String continueLocation = VIEW_FRONT_PAGE;
 	//Juuri nyt esillä oleva sivu
@@ -62,6 +63,7 @@ public class CafeUI extends JFrame{
 	public static final String VIEW_STATION_PAGE = "station";
 	public static final String VIEW_USERLIST_PAGE = "userlist";
 	public static final String VIEW_FACE_LOGIN_PAGE = "facelogin";
+	public static final String VIEW_ADD_PICTURE_PAGE = "add";
 	public static final String CONTINUE = "continue";
 	
 	//muut vakiot
@@ -81,10 +83,6 @@ public class CafeUI extends JFrame{
 		JLabel loading = new JLabel("Loading...", SwingConstants.CENTER);
 		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
 		add(loading);
-		
-		Insets insets = getInsets();
-		//X_RES = xres - insets.left - insets.right;
-		//Y_RES = yres - insets.top - insets.bottom;
 		
 		UI_FONT = new Font("Sans Serif", Font.PLAIN, 20);
 		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, 30);
@@ -156,6 +154,9 @@ public class CafeUI extends JFrame{
 		facelogin = new FaceLoginPage(this);
 		container.add(facelogin, VIEW_FACE_LOGIN_PAGE);
 		
+		add = new AddPicturePage(this);
+		container.add(add, VIEW_ADD_PICTURE_PAGE);
+		
 		switchPage(VIEW_FRONT_PAGE);
 	}
 	
@@ -208,7 +209,7 @@ public class CafeUI extends JFrame{
 		if (VIEW_FACE_LOGIN_PAGE.equals(page)){
 			facelogin.activate();
 			currentLocation = page;
-			viewSwitcher.show(container, VIEW_FACE_LOGIN_PAGE);
+			viewSwitcher.show(container, page);
 		}
 		if (VIEW_USERLIST_PAGE.equals(page)){
 			try{
@@ -218,10 +219,15 @@ public class CafeUI extends JFrame{
 				e.printStackTrace();
 				userlist.setHelpText(e.getMessage());
 			}
-			viewSwitcher.show(container, VIEW_USERLIST_PAGE);
+			viewSwitcher.show(container, page);
 			currentLocation = page;
 		}
-		
+		if (VIEW_ADD_PICTURE_PAGE.equals(page)){
+			add.setUsers(usernames);
+			viewSwitcher.show(container, page);
+			currentLocation = page;
+			add.activate();
+		}
 	}
 	
 	protected List<SaldoItem> getSaldo(){
@@ -289,7 +295,6 @@ public class CafeUI extends JFrame{
 					cli.addImage(userName, streams[i].toByteArray());
 			}
 			front.setHelpText("Registered user " + userName);
-			//this.usernames[0] = user.getUserName();
 			return true;
 		}
 		catch (ClientException ex) {
@@ -298,6 +303,29 @@ public class CafeUI extends JFrame{
 			return false;
 		} catch (IOException ex) {
 			register.setHelpText("Error: " + ex.getMessage());
+			ex.printStackTrace();
+			return false;
+		}
+	}
+	
+	protected boolean addImages(BufferedImage[] images){
+		try{
+			ByteArrayOutputStream[] streams = new ByteArrayOutputStream[images.length];
+			for (int i = 0; i < images.length; i++){
+				if (images[i] != null){
+					streams[i] = new ByteArrayOutputStream();
+					ImageIO.write(resizeImage(images[i]), OUTPUT_IMAGE_FORMAT, streams[i]);
+					cli.addImage(user.getUserName(), streams[i].toByteArray());
+				}
+			}
+			return true;
+		}
+		catch (ClientException ex) {
+			add.setHelpText("Error: " + ex.getMessage());
+			ex.printStackTrace();
+			return false;
+		} catch (IOException ex) {
+			add.setHelpText("Error: " + ex.getMessage());
 			ex.printStackTrace();
 			return false;
 		}
@@ -316,7 +344,7 @@ public class CafeUI extends JFrame{
 	
 	protected boolean loginUser(String userName){
 		try {
-			user = cli.authenticateText(userName);
+			user = cli.getUser(userName);
 			this.usernames[0] = user.getUserName();
 			return true;
 		}
@@ -346,16 +374,6 @@ public class CafeUI extends JFrame{
 			return null;
 		}
 	}
-	/*
-	protected List<IProduct> getDefaultProducts(){
-		try{
-			return cli.listBuyableProducts();
-		}
-		catch (ClientException e){
-			e.printStackTrace();
-			return null;
-		}
-	}*/
 	
 	protected void selectProduct(IProduct[] prods, int[] amounts){
 		selProd = prods;

@@ -8,14 +8,31 @@ import javax.swing.*;
 
 import naamakahvi.swingui.FaceCapture.FaceCanvas;
 
+/**A class implementing the face login page in the Facecafe swingui component.
+ * Shows the user a live feed of the system's webcam and allows them to take
+ * a picture of themselves in order to verify their identity.
+ * 
+ * @author Antti Hietasaari
+ *
+ */
 public class FaceLoginPage extends JPanel implements ActionListener{
 	private FaceCanvas canvas;
 	private JButton login, cancel;
 	private JLabel helptext;
+	/**
+	 * The default help text shown to the user when there are no errors to
+	 * show.
+	 */
 	protected final static String DEFAULT_HELP = "Press 'Take Picture' to start face recognition";
 	
 	private CafeUI master;
 	
+	/**Creates a new FaceLoginPage object.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The face login page accesses the methods of the CafeUI
+	 * 					object when responding to user input.
+	 */
 	public FaceLoginPage(CafeUI master){
 		this.master = master;
 		GridBagLayout layout = new GridBagLayout();
@@ -30,22 +47,15 @@ public class FaceLoginPage extends JPanel implements ActionListener{
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
 		helptext = new JLabel(DEFAULT_HELP);
-		//helptext.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/8 - layout.getVgap()));
 		helptext.setFont(master.UI_FONT_SMALL);
 		layout.setConstraints(helptext, constraints);
 		add(helptext);
 		
 		constraints.weighty = 1.0;
 		constraints.gridheight = 6;
-		//constraints.fill = GridBagConstraints.NONE;
-		
-		JPanel canvasContainer = new JPanel();
 		
 		canvas = master.getCanvas();
 		canvas.setName("canvas");
-		//canvas.setPreferredSize(new Dimension(master.X_RES/4*3 - layout.getHgap(),
-		//		master.Y_RES/4*3 - layout.getVgap()));
 		layout.setConstraints(canvas, constraints);
 		add(canvas);
 		
@@ -54,8 +64,6 @@ public class FaceLoginPage extends JPanel implements ActionListener{
 		constraints.weighty = 0.0;
 		
 		login = new JButton("Take Picture");
-		//login.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-		//		master.Y_RES/8 - layout.getVgap()));
 		login.setFont(master.UI_FONT_BIG);
 		login.addActionListener(this);
 		layout.setConstraints(login, constraints);
@@ -64,18 +72,22 @@ public class FaceLoginPage extends JPanel implements ActionListener{
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
 		cancel = new JButton("Cancel");
-		//cancel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-		//		master.Y_RES/8 - layout.getVgap()));
 		cancel.setFont(master.UI_FONT_BIG);
 		cancel.addActionListener(this);
 		layout.setConstraints(cancel, constraints);
 		add(cancel);
 	}
-
+	/**
+	 * Activates the FaceCanvas object associated with this page. Must be
+	 * called in order to show live camera feed.
+	 */
 	protected void activate(){
 		canvas.activate();
 	}
-	
+	/**Shows the user a message, e.g. help or an error message.
+	 * 
+	 * @param text		A String containing the text to be shown
+	 */
 	protected void setHelpText(String text){
 		helptext.setText(text);
 	}

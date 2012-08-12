@@ -1,26 +1,39 @@
 package naamakahvi.swingui;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.*;
-
+/**A class implementing the station selection page of the Facecafe swingui
+ * component.
+ * The station selection page is displayed during program startup and shows
+ * a list of possible locations. The user can use the page to select the
+ * current location of the Facecafe terminal.
+ * 
+ * @author Antti Hietasaari
+ *
+ */
 public class StationSelect extends JPanel implements ActionListener{
 	private JLabel helptext;
 	private JButton[] stationButtons;
 	private List<String> stations;
 	private CafeUI master;
-	
+	/**Creates a new station selection page.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The station selection page accesses the methods of the
+	 * 					CafeUI object when responding to user input.
+	 * @param stations	A List of Strings containing the names of the stations
+	 * 					that are available.
+	 */
 	public StationSelect(CafeUI master, List<String> stations){
 		this.master = master;
 		this.stations = stations;
 		setLayout(new GridLayout(0,1));
 		
 		helptext = new JLabel("Select Location:", SwingConstants.CENTER);
-		//helptext.setPreferredSize(new Dimension(master.X_RES, master.Y_RES/10));
 		helptext.setFont(master.UI_FONT);
 		add(helptext);
 		

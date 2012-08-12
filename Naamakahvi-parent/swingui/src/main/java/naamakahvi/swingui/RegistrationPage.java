@@ -8,21 +8,38 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-
+/**A class implementing the registration page of the Facecafe swingui component.
+ * The page allows the user to enter user information, take pictures and
+ * register a new user.
+ * 
+ * @author Antti Hietasaari
+ *
+ */
 public class RegistrationPage extends JPanel implements ActionListener{
 	private JTextField userName, firstName, lastName;
 	private JButton takePic, register, cancel;
 	private JLabel header, help, unLabel, fnLabel, lnLabel;
 	private CafeUI master;
+	/**
+	 * The default help text shown when the view is opened.
+	 */
 	protected static final String DEFAULT_HELP = "Please enter the following information:";
 	private JPanel actionPanel, thumbPanel;
 	private FaceCanvas canvas;
 	private Thumbnail[] thumbs;
 	private BufferedImage[] images;
 	private int thumbCount = 0;
+	/**
+	 * The maximum amount of pictures the user is allowed to associate with
+	 * their account during initial account creation.
+	 */
 	protected static final int MAX_THUMBCOUNT = 5;
-	private FlowLayout layout;
-	
+	/**Creates a new registration page.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The registration page accesses the methods of the CafeUI
+	 * 					object when responding to user input.
+	 */
 	public RegistrationPage(CafeUI master){
 		this.master = master;
 		GridBagLayout layout = new GridBagLayout();
@@ -38,15 +55,11 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		
 		header = new JLabel("Register New User", SwingConstants.CENTER);
 		header.setFont(master.UI_FONT_BIG);
-		//header.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/6 - layout.getHgap()));
 		layout.setConstraints(header, constraints);
 		add(header);
 		
 		help = new JLabel(DEFAULT_HELP, SwingConstants.CENTER);
 		help.setFont(master.UI_FONT_SMALL);
-		//help.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/6 - layout.getHgap()));
 		layout.setConstraints(help, constraints);
 		add(help);
 		
@@ -55,8 +68,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		constraints.weighty = 1.0;
 		
 		canvas = master.getCanvas();
-		//canvas.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
-		//		master.Y_RES/3 - layout.getHgap()));
 		canvas.setName("canvas");
 		layout.setConstraints(canvas, constraints);
 		add(canvas);
@@ -68,8 +79,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		GridBagLayout actionLayout = new GridBagLayout();
 		GridBagConstraints actionConstraints = new GridBagConstraints();
 		actionPanel.setLayout(actionLayout);
-		//actionPanel.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-		//		master.Y_RES/3 - layout.getHgap()));
 		layout.setConstraints(actionPanel, constraints);
 		add(actionPanel);
 		
@@ -80,7 +89,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		
 		unLabel = new JLabel("Username:", SwingConstants.CENTER);
 		unLabel.setFont(master.UI_FONT);
-		//unLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/10));
 		actionLayout.setConstraints(unLabel, actionConstraints);
 		actionPanel.add(unLabel);
 		
@@ -90,7 +98,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		userName = new JTextField();
 		userName.setName("un");
 		userName.setFont(master.UI_FONT_BIG);
-		//userName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionLayout.setConstraints(userName, actionConstraints);
 		actionPanel.add(userName);
 		
@@ -99,7 +106,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		
 		fnLabel = new JLabel("Given Name:", SwingConstants.CENTER);
 		fnLabel.setFont(master.UI_FONT);
-		//fnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/10));
 		actionLayout.setConstraints(fnLabel, actionConstraints);
 		actionPanel.add(fnLabel);
 		
@@ -109,7 +115,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		firstName = new JTextField();
 		firstName.setName("fn");
 		firstName.setFont(master.UI_FONT_BIG);
-		//firstName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionLayout.setConstraints(firstName, actionConstraints);
 		actionPanel.add(firstName);
 		
@@ -118,7 +123,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		
 		lnLabel = new JLabel("Family Name:", SwingConstants.CENTER);
 		lnLabel.setFont(master.UI_FONT);
-		//lnLabel.setPreferredSize(new Dimension(master.X_RES/9*2, master.Y_RES/10));
 		actionLayout.setConstraints(lnLabel, actionConstraints);
 		actionPanel.add(lnLabel);
 		
@@ -128,7 +132,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		lastName = new JTextField();
 		lastName.setName("ln");
 		lastName.setFont(master.UI_FONT_BIG);
-		//lastName.setPreferredSize(new Dimension(master.X_RES/9*3, master.Y_RES/10));
 		actionLayout.setConstraints(lastName, actionConstraints);
 		actionPanel.add(lastName);
 		
@@ -138,12 +141,9 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		constraints.weighty = 0.5;
 		
 		thumbPanel = new JPanel();
-		GridLayout thumbgrid = new GridLayout(1, 5);
-		//flow.setHgap(0);
-		//flow.setVgap(0);
+		GridLayout thumbgrid = new GridLayout(1, MAX_THUMBCOUNT);
+		
 		thumbPanel.setLayout(thumbgrid);
-		//thumbPanel.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-		//		master.Y_RES/6 - layout.getHgap()));
 		layout.setConstraints(thumbPanel, constraints);
 		add(thumbPanel);
 		
@@ -154,8 +154,6 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		
 		takePic = new JButton("Take Picture");
 		takePic.setFont(master.UI_FONT);
-		//takePic.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-		//		master.Y_RES/6 - layout.getHgap()));
 		layout.setConstraints(takePic, constraints);
 		takePic.addActionListener(this);
 		
@@ -163,15 +161,11 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		
 		register = new JButton("Register");
 		register.setFont(master.UI_FONT);
-		//register.setPreferredSize(new Dimension(master.X_RES/4 - layout.getHgap(),
-		//		master.Y_RES/6 - layout.getHgap()));
 		layout.setConstraints(register, constraints);
 		register.addActionListener(this);
 		
 		cancel = new JButton("Cancel");
 		cancel.setFont(master.UI_FONT_BIG);
-		//cancel.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/6 - layout.getHgap()));
 		layout.setConstraints(cancel, constraints);
 		cancel.addActionListener(this);
 		
@@ -179,12 +173,12 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		add(register);
 		add(cancel);
 	}
-	
+	/**
+	 * Removes thumbnails when the view is closed.
+	 */
 	private void resetPage(){
 		thumbPanel.removeAll();
 		thumbs = new Thumbnail[MAX_THUMBCOUNT];
-		//int size = (master.X_RES/10 - layout.getHgap() < master.Y_RES/6  - layout.getVgap()?
-		//		master.X_RES/10  - layout.getHgap() : master.Y_RES/6  - layout.getHgap());
 		for (int i=0; i < thumbs.length; i++){
 			thumbs[i] = new Thumbnail();
 			thumbs[i].setName("thumb"+i);
@@ -194,11 +188,18 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		thumbPanel.revalidate();
 		thumbCount = 0;
 	}
-	
+	/**Shows the user a message, e.g. help or an error message.
+	 * 
+	 * @param text		A String containing the text to be shown
+	 */
 	protected void setHelpText(String text){
 		help.setText(text);
 	}
-	
+	/**
+	 * Activates the FaceCanvas embedded on the page, causing it to start
+	 * showing a feed from the system's webcam, if available. Should be called
+	 * whenever the registration view is shown.
+	 */
 	protected void activate(){
 		canvas.activate();
 	}
@@ -223,6 +224,15 @@ public class RegistrationPage extends JPanel implements ActionListener{
 		}
 		
 		if (s == register){
+			String un = userName.getText();
+			if (un.length() < 1){
+				setHelpText("Username can't be empty!");
+				return;
+			}
+			if (un.length() > 8){
+				setHelpText("Usernames aren't allowed to be over 8 characters in length");
+				return;
+			}
 			if (master.registerUser(userName.getText(),
 					firstName.getText(), lastName.getText(), images)){
 				setHelpText(DEFAULT_HELP);

@@ -8,26 +8,35 @@ import javax.swing.*;
 
 import naamakahvi.naamakahviclient.IProduct;
 
-/*
- * Käyttöliittymän päävalikkonäkymä, josta valitaan mitä tuotetta ostetaan
+/**A class implementing the menu page view for the Facecafe swingui component.
+ * The menu page displays the logged in user and allows them to select products
+ * to purchase or to display a shopping cart view.
+ * 
+ * @author Antti Hietasaari
+ *
  */
 public class MenuPage extends JPanel implements ActionListener, CloseableView{
-	//private JLabel username;
-	private JButton buycart, bringcart, logout;
+	
+	private JButton buycart, bringcart, logout, add;
 	private JButton[][] buyprodButtons, bringprodButtons;
 	private IProduct[] buyproducts, bringproducts;
 	private JPanel buyprodPanel, bringprodPanel;
 	private CafeUI master;
 	private JScrollPane buyscroll, bringscroll;
 	private ShortList userlist;
-	
+	/**Creates a new menu page view.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The menu page accesses the methods of the CafeUI
+	 * 					object when responding to user input.
+	 */
 	public MenuPage(CafeUI master){
 		this.master = master;
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.insets = new Insets(3,3,3,3);
 		constraints.fill = GridBagConstraints.BOTH;
-		constraints.weightx = 1.0;
+		constraints.weightx = 0.2;
 		constraints.weighty = 1.0;
 		setLayout(layout);
 		
@@ -37,17 +46,11 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		userlist = new ShortList(master, this);
 		layout.setConstraints(userlist, constraints);
 		add(userlist);
-		//userlist.setPreferredSize(new Dimension(master.X_RES/3 - layout.getHgap(),
-		//		master.Y_RES/8*7 - layout.getVgap()));
-		/*
-		prodPanel = new JPanel();
-		prodPanel.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-				master.Y_RES/8*7 - layout.getVgap()));*/
 		
 		buyprodPanel = new JPanel();
-		//buyprodPanel.setPreferredSize(new Dimension(master.X_RES/2-20, master.Y_RES/2-20));
 		
 		constraints.gridheight = 4;
+		constraints.weightx = 1.0;
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
 		buyscroll = new JScrollPane(buyprodPanel,
@@ -55,63 +58,55 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		layout.setConstraints(buyscroll, constraints);
 		add(buyscroll);
-		//buyscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-		//		master.Y_RES/16*7 - layout.getVgap()));
 		
 		bringprodPanel = new JPanel();
-		//bringprodPanel.setPreferredSize(new Dimension(master.X_RES/2-20, master.Y_RES/2-20));
 		
 		bringscroll = new JScrollPane(bringprodPanel,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		layout.setConstraints(bringscroll, constraints);
 		add(bringscroll);
-		//bringscroll.setPreferredSize(new Dimension(master.X_RES/3*2 - layout.getHgap(),
-		//		master.Y_RES/16*7 - layout.getVgap()));
 		
-		/*
-		buycart = new JButton("Buy multiple products");
-		buycart.setFont(master.UI_FONT_BIG);
-		buycart.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
-		buycart.addActionListener(this);
-		
-		bringcart = new JButton("Bring multiple products");
-		bringcart.setFont(master.UI_FONT_BIG);
-		bringcart.setPreferredSize(new Dimension(master.X_RES/2-10, master.Y_RES/8));
-		bringcart.addActionListener(this);
-		*/
 		constraints.gridheight = 1;
+		constraints.gridwidth = 1;
+		constraints.weighty = 1.0;
+		constraints.weightx = 0.2;
+		
+		add = new JButton("Add Pictures to Account");
+		add.setFont(master.UI_FONT);
+		add.addActionListener(this);
+		layout.setConstraints(add, constraints);
+		add(add);
+		
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		constraints.weightx = 1.0;
 		
 		logout = new JButton("Log Out");
-		logout.setFont(master.UI_FONT_BIG);
-		//logout.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/8 - layout.getVgap()));
+		logout.setFont(master.UI_FONT);
 		logout.addActionListener(this);
 		layout.setConstraints(logout, constraints);
 		add(logout);
 		
-		setProducts();
-		
-		/*/add(username);
-		add(userlist);
-		//add(prodPanel);
-		prodPanel.add(buyscroll);
-		prodPanel.add(bringscroll);
-		//add(buycart);
-		//add(bringcart);
-		setProducts();
-		
-		add(logout);*/
+		loadProducts();
 	}
 	
-	/*
-	 * Näyttää kirjautuneen käyttäjän nimen
+	/**Sets the recognized users for this page. The first user on the list
+	 * is assumed to be logged in.
+	 * 
+	 * @see	ShortList.setUsers()
+	 * 
+	 * @param usernames		A String array containing the usernames of the
+	 * 						recognized users.
 	 */
 	public void setUser(String[] usernames){
 		userlist.setUsers(usernames);
 	}
 	
-	private void setProducts(){
+	/**
+	 * Loads a list of products from the server and generates buttons that
+	 * allow the user to select a product to purchase.
+	 */
+	private void loadProducts(){
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;
@@ -253,6 +248,9 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		}
 		if (s == bringcart){
 			master.switchPage(CafeUI.VIEW_BRING_LIST_PAGE);
+		}
+		if (s == add){
+			master.switchPage(CafeUI.VIEW_ADD_PICTURE_PAGE);
 		}
 	}
 

@@ -8,18 +8,31 @@ import javax.swing.*;
 
 import naamakahvi.naamakahviclient.IProduct;
 
-/*
- * Käyttöliittymän aloitussivu
+/**A class implementing the front page view for the Facecafe swingui component.
+ * The front page is the initial view presented to the user after the program
+ * is initialized and allows the user to log in manually, create a new user
+ * or select a product to purchase and proceed to login by face detection.
+ * 
+ * @author Antti Hietasaari
+ *
  */
 public class FrontPage extends JPanel implements ActionListener{
-	private JButton register, manlogin, buycart, bringcart;
-	protected JButton[][] buyprodButtons, bringprodButtons;
+	private JButton register, manlogin, buycart, bringcart, add;
+	private JButton[][] buyprodButtons, bringprodButtons;
 	private IProduct[] buyproducts, bringproducts;
 	private JLabel helpText;
 	private JPanel buyProdView, bringProdView;
 	private CafeUI master;
-	private String defaulthelp = "Select a product from below to start face recognition";
-	
+	/**
+	 * The default help text shown to the user after the program launches.
+	 */
+	protected static final String DEFAULTHELP = "Select a product from below to start face recognition";
+	/**Creates a new front page view.
+	 * 
+	 * @param master	The CafeUI object that this page is associated with.
+	 * 					The front page accesses the methods of the CafeUI
+	 * 					object when responding to user input.
+	 */
 	public FrontPage(CafeUI master){
 		this.master = master;
 		GridBagLayout layout = new GridBagLayout();
@@ -33,29 +46,16 @@ public class FrontPage extends JPanel implements ActionListener{
 		constraints.gridheight = 1;
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
-		helpText = new JLabel(defaulthelp, SwingConstants.CENTER);
+		helpText = new JLabel(DEFAULTHELP, SwingConstants.CENTER);
 		helpText.setFont(master.UI_FONT);
-		//helpText.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/10 - layout.getVgap()));
 		layout.setConstraints(helpText, constraints);
 		add(helpText);
-		
-		/*
-		canvas = master.getCanvas();
-		canvas.setPreferredSize(new Dimension(master.X_RES/3, master.Y_RES/3));
-		add(canvas);*/
-		/*
-		actionPanel = new JPanel();
-		actionPanel.setPreferredSize(new Dimension(master.X_RES/3*2-20, master.Y_RES/5*3));
-		add(actionPanel);*/
-		
+				
 		constraints.gridheight = 7;
 		constraints.gridwidth = 1;
 		
 		buyProdView = new JPanel();
 		buyProdView.setLayout(new GridBagLayout());
-		//buyProdView.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-		//		master.Y_RES/10*7 - layout.getVgap()));
 		layout.setConstraints(buyProdView, constraints);
 		add(buyProdView);
 		
@@ -63,37 +63,41 @@ public class FrontPage extends JPanel implements ActionListener{
 		
 		bringProdView = new JPanel();
 		bringProdView.setLayout(new GridBagLayout());
-		//bringProdView.setPreferredSize(new Dimension(master.X_RES/2 - layout.getHgap(),
-		//		master.Y_RES/10*7 - layout.getVgap()));
 		layout.setConstraints(bringProdView, constraints);
 		add(bringProdView);
 		
 		constraints.gridheight = 1;
 		
-		getProducts();
+		loadProducts();
 		manlogin = new JButton("Manual Login");
 		manlogin.setFont(master.UI_FONT_BIG);
 		manlogin.addActionListener(this);
-		//manlogin.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/10 - layout.getVgap()));
 		
 		register = new JButton("New User");
 		register.setFont(master.UI_FONT_BIG);
 		register.addActionListener(this);
-		//register.setPreferredSize(new Dimension(master.X_RES - layout.getHgap(),
-		//		master.Y_RES/10 - layout.getVgap()));
 		
 		layout.setConstraints(manlogin, constraints);
 		add(manlogin);
+		
+		constraints.gridwidth = 1;
+		
 		layout.setConstraints(register, constraints);
 		add(register);
+		
+		add = new JButton("Add Pictures to Existing Account");
+		add.setFont(master.UI_FONT);
+		add.addActionListener(this);
+		
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		layout.setConstraints(add, constraints);
+		add(add);
 	}
-	/*
-	protected void resetPage(){
-		canvas.activate();
-	}*/
 	
-	private void getProducts(){
+	/**Loads a list of buyable products from the server and generates the
+	 * buttons for purchasing products.
+	 */
+	private void loadProducts(){
 		
 		List<IProduct> tempbuy = master.getBuyableProducts();
 		List<IProduct> tempbring = master.getRawProducts();
@@ -190,7 +194,10 @@ public class FrontPage extends JPanel implements ActionListener{
 		}
 		bringProdView.revalidate();
 	}
-	
+	/**Shows the user a message, e.g. help or an error message.
+	 * 
+	 * @param text		A String containing the text to be shown
+	 */
 	protected void setHelpText(String text){
 		helpText.setText(text);
 	}
@@ -198,25 +205,26 @@ public class FrontPage extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s == manlogin){
-			//canvas.deactivate();
-			setHelpText(defaulthelp);
+			setHelpText(DEFAULTHELP);
 			master.continueLocation = CafeUI.VIEW_MENU_PAGE;
 			master.switchPage(CafeUI.VIEW_USERLIST_PAGE);
 		}
 		if (s == register){
-			//canvas.deactivate();
-			setHelpText(defaulthelp);
+			setHelpText(DEFAULTHELP);
 			master.switchPage(CafeUI.VIEW_REGISTRATION_PAGE);
 		}
+		if (s == add){
+			setHelpText(DEFAULTHELP);
+			master.continueLocation = CafeUI.VIEW_ADD_PICTURE_PAGE;
+			master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
+		}
 		if (s == buycart){
-			//canvas.deactivate();
-			setHelpText(defaulthelp);
+			setHelpText(DEFAULTHELP);
 			master.setContinueLocation(CafeUI.VIEW_BUY_LIST_PAGE);
 			master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
 		}
 		if (s == bringcart){
-			//canvas.deactivate();
-			setHelpText(defaulthelp);
+			setHelpText(DEFAULTHELP);
 			master.setContinueLocation(CafeUI.VIEW_BRING_LIST_PAGE);
 			master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
 		}
@@ -224,7 +232,7 @@ public class FrontPage extends JPanel implements ActionListener{
 			for (int j = 0; j < buyprodButtons[i].length; j++){
 				if (s == buyprodButtons[i][j]){
 					//canvas.deactivate();
-					setHelpText(defaulthelp);
+					setHelpText(DEFAULTHELP);
 					IProduct[] prods = new IProduct[1];
 					prods[0] = buyproducts[i];
 					int[] amounts = new int[1];
@@ -240,7 +248,7 @@ public class FrontPage extends JPanel implements ActionListener{
 			for (int j = 0; j < bringprodButtons[i].length; j++){
 				if (s == bringprodButtons[i][j]){
 					//canvas.deactivate();
-					setHelpText(defaulthelp);
+					setHelpText(DEFAULTHELP);
 					IProduct[] prods = new IProduct[1];
 					prods[0] = bringproducts[i];
 					int[] amounts = new int[1];

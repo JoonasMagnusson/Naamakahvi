@@ -54,6 +54,7 @@ public class FaceCapture implements Runnable{
 	private BufferedImage returnImage = null;
 	private boolean offline = false;
 	private boolean noInterrupt = false;
+	private double ratio = 4/3;
 	
 	/**Creates a new FaceCapture object that can be started with the run()
 	 * method. The object will capture images from camera 0 and will not
@@ -165,6 +166,7 @@ public class FaceCapture implements Runnable{
 			grab.setImageHeight(480);
 			grab.start();
 			img = grab.grab();
+			ratio = (double)img.width()/(double)img.height();
 			gray = IplImage.create(img.width(), img.height(), IPL_DEPTH_8U, 1);
 			
 			AffineTransform trans = AffineTransform.getScaleInstance(-1, 1);
@@ -291,7 +293,6 @@ public class FaceCapture implements Runnable{
 			if (img != null && active && ready && !offline){
 				ready = false;
 				BufferedImage bimg = img.getBufferedImage();
-				//setSize(new Dimension(bimg.getWidth(), bimg.getHeight()));
 				
 				if (doFaceDetect && detectedFaces != null){
 					Graphics2D gimg = bimg.createGraphics();
@@ -303,8 +304,8 @@ public class FaceCapture implements Runnable{
 					}
 					gimg.dispose();
 				}
-				int x = Math.min(this.getWidth(), this.getHeight()/3*4);
-				int y = Math.min(this.getHeight(), this.getWidth()/4*3);
+				int x = Math.min(this.getWidth(), (int)(this.getHeight()*ratio));
+				int y = Math.min(this.getHeight(), (int)(this.getWidth()/ratio));
 				BufferedImage resize = new BufferedImage(x,
 						y, BufferedImage.TYPE_4BYTE_ABGR);
 				Graphics2D gimg = resize.createGraphics();
@@ -316,7 +317,6 @@ public class FaceCapture implements Runnable{
 				ready = true;
 			}
 
-			//g.drawRect(0, 0, this.getWidth()-1, this.getHeight()-1);
 			g.dispose();
 		}
 		public void update(Graphics g){
