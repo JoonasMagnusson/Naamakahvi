@@ -60,6 +60,7 @@ public class ConfirmPurchaseActivity extends Activity {
 					handler.post(new Runnable() {
 						public void run() {
 							setSaldos(user);
+							setRecognizedText(user);
 						}
 					});
 				} catch (final ClientException ex) {
@@ -87,12 +88,12 @@ public class ConfirmPurchaseActivity extends Activity {
 	private void configureUserView(String name) {
 		username = name;
 		startGetIUserThread();
-		setRecognizedText();
 	}
 
-	private void setRecognizedText() {
+	private void setRecognizedText(IUser buyer) {
 		TextView recognized = (TextView) findViewById(R.id.cp_nametext);
-		String newRecognizedText = "You were recognized as: " + username;
+		String newRecognizedText = "You were recognized as:\n" + buyer.getGivenName() + " " + buyer.getFamilyName()
+				+ " (" + username + ")";
 		recognized.setText(newRecognizedText);
 	}
 
