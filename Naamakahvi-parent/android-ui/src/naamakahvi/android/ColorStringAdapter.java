@@ -12,10 +12,12 @@ import android.widget.TextView;
 
 public class ColorStringAdapter extends BaseAdapter {
 	private String[] items;
+	private String[] posOrNeg;
 	private LayoutInflater inflater;
 	
-	public ColorStringAdapter(Context context, String[] items) {
+	public ColorStringAdapter(Context context, String[] items, String[] posOrNeg) {
 	    this.items = items;
+	    this.posOrNeg = posOrNeg;
 	    inflater = (LayoutInflater) context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
 	}
 	
@@ -38,12 +40,12 @@ public class ColorStringAdapter extends BaseAdapter {
 	    }
 		
 		String text = getItem(position);
-		TextView dur = (TextView) v.findViewById(android.R.id.text1);
-		dur.setText(text);
-		if (text.contains("-"))
-			dur.setTextColor(Color.RED);
+		TextView colorListView = (TextView) v.findViewById(android.R.id.text1);
+		colorListView.setText(text);
+		if (posOrNeg[position].equals("positive"))
+			colorListView.setTextColor(Color.GREEN);
 		else
-			dur.setTextColor(Color.GREEN);
+			colorListView.setTextColor(Color.RED);
 		return v;
 	}
 

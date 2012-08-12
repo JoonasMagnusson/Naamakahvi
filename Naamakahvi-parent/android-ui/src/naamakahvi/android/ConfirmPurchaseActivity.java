@@ -107,6 +107,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
 		List<SaldoItem> userBalance = buyer.getBalance();
 		String[] userSaldoTexts = new String[userBalance.size()];
+		String[] userSaldoColors = new String[userBalance.size()];
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		IProduct product = (IProduct) productAndAmountPair.getKey();
 		int amount = (Integer) productAndAmountPair.getValue();
@@ -114,14 +115,11 @@ public class ConfirmPurchaseActivity extends Activity {
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
 			userSaldoTexts[i] = generateSaldoText(product, saldoItem, amount);
+			userSaldoColors[i] = generateSaldoColors(product, saldoItem, amount);
 		}
 		
-		ColorStringAdapter adapter = new ColorStringAdapter(this, userSaldoTexts);
+		ColorStringAdapter adapter = new ColorStringAdapter(this, userSaldoTexts, userSaldoColors);
 		coffeeSaldoView.setAdapter(adapter);
-
-		// saldoEspresso.setTextColor(Color.GREEN);
-		// else
-		// saldoEspresso.setTextColor(Color.RED);
 	}
 
 	private String generateSaldoText(IProduct product, SaldoItem saldoItem, int amount) {
@@ -129,6 +127,12 @@ public class ConfirmPurchaseActivity extends Activity {
 			return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
 				+ (amount * product.getPrice());
 		return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo();
+	}
+	
+	private String generateSaldoColors(IProduct product, SaldoItem saldoItem, int amount)  {
+		if ((saldoItem.getSaldo() - (amount*product.getPrice())) < 0)
+			return "negative";
+		return "positive";
 	}
 	
 	private void setCountdown() {
@@ -158,7 +162,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					buyProducts();
+					buyOrBringProducts();
 				} catch (final ClientException ex) {
 					Log.d(TAG, ex.getMessage());
 					ex.printStackTrace();
@@ -167,13 +171,16 @@ public class ConfirmPurchaseActivity extends Activity {
 		}).start();
 	}
 	
-	private void buyProducts() throws ClientException {
+	private void buyOrBringProducts() throws ClientException {
 		Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 		IUser buyer = c.getUser(username);
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		IProduct product = (IProduct) productAndAmountPair.getKey();
 		int amount = (Integer) productAndAmountPair.getValue();
-		c.buyProduct(buyer, product, amount);
+		if (product.isBuyable())
+			c.buyProduct(buyer, product, amount);
+		else
+			c.bringProduct(buyer, product, amount);
 	}
 
 	private Map.Entry convertBasketIntoProduct() {
