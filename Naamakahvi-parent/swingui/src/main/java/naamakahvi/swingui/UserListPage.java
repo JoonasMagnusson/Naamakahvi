@@ -2,6 +2,7 @@ package naamakahvi.swingui;
 
 import java.awt.event.*;
 import java.awt.*;
+import java.util.Arrays;
 
 import javax.swing.*;
 /**A class implementing a list of all registered usernames for the Facecafe
@@ -76,7 +77,7 @@ public class UserListPage extends JPanel implements ActionListener{
 	 */
 	protected void listUsers(String[] users){
 		userPanel.removeAll();
-		
+		Arrays.sort(users, String.CASE_INSENSITIVE_ORDER);
 		usernames = users;
 		userButtons = new JButton[users.length];
 		for (int i = 0; i < users.length; i++){

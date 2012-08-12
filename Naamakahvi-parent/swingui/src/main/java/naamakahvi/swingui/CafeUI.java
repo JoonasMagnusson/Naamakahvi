@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 /**
  * Käyttöliittymän pääluokka, joka huolehtii tiedonsiirrosta clientin ja näkymien
@@ -390,13 +391,13 @@ public class CafeUI extends JFrame{
 			facelogin.setHelpText("No faces detected");
 			return false;
 		}
-		String[] users = null;
 		try {
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			ImageIO.write(resizeImage(img), OUTPUT_IMAGE_FORMAT, stream);
 			byte[] output = stream.toByteArray();
-			users = cli.identifyImage(output);
-			loginUser(users[0]);
+			usernames = cli.identifyImage(output);
+			System.out.println(usernames.length);
+			loginUser(usernames[0]);
 		}
 		catch (ClientException e){
 			e.printStackTrace();
@@ -410,7 +411,7 @@ public class CafeUI extends JFrame{
 		}
 		
 		
-		if (users.length > MAX_IDENTIFIED_USERS){
+		if (usernames.length > MAX_IDENTIFIED_USERS){
 			switchPage(VIEW_USERLIST_PAGE);
 		}
 		else{
