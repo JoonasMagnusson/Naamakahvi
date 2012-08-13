@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -31,10 +32,12 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	public static final short REQUEST_LOGIN = 1;
+	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0;
 	public static final String TAG = "MainActivity";
 	private LayoutInflater mInflater;
 
+	private ViewGroup root;
+	
 	private SharedPreferences mPreferences;
 
 	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO, R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
@@ -44,9 +47,12 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loading_screen);
-
+		
 		mInflater = getLayoutInflater();
 
+		root = (ViewGroup) mInflater.inflate(R.layout.main, null);
+
+		
 		mPreferences = getPreferences(MODE_PRIVATE);
 		String server = mPreferences.getString("server", null);
 		int port = mPreferences.getInt("port", -1);
@@ -151,6 +157,14 @@ public class MainActivity extends Activity {
 
 	}
 
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setViewGroupEnebled(root, true);
+	}
+
 	private void showStationDialog(final String[] stations) {
 
 		final Handler hand = new Handler(getMainLooper());
@@ -230,8 +244,14 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
+	public void onUserSettingsClick(View v){
+		setViewGroupEnebled(root, false);
+		Intent i =  new Intent(getApplicationContext(),LoginwithusernameActivity.class);	
+		startActivityForResult(i, REQUEST_USER_SETTINGS);
+	}
+	
 	private void loaded() {
-		setContentView(R.layout.main);
+		setContentView(root);
 		List<IProduct> products = ProductCache.listBuyableItems();
 		; // client.listBuyableProducts();
 
@@ -265,6 +285,7 @@ public class MainActivity extends Activity {
 			b.setOnClickListener(new View.OnClickListener() {
 
 				public void onClick(View v) {
+					setViewGroupEnebled(root, false);
 					Intent in = new Intent(c, RecogActivity.class);
 					Basket b = new Basket();
 					b.addProduct(product, qty);
@@ -290,10 +311,29 @@ public class MainActivity extends Activity {
 	}
 
 	public void onRegButtonClick(View v) {
+		setViewGroupEnebled(root, false);
 		Intent i = new Intent(this, NewUserActivity.class);
 		startActivityForResult(i, 0);
 	}
 
+	
+	public static void setViewGroupEnebled(ViewGroup view, boolean enabled)
+	{
+	    int childern = view.getChildCount();
+
+	    for (int i = 0; i< childern ; i++)
+	    {
+	        View child = view.getChildAt(i);
+	        if (child instanceof ViewGroup)
+	        {
+	            setViewGroupEnebled((ViewGroup) child,enabled);
+	        }
+	        child.setEnabled(enabled);
+	    }
+	    view.setEnabled(enabled);
+	}
+
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST_LOGIN) {
@@ -302,6 +342,18 @@ public class MainActivity extends Activity {
 				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
 				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
 				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
+				startActivity(i);
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
+
+		}
+		if (requestCode == REQUEST_USER_SETTINGS) {
+			switch (resultCode) {
+			case RESULT_OK:
+				Intent i = new Intent(this, UserSettingsActivity.class);
+				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
 				startActivity(i);
 				break;
 			case RESULT_CANCELED:

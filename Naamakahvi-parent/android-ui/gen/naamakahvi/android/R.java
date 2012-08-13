@@ -24,8 +24,8 @@ public final class R {
         public static final int bQty3=0x7f080027;
         public static final int bQty4=0x7f080028;
         public static final int bQtyO=0x7f080029;
-        public static final int button1=0x7f080006;
-        public static final int button2=0x7f080007;
+        public static final int button1=0x7f080007;
+        public static final int button2=0x7f080006;
         public static final int buyHeader=0x7f08000d;
         public static final int buyTable=0x7f08000c;
         public static final int clientRegisterButton=0x7f080021;
@@ -106,6 +106,7 @@ public final class R {
         public static final int takepic_instruction=0x7f070014;
         public static final int thumb_rm_instruction=0x7f07000f;
         public static final int user_list=0x7f070008;
+        public static final int user_settings=0x7f070017;
         public static final int username=0x7f070011;
     }
 }

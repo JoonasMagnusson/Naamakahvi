@@ -24,5 +24,6 @@
     <string name="takepic_instruction">Touch preview to take picture</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+    <string name="user_settings">Update user photos</string>
 
 </resources>
