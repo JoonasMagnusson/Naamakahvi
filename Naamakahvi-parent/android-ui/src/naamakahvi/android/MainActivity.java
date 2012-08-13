@@ -35,9 +35,8 @@ public class MainActivity extends Activity {
 	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0;
 	public static final String TAG = "MainActivity";
 	private LayoutInflater mInflater;
+	private boolean mActionStarted = false;
 
-	private ViewGroup root;
-	
 	private SharedPreferences mPreferences;
 
 	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO, R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
@@ -47,12 +46,9 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loading_screen);
-		
+
 		mInflater = getLayoutInflater();
 
-		root = (ViewGroup) mInflater.inflate(R.layout.main, null);
-
-		
 		mPreferences = getPreferences(MODE_PRIVATE);
 		String server = mPreferences.getString("server", null);
 		int port = mPreferences.getInt("port", -1);
@@ -157,12 +153,10 @@ public class MainActivity extends Activity {
 
 	}
 
-	
-	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		setViewGroupEnebled(root, true);
+		mActionStarted = false; //enable buttons
 	}
 
 	private void showStationDialog(final String[] stations) {
@@ -244,14 +238,16 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
-	public void onUserSettingsClick(View v){
-		setViewGroupEnebled(root, false);
-		Intent i =  new Intent(getApplicationContext(),LoginwithusernameActivity.class);	
-		startActivityForResult(i, REQUEST_USER_SETTINGS);
+	public void onUserSettingsClick(View v) {
+		if (!mActionStarted) {
+			mActionStarted = true;
+			Intent i = new Intent(getApplicationContext(), LoginwithusernameActivity.class);
+			startActivityForResult(i, REQUEST_USER_SETTINGS);
+		}
 	}
-	
+
 	private void loaded() {
-		setContentView(root);
+		setContentView(R.layout.main);
 		List<IProduct> products = ProductCache.listBuyableItems();
 		; // client.listBuyableProducts();
 
@@ -285,24 +281,30 @@ public class MainActivity extends Activity {
 			b.setOnClickListener(new View.OnClickListener() {
 
 				public void onClick(View v) {
-					setViewGroupEnebled(root, false);
-					Intent in = new Intent(c, RecogActivity.class);
-					Basket b = new Basket();
-					b.addProduct(product, qty);
-					in.putExtra(ExtraNames.PRODUCTS, b);
-					startActivityForResult(in, REQUEST_LOGIN);
+					if (!mActionStarted) {
+						mActionStarted = true;
+						Intent in = new Intent(c, RecogActivity.class);
+						Basket b = new Basket();
+						b.addProduct(product, qty);
+						in.putExtra(ExtraNames.PRODUCTS, b);
+						startActivityForResult(in, REQUEST_LOGIN);
+					}
 				}
 			});
 
 			b.setOnLongClickListener(new View.OnLongClickListener() {
 
 				public boolean onLongClick(View v) {
-					Intent in = new Intent(c, LoginwithusernameActivity.class);
-					Basket b = new Basket();
-					b.addProduct(product, qty);
-					in.putExtra(ExtraNames.PRODUCTS, b);
-					startActivityForResult(in, REQUEST_LOGIN);
-					return true;
+					if (!mActionStarted) {
+						mActionStarted = true;
+						Intent in = new Intent(c, LoginwithusernameActivity.class);
+						Basket b = new Basket();
+						b.addProduct(product, qty);
+						in.putExtra(ExtraNames.PRODUCTS, b);
+						startActivityForResult(in, REQUEST_LOGIN);
+						return true;
+					}
+					return false;
 				}
 			});
 		}
@@ -311,29 +313,26 @@ public class MainActivity extends Activity {
 	}
 
 	public void onRegButtonClick(View v) {
-		setViewGroupEnebled(root, false);
-		Intent i = new Intent(this, NewUserActivity.class);
-		startActivityForResult(i, 0);
+		if (!mActionStarted) {
+			mActionStarted = true;
+			Intent i = new Intent(this, NewUserActivity.class);
+			startActivityForResult(i, 0);
+		}
 	}
 
-	
-	public static void setViewGroupEnebled(ViewGroup view, boolean enabled)
-	{
-	    int childern = view.getChildCount();
+	public static void setViewGroupEnebled(ViewGroup view, boolean enabled) {
+		int childern = view.getChildCount();
 
-	    for (int i = 0; i< childern ; i++)
-	    {
-	        View child = view.getChildAt(i);
-	        if (child instanceof ViewGroup)
-	        {
-	            setViewGroupEnebled((ViewGroup) child,enabled);
-	        }
-	        child.setEnabled(enabled);
-	    }
-	    view.setEnabled(enabled);
+		for (int i = 0; i < childern; i++) {
+			View child = view.getChildAt(i);
+			if (child instanceof ViewGroup) {
+				setViewGroupEnebled((ViewGroup) child, enabled);
+			}
+			child.setEnabled(enabled);
+		}
+		view.setEnabled(enabled);
 	}
 
-	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST_LOGIN) {
@@ -349,17 +348,14 @@ public class MainActivity extends Activity {
 			}
 
 		}
-		/*if (requestCode == REQUEST_USER_SETTINGS) {
-			switch (resultCode) {
-			case RESULT_OK:
-				Intent i = new Intent(this, UserSettingsActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
-				startActivity(i);
-				break;
-			case RESULT_CANCELED:
-				break;
-			}
-
-		}*/
+		/*
+		 * if (requestCode == REQUEST_USER_SETTINGS) { switch (resultCode) {
+		 * case RESULT_OK: Intent i = new Intent(this,
+		 * UserSettingsActivity.class); i.putExtra(ExtraNames.USERS,
+		 * data.getExtras().getStringArray(ExtraNames.USERS)); startActivity(i);
+		 * break; case RESULT_CANCELED: break; }
+		 * 
+		 * }
+		 */
 	}
 }
