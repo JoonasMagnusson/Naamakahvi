@@ -1,6 +1,8 @@
-package naamakahvi.android;
+package naamakahvi.android.utils;
 
 
+import naamakahvi.android.R;
+import naamakahvi.android.R.layout;
 import android.app.Service;
 import android.content.Context;
 import android.graphics.Color;

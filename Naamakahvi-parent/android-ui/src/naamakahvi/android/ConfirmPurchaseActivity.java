@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
+import naamakahvi.android.utils.ColorStringAdapter;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
