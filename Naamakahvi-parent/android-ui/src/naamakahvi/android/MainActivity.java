@@ -349,7 +349,7 @@ public class MainActivity extends Activity {
 			}
 
 		}
-		if (requestCode == REQUEST_USER_SETTINGS) {
+		/*if (requestCode == REQUEST_USER_SETTINGS) {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent(this, UserSettingsActivity.class);
@@ -360,6 +360,6 @@ public class MainActivity extends Activity {
 				break;
 			}
 
-		}
+		}*/
 	}
 }
