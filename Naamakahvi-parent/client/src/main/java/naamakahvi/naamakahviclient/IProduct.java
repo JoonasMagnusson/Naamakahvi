@@ -6,4 +6,5 @@ public interface IProduct {
     int getId();
     int getProductGroup();
     boolean isBuyable();
+    int getSizeId();
 }

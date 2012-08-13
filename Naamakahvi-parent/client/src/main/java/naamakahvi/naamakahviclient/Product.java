@@ -34,6 +34,10 @@ class Product implements IProduct {
         return id;
     }
 
+    public int getSizeId() {
+        return sizeId;
+    }
+
     public boolean isBuyable() {
         return buyable;
     }
