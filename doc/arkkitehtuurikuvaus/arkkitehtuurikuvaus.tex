@@ -40,7 +40,7 @@
 % \item Main functionalities described in natural language
 % \end{itemize}
 
-The staff of the Department of Computer Science has two coffee syndicates, both of which provide an espresso machine. The other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters.
+The staff of the Department of Computer Science has two coffee syndicates. Both of them provide an espresso machine and the other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters. The Facecafe software keeps track of each member’s balances, using face recognition to identify users.
 
 \section{System Purpose: Requirements}
 
@@ -106,22 +106,34 @@ The staff of the Department of Computer Science has two coffee syndicates, both 
    %   - constraints on the order of operation
 
 \subsubsection{Client/frontend}
-The client is implemented as a Java library and its responsibility is to offer an interface
-for UI-components, abstracting away the communication protocols used between the client and server.
+The client is implemented as a Java library and its responsibility is
+to offer an interface for UI-components, abstracting away the
+communication protocols used between the client and server. 
 
-The client communicates with the server via HTTP, sending GET and POST requests, and receiving JSON-objects from the server.
+The client communicates with the server via HTTP, sending GET and POST
+requests, and receiving JSON-objects from the server. 
 
 
 \subsubsection{Backend/server}
 % redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
 % ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu.
-The server updates the database and gets data from it on client requests and tells the client whether or not the requested operation was successful.
+The server updates the database and gets data from it on client
+requests and tells the client whether or not the requested operation
+was successful. The server is an HTTP-server implemented in Python, and
+is connected to a PostgreSQL database.
 
 \subsubsection{Android-UI}
-% android-ui ihmiset voisivat kirjoittaa tästä
+% android-ui ihmiset voisivat kirjoittaa tästä enemmän
+
+The user interface for Android is written in Java, and uses the client
+library to facilitate communications with the server.
+
 \subsubsection{Swing-UI}
-% swing-ui ihmiset voisivat kirjoittaa tästä
+% swing-ui ihmiset voisivat kirjoittaa tästä enemmän
      
+The Swing user interface is written in Java, and uses the client
+library to facilitate communications with the server.
+
 
 \section{Dynamic Behavior}
 \subsection{Scenarios}
@@ -131,51 +143,85 @@ The server updates the database and gets data from it on client requests and tel
 % - how scenario interacts with components
 
 \subsubsection{Registration}
-Type: Use case\\
-Description:\\
-Component interaction:\\
+\textbf{Type:} Use case\\
+\textbf{Description:} The user gives their name and username to register on the system. The user can also have pictures taken of their face if they want to use face recognition, but it is optional.\\
+\textbf{Component interaction:} \\
    
 \subsubsection{Authentication using face recognition}
-Type: Use case\\
-Description:\\
-Component interaction:\\
+\textbf{Type:} Use case\\
+\textbf{Description:} When the user has chosen a product to buy or bring, a picture is taken of their face. The user is then shown the best matching usernames.\\
+\textbf{Component interaction:} \\
    
 \subsubsection{Authentication using username}
-Type: Use case\\
-Description:\\
-Component interaction:\\
+\textbf{Type:} Use case\\
+\textbf{Description:} The user chooses their username from a list and can then proceed to make a purchase or bring a product.\\
+\textbf{Component interaction:}\\
 
 \subsubsection{Buying coffee}
-Type: Use case\\
-Description:\\
-Component interaction:\\
+\textbf{Type:} Use case\\
+\textbf{Description:} The user chooses the product and the amount of it they want to buy. The user's balance is shown and the user has to confirm the purchase.\\
+\textbf{Component interaction:}\\
 
 \subsubsection{Bringing a product (paying)}
-Type: Use case\\
-Description:\\
-Component interaction:\\
+\textbf{Type:} Use case\\
+\textbf{Description:} The user chooses the right amount of the product they are bringing. The user's balance is shown and the user has to confirm the action.\\
+\textbf{Component interaction:}\\
 
 \subsubsection{Adding new photographs}
-Type: Use case\\
-Description:\\
-Component interaction:\\
+\textbf{Type:} Use case\\
+\textbf{Description:}\\
+\textbf{Component interaction:} \\
 
+\subsubsection{Training}
+\textbf{Type:} System operation\\
+\textbf{Description:}\\
+\textbf{Component interaction:}\\
 
 \section{Other Views}
 
 
-\subsection{Process: in a running system, how components are divided as processes}
+\subsection{Process}
+% Process: in a running system, how components are divided as processes
 % --> e.g. There are can be multiple instances of KujeProcessor, but can
 % there be multiple instances of KujeServer?
 % --> Has multiple instances of KujeProcessor ever been tested? Has
 % multiple instances of KujeServer ever been tested?
+\subsubsection{Backend}
+There should generally only be one backend server that is used by any
+client, since one server can handle multiple stations by using
+different database for each station.
 
-\subsection{Development: Where in code the codebase components are implemented}
-\subsection{Physical: How components are separated in the hardware level}
+\subsubsection{Frontend}
+Any number of frontends can be used simultaneously with the same
+server, provided that each of them uses a different station. It has
+not been tested what would happen if multiple frontends try to use the
+same station simultaneously.
+
+\subsection{Development}
+% Development: Where in code the codebase components are implemented
+
+The components are located in the following directories in the codebase:
+\begin{itemize}
+\item Client: Naamakahvi/Naamakahvi-parent/client
+
+\item Server: Naamakahvi/Python
+
+\item Android-UI: Naamakahvi/Naamakahvi-parent/android-ui
+
+\item Swing-UI: Naamakahvi/Naamakahvi-parent/swingui
+\end{itemize}
+
+
+\subsection{Physical}
+% Physical: How components are separated in the hardware level
 % --> e.g. Division between the frontend and the backend; list also all physical
 % dependencies between components, e.g. ``KujeProcessor and WebApp must stay
 % on the same physical server because ...
 
-\subsection{Deployment: How components are deployed and possible constraints}
+\subsection{Deployment}
+% Deployment: How components are deployed and possible constraints
+
+\section{Testing}
+asdf
 
 \end{document}
