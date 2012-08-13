@@ -390,6 +390,15 @@
 		WHERE ub_groupid = gd_groupdataid AND ub_username = %s
 		AND gd_deacttime IS NULL ORDER BY upper(gd_finname)
 	</entry>
+	<entry key="getUserbalanceByIds">
+		SELECT ub_balance FROM userbalance WHERE ub_groupid = %s AND ub_username = %s;
+	</entry>
+
+
+	<entry key="insertUserBalances">
+		INSERT INTO userbalance ( ub_username, ub_groupid, ub_balance) VALUES (%s, %s, %s);
+	</entry>
+	
 	<entry key="updateUserBalances">
 		UPDATE userbalance SET ub_balance = %s WHERE
 		ub_groupid = %s AND ub_username = %s

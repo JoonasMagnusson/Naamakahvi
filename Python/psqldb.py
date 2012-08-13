@@ -194,12 +194,26 @@ class psqldb:
 		result = self.cur.fetchall()
 		return result
 	
+	def getUserBalanceById(self,id,user):
+		
+		q = self.getQuery("getUserbalanceByIds")		
+
+		try:
+			self.cur.execute(q,(id,user,))		
+		except  Exception ,e:
+			self.con.rollback()			
+			print e
+			
+		result = self.cur.fetchone()[0]
+		return result
+		
+	
 	def insertUserBalances(self,balance,group,user):
 			
 		q = self.getQuery("insertUserBalances")
 
 		try:
-			self.cur.execute(q, (balance,group,user))
+			self.cur.execute(q, (user,group,balance))
 		except  Exception ,e:
 			self.con.rollback()		
 			return e
@@ -207,9 +221,31 @@ class psqldb:
 		self.con.commit()
 		return True	
 	
+	def checkBalanceItem(self,groupid,user):
+		
+		q = self.getQuery("getUserbalanceByIds")		
+
+		try:
+			self.cur.execute(q,(groupid,user))		
+		except  Exception ,e:
+			self.con.rollback()			
+			print e
+		
+		if (self.cur.rowcount > 0):
+			return
+		
+		else:
+			self.insertUserBalances(0, groupid, user)
+	
+		
+		
+		
 	
 	def updateUserBalances(self,balance,group,user):
-			
+		
+		self.checkBalanceItem(group, user)	
+		
+		
 		q = self.getQuery("updateUserBalances")
 
 		try:
@@ -222,6 +258,9 @@ class psqldb:
 	
 	
 	def updateUserBalancesDeduct(self,balance,group,user):
+		
+		
+		self.checkBalanceItem(group, user)
 			
 		q = self.getQuery("updateUserBalancesDeduct")
 
