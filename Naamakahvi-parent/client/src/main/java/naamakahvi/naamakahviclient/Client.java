@@ -215,6 +215,11 @@ public class Client {
      */
     public void registerUser(String username, String givenName,
             String familyName) throws RegistrationException {
+
+        if (username.equals("")) {
+            throw new RegistrationException("Username must not be empty.");
+        }
+
         try {
             JsonObject obj = doPost("/register/",
                     "username", username,
