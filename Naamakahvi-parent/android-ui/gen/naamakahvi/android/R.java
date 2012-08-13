@@ -24,12 +24,12 @@ public final class R {
         public static final int bQty3=0x7f080027;
         public static final int bQty4=0x7f080028;
         public static final int bQtyO=0x7f080029;
-        public static final int button1=0x7f080005;
+        public static final int button1=0x7f080007;
         public static final int button2=0x7f080006;
-        public static final int buyHeader=0x7f08000c;
-        public static final int buyTable=0x7f08000b;
+        public static final int buyHeader=0x7f08000d;
+        public static final int buyTable=0x7f08000c;
         public static final int clientRegisterButton=0x7f080021;
-        public static final int coffeeSaldos=0x7f080004;
+        public static final int coffeeSaldos=0x7f080005;
         public static final int cp_nametext=0x7f080000;
         public static final int editTextEtunimi=0x7f08001b;
         public static final int editTextSukunimi=0x7f08001e;
@@ -41,27 +41,27 @@ public final class R {
         public static final int possibleUsers=0x7f080002;
         public static final int possibleUsersHeader=0x7f080001;
         public static final int product_name=0x7f080024;
-        public static final int progressBar1=0x7f080008;
+        public static final int progressBar1=0x7f080009;
         public static final int regButton=0x7f080015;
-        public static final int scrollView1=0x7f08000a;
+        public static final int scrollView1=0x7f08000b;
         public static final int scrollView2=0x7f080010;
-        public static final int separator1=0x7f08000f;
+        public static final int separator1=0x7f080003;
         public static final int tableRow1=0x7f080016;
         public static final int tableRow2=0x7f080019;
         public static final int tableRow3=0x7f08001c;
-        public static final int textView1=0x7f080007;
+        public static final int textView1=0x7f080008;
         public static final int textView2=0x7f080017;
         public static final int textView3=0x7f08001a;
         public static final int textView4=0x7f08001d;
         public static final int textView5=0x7f080023;
         public static final int thumbGrid=0x7f08001f;
         public static final int touchText=0x7f080020;
-        public static final int tvProduct=0x7f08000d;
+        public static final int tvProduct=0x7f08000e;
         public static final int tvProduct2=0x7f080013;
-        public static final int tvQty=0x7f08000e;
+        public static final int tvQty=0x7f08000f;
         public static final int tvQty2=0x7f080014;
-        public static final int userListView=0x7f080009;
-        public static final int whatYouBought=0x7f080003;
+        public static final int userListView=0x7f08000a;
+        public static final int whatYouBought=0x7f080004;
     }
     public static final class integer {
         public static final int MAX_FASTORDER_UNITS=0x7f060000;
@@ -85,8 +85,10 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f070001;
+        public static final int cancel=0x7f070015;
         public static final int checkout=0x7f07000b;
         public static final int chk_order=0x7f070004;
+        public static final int confirm=0x7f070016;
         public static final int countdown_prefix=0x7f070005;
         public static final int countdown_suffix=0x7f070006;
         public static final int first_name=0x7f070012;
@@ -104,6 +106,7 @@ public final class R {
         public static final int takepic_instruction=0x7f070014;
         public static final int thumb_rm_instruction=0x7f07000f;
         public static final int user_list=0x7f070008;
+        public static final int user_settings=0x7f070017;
         public static final int username=0x7f070011;
     }
 }

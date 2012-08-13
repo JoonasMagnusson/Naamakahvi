@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -31,9 +32,10 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	public static final short REQUEST_LOGIN = 1;
+	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0;
 	public static final String TAG = "MainActivity";
 	private LayoutInflater mInflater;
+	private boolean mActionStarted = false;
 
 	private SharedPreferences mPreferences;
 
@@ -151,6 +153,12 @@ public class MainActivity extends Activity {
 
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mActionStarted = false; //enable buttons
+	}
+
 	private void showStationDialog(final String[] stations) {
 
 		final Handler hand = new Handler(getMainLooper());
@@ -230,6 +238,14 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
+	public void onUserSettingsClick(View v) {
+		if (!mActionStarted) {
+			mActionStarted = true;
+			Intent i = new Intent(getApplicationContext(), LoginwithusernameActivity.class);
+			startActivityForResult(i, REQUEST_USER_SETTINGS);
+		}
+	}
+
 	private void loaded() {
 		setContentView(R.layout.main);
 		List<IProduct> products = ProductCache.listBuyableItems();
@@ -265,23 +281,30 @@ public class MainActivity extends Activity {
 			b.setOnClickListener(new View.OnClickListener() {
 
 				public void onClick(View v) {
-					Intent in = new Intent(c, RecogActivity.class);
-					Basket b = new Basket();
-					b.addProduct(product, qty);
-					in.putExtra(ExtraNames.PRODUCTS, b);
-					startActivityForResult(in, REQUEST_LOGIN);
+					if (!mActionStarted) {
+						mActionStarted = true;
+						Intent in = new Intent(c, RecogActivity.class);
+						Basket b = new Basket();
+						b.addProduct(product, qty);
+						in.putExtra(ExtraNames.PRODUCTS, b);
+						startActivityForResult(in, REQUEST_LOGIN);
+					}
 				}
 			});
 
 			b.setOnLongClickListener(new View.OnLongClickListener() {
 
 				public boolean onLongClick(View v) {
-					Intent in = new Intent(c, LoginwithusernameActivity.class);
-					Basket b = new Basket();
-					b.addProduct(product, qty);
-					in.putExtra(ExtraNames.PRODUCTS, b);
-					startActivityForResult(in, REQUEST_LOGIN);
-					return true;
+					if (!mActionStarted) {
+						mActionStarted = true;
+						Intent in = new Intent(c, LoginwithusernameActivity.class);
+						Basket b = new Basket();
+						b.addProduct(product, qty);
+						in.putExtra(ExtraNames.PRODUCTS, b);
+						startActivityForResult(in, REQUEST_LOGIN);
+						return true;
+					}
+					return false;
 				}
 			});
 		}
@@ -290,8 +313,24 @@ public class MainActivity extends Activity {
 	}
 
 	public void onRegButtonClick(View v) {
-		Intent i = new Intent(this, NewUserActivity.class);
-		startActivityForResult(i, 0);
+		if (!mActionStarted) {
+			mActionStarted = true;
+			Intent i = new Intent(this, NewUserActivity.class);
+			startActivityForResult(i, 0);
+		}
+	}
+
+	public static void setViewGroupEnebled(ViewGroup view, boolean enabled) {
+		int childern = view.getChildCount();
+
+		for (int i = 0; i < childern; i++) {
+			View child = view.getChildAt(i);
+			if (child instanceof ViewGroup) {
+				setViewGroupEnebled((ViewGroup) child, enabled);
+			}
+			child.setEnabled(enabled);
+		}
+		view.setEnabled(enabled);
 	}
 
 	@Override
@@ -309,5 +348,14 @@ public class MainActivity extends Activity {
 			}
 
 		}
+		/*
+		 * if (requestCode == REQUEST_USER_SETTINGS) { switch (resultCode) {
+		 * case RESULT_OK: Intent i = new Intent(this,
+		 * UserSettingsActivity.class); i.putExtra(ExtraNames.USERS,
+		 * data.getExtras().getStringArray(ExtraNames.USERS)); startActivity(i);
+		 * break; case RESULT_CANCELED: break; }
+		 * 
+		 * }
+		 */
 	}
 }

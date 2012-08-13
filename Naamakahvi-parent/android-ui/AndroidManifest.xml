@@ -23,10 +23,11 @@
         <activity android:name=".ConfirmActivity" android:screenOrientation="landscape">
         </activity>
         <activity android:name="naamakahvi.android.MenuActivity" android:screenOrientation="landscape"></activity>
-        <activity android:name="naamakahvi.android.NewUserActivity" android:screenOrientation="landscape"></activity>
+        <activity android:name="naamakahvi.android.NewUserActivity" android:screenOrientation="landscape" android:windowSoftInputMode="adjustPan"></activity>
         <activity android:name="naamakahvi.android.LoginwithusernameActivity" android:screenOrientation="landscape"></activity>
         <activity android:name="naamakahvi.android.ConfirmPurchaseActivity" android:screenOrientation="landscape"></activity>
         <activity android:name="RecogActivity" android:screenOrientation="landscape"></activity>
+        <activity android:screenOrientation="landscape" android:windowSoftInputMode="adjustPan" android:name="UserSettingsActivity"></activity>
     </application>
 
 </manifest>

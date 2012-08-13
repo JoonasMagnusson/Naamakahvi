@@ -346,6 +346,12 @@ public class ClientTest {
     }
 
     @Test
+    public void registrationWithEmptyNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("", "Veikko", "Nieminen");
+    }
+
+    @Test
     public void authenticationWithUnknownNameFails() throws AuthenticationException {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");

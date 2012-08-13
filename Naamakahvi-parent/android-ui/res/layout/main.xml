@@ -111,29 +111,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="146dp" >
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.01"
-            android:orientation="vertical" >
-        </LinearLayout>
-
-        <LinearLayout
+
+        <Button
+            android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="0.05"
-            android:orientation="vertical" >
+            android:layout_weight="0.01"
+            android:text="@string/user_settings" 
+            android:onClick="onUserSettingsClick"
+            />
 
-            <Button
-                android:id="@+id/regButton"
-                android:layout_width="647dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.05"
-                android:onClick="onRegButtonClick"
-                android:text="@string/reg_button" />
+        <Button
+            android:id="@+id/regButton"
+            android:layout_width="647dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.05"
+            android:onClick="onRegButtonClick"
+            android:text="@string/reg_button" />
 
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
