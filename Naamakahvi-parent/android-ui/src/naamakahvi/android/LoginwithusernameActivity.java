@@ -140,6 +140,7 @@ public class LoginwithusernameActivity extends Activity {
 
 			for (int i = 0; i < data.length; ++i) { // initialize sections
 				String s = data[i];
+				if (s.equals("")) s ="a";
 				char firstletter = s.toUpperCase().charAt(0);
 
 				if (isEmpty() || lastSectionName().charAt(0) != firstletter) { // new
