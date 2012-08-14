@@ -40,7 +40,7 @@
 % \item Main functionalities described in natural language
 % \end{itemize}
 
-The staff of the Department of Computer Science has two coffee syndicates. Both of them provide an espresso machine and the other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters. The Facecafe software keeps track of each member’s balances, using face recognition to identify users.
+The staff of the Department of Computer Science has two coffee syndicates. Both of them provide an espresso machine and the other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters. The Facecafe software keeps track of each member’s balance, using face recognition to identify users.
 
 \section{System Purpose: Requirements}
 
@@ -144,12 +144,18 @@ library to facilitate communications with the server.
 
 \subsubsection{Registration}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user gives their name and username to register on the system. The user can also have pictures taken of their face if they want to use face recognition, but it is optional.\\
-\textbf{Component interaction:} \\
+\textbf{Description:} The user enters their name and username to register on the system. 
+The user can also have pictures taken of their face if they want to use face recognition but it is optional.\\
+\textbf{Component interaction:} Once the data has been submitted the user interface passes the user's name and username
+to the client. The client sends them forward to the server in a HTTP post request, and the server checks if the user 
+database already contains the given username. If the username does not already exist and it is valid, the server creates
+a new user in the database and sends a HTTP response back to the client, reporting that the operation was successful.
+The pictures are sent to the server as described in section~\ref{sec:add-train}.\\
    
 \subsubsection{Authentication using face recognition}
 \textbf{Type:} Use case\\
-\textbf{Description:} When the user has chosen a product to buy or bring, a picture is taken of their face. The user is then shown the best matching usernames.\\
+\textbf{Description:} When the user has chosen a product to buy or bring, 
+a picture is taken of their face. The user is then shown the best matching usernames.\\
 \textbf{Component interaction:} \\
    
 \subsubsection{Authentication using username}
@@ -159,23 +165,37 @@ library to facilitate communications with the server.
 
 \subsubsection{Buying coffee}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user chooses the product and the amount of it they want to buy. The user's balance is shown and the user has to confirm the purchase.\\
+\textbf{Description:} The user chooses the product and the amount of it they want to buy. 
+The user's balance is shown and the user has to confirm the purchase.\\
 \textbf{Component interaction:}\\
 
 \subsubsection{Bringing a product (paying)}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user chooses the right amount of the product they are bringing. The user's balance is shown and the user has to confirm the action.\\
+\textbf{Description:} The user chooses the right amount of the product they are bringing. 
+The user's balance is shown and the user has to confirm the action.\\
 \textbf{Component interaction:}\\
 
 \subsubsection{Adding new photographs}
 \textbf{Type:} Use case\\
 \textbf{Description:}\\
-\textbf{Component interaction:} \\
+\textbf{Component interaction:}\\
 
-\subsubsection{Training}
+\subsubsection{Adding and training user images}
+\label{sec:add-train}
 \textbf{Type:} System operation\\
 \textbf{Description:}\\
 \textbf{Component interaction:}\\
+
+\subsubsection{Face recognition}
+\textbf{Type:} System operation\\
+\textbf{Description:}\\
+\textbf{Component interaction:}\\
+
+\subsubsection{Getting user information from the database}
+\textbf{Type:} System operation\\
+\textbf{Description:} \\
+\textbf{Component interaction:}\\
+
 
 \section{Other Views}
 
