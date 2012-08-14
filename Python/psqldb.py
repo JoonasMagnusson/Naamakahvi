@@ -204,7 +204,7 @@ class psqldb:
 			self.con.rollback()			
 			print e
 			
-		result = self.cur.fetchone()[0]
+		result = self.cur.fetchall()
 		return result
 		
 	
@@ -221,6 +221,20 @@ class psqldb:
 		self.con.commit()
 		return True	
 	
+	def deleteUserBalances(self,user):
+		
+		q = self.getQuery("deleteUserBalance")
+
+		try:
+			self.cur.execute(q, (user,))
+		except  Exception ,e:
+			self.con.rollback()		
+			return e
+		
+		self.con.commit()
+		return True	
+		
+	
 	def checkBalanceItem(self,groupid,user):
 		
 		q = self.getQuery("getUserbalanceByIds")		
@@ -235,6 +249,7 @@ class psqldb:
 			return
 		
 		else:
+			print "Saldo Created"
 			self.insertUserBalances(0, groupid, user)
 	
 		

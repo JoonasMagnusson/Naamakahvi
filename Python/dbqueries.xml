@@ -416,7 +416,7 @@
 		DELETE FROM userdata WHERE ud_username = %s
 	</entry>
 	<entry key="deleteUserBalance">
-		DELETE FROM userbalance WHERE ud_username = %s
+		DELETE FROM userbalance WHERE ub_username = %s
 	</entry>
 	<entry key="deleteUserFingers">
 		DELETE FROM finger WHERE f_username = %s
