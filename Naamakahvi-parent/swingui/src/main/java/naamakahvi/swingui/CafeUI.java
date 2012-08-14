@@ -10,8 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 /**
  * Käyttöliittymän pääluokka, joka huolehtii tiedonsiirrosta clientin ja näkymien
@@ -396,7 +394,10 @@ public class CafeUI extends JFrame{
 			ImageIO.write(resizeImage(img), OUTPUT_IMAGE_FORMAT, stream);
 			byte[] output = stream.toByteArray();
 			usernames = cli.identifyImage(output);
-			System.out.println(usernames.length);
+			if (usernames.length == 0){
+				facelogin.setHelpText("Unknown face");
+				return false;
+			}
 			loginUser(usernames[0]);
 		}
 		catch (ClientException e){
