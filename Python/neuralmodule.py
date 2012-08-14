@@ -40,6 +40,17 @@ class neuralmodule:
         
         output.close()
             
+    def loadData(self,datafile):
+        
+        input = open('data.pkl', 'rb')
+        
+        self.SAMPLES = pickle.load(input)
+        self.tmat = pickle.load(input)
+        self.userlist = pickle.load(input)
+        self.ANN_persons = pickle.load(input)
+        self.ANN_names = pickle.load(input)
+        
+        self.computeNets()
 
     
     #Grayscales and normalizes image for PCA
@@ -81,7 +92,11 @@ class neuralmodule:
         else:
             self.tmat = tempmat.copy()
         
+        self.computeNets()
+        
         #print self.tmat.shape
+
+    def computeNets(self):
 
         #print "Doing PCA"        
         self.mean,self.eigens = cv2.PCACompute(self.tmat,maxComponents=self.SAMPLES)
@@ -132,4 +147,4 @@ class neuralmodule:
         my = dict(zy)
         sy = sorted(my,key=my.__getitem__)
         
-        return sy[::-1],major
+        return sy[::-1],my
