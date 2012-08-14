@@ -85,12 +85,12 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		cartIntLayout = new GridBagLayout();
 		cartView.setLayout(cartIntLayout);
 		cartIntConstraints = new GridBagConstraints();
-		cartIntConstraints.weightx = 1.0;
+		cartIntConstraints.weightx = 0.5;
 		cartIntConstraints.fill = GridBagConstraints.BOTH;
 		
 		GridBagConstraints cartExtConstraints = new GridBagConstraints();
 		cartExtConstraints.fill = GridBagConstraints.BOTH;
-		cartExtConstraints.weightx = 1.0;
+		cartExtConstraints.weightx = 0.5;
 		cartExtConstraints.weighty = 1.0;
 		
 		cartExtConstraints.gridheight = GridBagConstraints.RELATIVE;
@@ -109,10 +109,12 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		cartExtLayout.setConstraints(clearButton, cartExtConstraints);
 		cartPanel.add(clearButton);
 		
-		header = new JLabel("Buying:");
+		String s = (mode.equals(CafeUI.MODE_BUY)?"Buying:":"Bring:");
+		header = new JLabel(s);
 		header.setFont(master.UI_FONT);
 		
 		clearCart();
+		constraints.gridwidth = 3;
 		layout.setConstraints(cartPanel, constraints);
 		add(cartPanel);
 		
@@ -129,7 +131,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 		loadProducts(mode);
 		
 		constraints.gridheight = 1;
-		constraints.gridwidth = 3;
+		constraints.gridwidth = 4;
 		constraints.weightx = 0.0;
 		constraints.weighty = 0.2;
 		
@@ -214,7 +216,7 @@ public class PurchaseCartPage extends JPanel implements ActionListener, Closeabl
 	 */
 	private JButton initProductButton(String name, JPanel panel){
 		JButton button = new JButton(name);
-		button.setFont(master.UI_FONT);
+		button.setFont(master.UI_FONT_SMALL);
 		panel.add(button);
 		button.addActionListener(this);
 		return button;

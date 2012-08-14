@@ -63,13 +63,6 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void showsCorrectRawProducts() {
-		for (int i = 0; i < 5; i++){
-			panel.label(JLabelMatcher.withText("BringProd" + i)).requireVisible();
-		}
-	}
-	
-	@Test
 	public void startsBuyCart() {
 		panel.button(JButtonMatcher.withText("Buy Multiple Products")).click();
 		GuiActionRunner.execute(new GuiTask(){
@@ -81,7 +74,7 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 	
 	@Test
 	public void startsBringCart() {
-		panel.button(JButtonMatcher.withText("Bring Multiple Products")).click();
+		panel.button(JButtonMatcher.withText("Bring Products")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				assertEquals(CafeUI.VIEW_BRING_LIST_PAGE, master.currentLocation);
@@ -126,39 +119,6 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 					protected void executeInEDT(){
 						assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.currentLocation);
 						assertEquals(CafeUI.MODE_BUY, master.purchaseMode);
-					}
-				});
-			}
-		}
-	}
-	
-	@Test
-	public void selectsBringProduct(){
-		for (int i = 0; i < 5; i++){
-			for (int j = 0; j < 5; j++){
-				panel.button(JButtonMatcher.withName("bring" +i + ":" + j)).click();
-				String s = GuiActionRunner.execute(new GuiQuery<String>(){
-					protected String executeInEDT(){
-						return master.prods[0].getName();
-					}
-				});
-				Integer[] a = GuiActionRunner.execute(new GuiQuery<Integer[]>(){
-					protected Integer[] executeInEDT(){
-						Integer[] a = new Integer[3];
-						a[0] = master.prods.length;
-						a[1] = master.amounts.length;
-						a[2] = master.amounts[0];
-						return a;
-					}
-				});
-				assertEquals(1,(int)a[0]);
-				assertEquals("BringProd" + i, s);
-				assertEquals(1, (int)a[1]);
-				assertEquals(j+1, (int)a[2]);
-				GuiActionRunner.execute(new GuiTask(){
-					protected void executeInEDT(){
-						assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.currentLocation);
-						assertEquals(CafeUI.MODE_BRING, master.purchaseMode);
 					}
 				});
 			}

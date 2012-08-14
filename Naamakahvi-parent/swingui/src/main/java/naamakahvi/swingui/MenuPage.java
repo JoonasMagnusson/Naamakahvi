@@ -18,11 +18,11 @@ import naamakahvi.naamakahviclient.IProduct;
 public class MenuPage extends JPanel implements ActionListener, CloseableView{
 	
 	private JButton buycart, bringcart, logout, add;
-	private JButton[][] buyprodButtons, bringprodButtons;
-	private IProduct[] buyproducts, bringproducts;
-	private JPanel buyprodPanel, bringprodPanel;
+	private JButton[][] buyprodButtons;
+	private IProduct[] buyproducts;
+	private JPanel buyprodPanel;
 	private CafeUI master;
-	private JScrollPane buyscroll, bringscroll;
+	private JScrollPane buyscroll;
 	private ShortList userlist;
 	/**Creates a new menu page view.
 	 * 
@@ -49,7 +49,7 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		
 		buyprodPanel = new JPanel();
 		
-		constraints.gridheight = 4;
+		constraints.gridheight = 8;
 		constraints.weightx = 1.0;
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
@@ -59,17 +59,9 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		layout.setConstraints(buyscroll, constraints);
 		add(buyscroll);
 		
-		bringprodPanel = new JPanel();
-		
-		bringscroll = new JScrollPane(bringprodPanel,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		layout.setConstraints(bringscroll, constraints);
-		add(bringscroll);
-		
 		constraints.gridheight = 1;
 		constraints.gridwidth = 1;
-		constraints.weighty = 1.0;
+		constraints.weighty = 0.3;
 		constraints.weightx = 0.2;
 		
 		add = new JButton("Add Pictures to Account");
@@ -77,6 +69,12 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		add.addActionListener(this);
 		layout.setConstraints(add, constraints);
 		add(add);
+		
+		bringcart = new JButton("Bring Products");
+		bringcart.setFont(master.UI_FONT);
+		bringcart.addActionListener(this);
+		layout.setConstraints(bringcart, constraints);
+		add(bringcart);
 		
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		constraints.weightx = 1.0;
@@ -111,28 +109,17 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;
 		List<IProduct> tempbuy = master.getBuyableProducts();
-		List<IProduct> tempbring = master.getRawProducts();
-		
-		if (tempbuy == null) return;
 		
 		GridBagLayout buyLayout = new GridBagLayout();
-		GridBagLayout bringLayout = new GridBagLayout();
 		
 		buyprodPanel.removeAll();
-		bringprodPanel.removeAll();
 		
 		buyprodPanel.setLayout(buyLayout);
-		bringprodPanel.setLayout(bringLayout);
 		
 		JLabel buyheader = new JLabel("Buy Products:");
 		buyheader.setFont(master.UI_FONT);
 		buyLayout.setConstraints(buyheader, c);
 		buyprodPanel.add(buyheader);
-		
-		JLabel bringheader = new JLabel("Bring Products:");
-		bringheader.setFont(master.UI_FONT);
-		bringLayout.setConstraints(bringheader, c);
-		bringprodPanel.add(bringheader);
 		
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		
@@ -142,19 +129,9 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		buyLayout.setConstraints(buycart, c);
 		buyprodPanel.add(buycart);
 		
-		bringcart = new JButton("Bring Multiple Products");
-		bringcart.setFont(master.UI_FONT_SMALL);
-		bringcart.addActionListener(this);
-		bringLayout.setConstraints(bringcart, c);
-		bringprodPanel.add(bringcart);
-		
 		buyproducts = new IProduct[tempbuy.size()];
 		buyprodButtons = new JButton[tempbuy.size()][5];
 		tempbuy.toArray(buyproducts);
-		
-		bringproducts = new IProduct[tempbring.size()];
-		bringprodButtons = new JButton[tempbring.size()][5];
-		tempbring.toArray(bringproducts);
 		
 		for (int i = 0; i < buyproducts.length; i++){
 			c.gridwidth = 1;
@@ -183,31 +160,6 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		
 		buyprodPanel.revalidate();
 		
-		for (int i = 0; i <bringproducts.length; i++){
-			c.gridwidth = 1;
-			
-			JLabel prodname = new JLabel(bringproducts[i].getName());
-			prodname.setFont(master.UI_FONT_SMALL);
-			bringLayout.setConstraints(prodname, c);
-			bringprodPanel.add(prodname);
-			
-			c.gridwidth = GridBagConstraints.REMAINDER;
-			
-			JPanel prodline = new JPanel();
-			prodline.setLayout(new GridLayout(1,0));
-			bringLayout.setConstraints(prodline, c);
-			bringprodPanel.add(prodline);
-			
-			
-			for (int j = 0; j < 5; j++){
-				bringprodButtons[i][j] = new JButton("" + (j+1));
-				bringprodButtons[i][j].setFont(master.UI_FONT_SMALL);
-				bringprodButtons[i][j].addActionListener(this);
-				bringprodButtons[i][j].setName("bring"+i+":"+j);
-				prodline.add(bringprodButtons[i][j]);
-			}
-		}
-		bringprodPanel.revalidate();
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -224,20 +176,6 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 					int[] amounts = new int[1];
 					amounts[0] = j+1;
 					master.setPurchaseMode(CafeUI.MODE_BUY);
-					master.selectProduct(prods, amounts);
-					master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
-				}
-			}
-		}
-		for (int i = 0; i < bringprodButtons.length; i++){
-			for (int j = 0; j < bringprodButtons[i].length; j++){
-				if (s == bringprodButtons[i][j]){
-					IProduct[] prods = new IProduct[1];
-					prods[0] = bringproducts[i];
-
-					int[] amounts = new int[1];
-					amounts[0] = j+1;
-					master.setPurchaseMode(CafeUI.MODE_BRING);
 					master.selectProduct(prods, amounts);
 					master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
 				}
