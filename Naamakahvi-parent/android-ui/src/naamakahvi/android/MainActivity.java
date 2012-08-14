@@ -348,14 +348,14 @@ public class MainActivity extends Activity {
 			}
 
 		}
-		/*
-		 * if (requestCode == REQUEST_USER_SETTINGS) { switch (resultCode) {
-		 * case RESULT_OK: Intent i = new Intent(this,
-		 * UserSettingsActivity.class); i.putExtra(ExtraNames.USERS,
-		 * data.getExtras().getStringArray(ExtraNames.USERS)); startActivity(i);
-		 * break; case RESULT_CANCELED: break; }
-		 * 
-		 * }
-		 */
+		
+		 if (requestCode == REQUEST_USER_SETTINGS) { switch (resultCode) {
+		 case RESULT_OK: Intent i = new Intent(this,
+		 UserSettingsActivity.class); i.putExtra(ExtraNames.USERS,
+		 data.getExtras().getStringArray(ExtraNames.USERS)); startActivity(i);
+		 break; case RESULT_CANCELED: break; }
+		 
+		 }
+		
 	}
 }
