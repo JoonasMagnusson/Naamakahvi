@@ -13,41 +13,48 @@
         android:layout_marginRight="10dp"
         android:text="Medium Text"
         android:gravity="center_vertical"
-        android:textSize="30dp"/>
-
+        android:textSize="30dp"
+        
+        />
+
     <Button
         android:id="@+id/bQty1"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:textSize="30dp"
-        android:text="1" />
+        android:text="1"
+        android:padding="15dp"
+        android:textSize="40dp" />
 
     <Button
         android:id="@+id/bQty2"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:textSize="30dp"
+        android:textSize="40dp"
+        android:padding="15dp"
         android:text="2" />
 
     <Button
         android:id="@+id/bQty3"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:textSize="30dp"
+        android:textSize="40dp"
+        android:padding="15dp"
         android:text="3" />
 
     <Button
         android:id="@+id/bQty4"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:textSize="30dp"
+        android:textSize="40dp"
+        android:padding="15dp"
         android:text="4" />
 
     <Button
         android:id="@+id/bQtyO"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30dp"
+        android:textSize="40dp"
+        android:padding="15dp"
         android:text="..." />
 
 </TableRow>

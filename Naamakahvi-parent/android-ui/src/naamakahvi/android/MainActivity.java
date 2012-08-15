@@ -33,9 +33,12 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0;
+	public static final boolean MODE_BUY = true, MODE_BRING = false;
 	public static final String TAG = "MainActivity";
 	private LayoutInflater mInflater;
 	private boolean mActionStarted = false;
+
+	private boolean mModeBuying = true;
 
 	private SharedPreferences mPreferences;
 
@@ -50,10 +53,14 @@ public class MainActivity extends Activity {
 		mInflater = getLayoutInflater();
 
 		mPreferences = getPreferences(MODE_PRIVATE);
+		// get saved config
 		String server = mPreferences.getString("server", null);
 		int port = mPreferences.getInt("port", -1);
 		String station = mPreferences.getString("station", null);
-		if (server == null || station == null || port < 1) {
+
+		if (server == null || station == null || port < 1) { // no config saved
+																// or invalid
+																// config
 			showServerDialog();
 		} else {
 			Config.SERVER_URL = server;
@@ -64,6 +71,10 @@ public class MainActivity extends Activity {
 
 	}
 
+	/**
+	 * Shows the server picker dialog and continues the start configuration
+	 * process
+	 */
 	private void showServerDialog() {
 		final EditText servEdit = new EditText(this);
 
@@ -88,6 +99,10 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
+	/**
+	 * Shows the port picker dialog and continues the start configuration
+	 * process
+	 */
 	private void showPortDialog() {
 		final EditText portEdit = new EditText(this);
 
@@ -116,6 +131,15 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
+	/**
+	 * Fetches the station list from the server and show the station picker
+	 * dialog.
+	 * 
+	 * @param con
+	 *            context for dialogs
+	 * @param hand
+	 *            handler to which UI events are posted
+	 */
 	private void fetchStations(final Context con, final Handler hand) {
 		new Thread(new Runnable() {
 
@@ -156,9 +180,15 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mActionStarted = false; //enable buttons
+		mActionStarted = false; // enable buttons
 	}
 
+	/**
+	 * Shows the station picker dialog
+	 * 
+	 * @param stations
+	 *            list of stations to pick from
+	 */
 	private void showStationDialog(final String[] stations) {
 
 		final Handler hand = new Handler(getMainLooper());
@@ -190,6 +220,9 @@ public class MainActivity extends Activity {
 		builder.show();
 	}
 
+	/**
+	 * Fetches product data from the server
+	 */
 	private void loadData() {
 		final Handler hand = new Handler(getMainLooper());
 
@@ -224,6 +257,14 @@ public class MainActivity extends Activity {
 
 	}
 
+	/**
+	 * Displays a non-cancelable error dialog with a message from an exception
+	 * 
+	 * @param con
+	 *            Dialog context
+	 * @param ex
+	 *            The exception whose message to show.
+	 */
 	private void showErrorDialog(Context con, Exception ex) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		builder.setCancelable(false);
@@ -246,31 +287,68 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Called after product data has been fetched from server.
+	 */
 	private void loaded() {
 		setContentView(R.layout.main);
-		List<IProduct> products = ProductCache.listBuyableItems();
-		; // client.listBuyableProducts();
+		setMode(MODE_BUY);
+	}
 
-		TableLayout tl = (TableLayout) findViewById(R.id.buyTable);
+	public void onModeButtonClick(View v) {
+		setMode(!mModeBuying);
+	}
 
-		for (IProduct p : products) {
-			tl.addView(makeProductRow(p));
+	private void setMode(boolean mode) {
+		mModeBuying = mode;
+
+		setModeText();
+
+		List<IProduct> products = (mModeBuying) ? ProductCache.listBuyableItems() : ProductCache.listRawItems();
+
+		TableLayout t = (TableLayout) findViewById(R.id.productTable);
+		TableRow[] children = new TableRow[t.getChildCount()];
+
+		for (int i = children.length-1; i > 0; --i) {
+			children[i] = (TableRow) t.getChildAt(i);
+			t.removeView(children[i]);
 		}
-		products = ProductCache.listRawItems();
-		tl = (TableLayout) findViewById(R.id.payTable);
 
-		for (IProduct p : products) {
-			tl.addView(makeProductRow(p));
+		for (int i = 0; i < products.size(); ++i) {
+			TableRow row;
+			if (i < children.length - 1) {
+				row = makeProductRow(products.get(i), children[i]);
+			} else {
+				row = makeProductRow(products.get(i), null);
+			}
+			t.addView(row);
 		}
 	}
 
-	private TableRow makeProductRow(final IProduct product) {
-		TableRow t = (TableRow) mInflater.inflate(R.layout.product_table_row, null);
+	/**
+	 * Sets the appropriate labels for the current mode (buy/bring products)
+	 */
+	private void setModeText() {
+		TextView mode = (TextView) findViewById(R.id.modeText);
+		Button modeButton = (Button) findViewById(R.id.mode_button);
+
+		if (mModeBuying) {
+			mode.setText(getString(R.string.buy_products));
+			modeButton.setText(getString(R.string.bring_products));
+		} else {
+			mode.setText(getString(R.string.bring_products));
+			modeButton.setText(getString(R.string.buy_products));
+		}
+	}
+
+	private TableRow makeProductRow(final IProduct product, TableRow t) {
+
+		if (t == null) {
+			t = (TableRow) mInflater.inflate(R.layout.product_table_row, null);
+		}
+
 		TextView name = (TextView) t.findViewById(R.id.product_name);
 		name.setText(product.getName());
-
-		Button other = (Button) t.findViewById(PRODUCT_QTY_BUTTONS[0]);
-		other.setOnClickListener(null); // TODO
 
 		final Context c = this;
 
@@ -348,14 +426,19 @@ public class MainActivity extends Activity {
 			}
 
 		}
-		
-		 if (requestCode == REQUEST_USER_SETTINGS) { switch (resultCode) {
-		 case RESULT_OK: Intent i = new Intent(this,
-		 UserSettingsActivity.class); i.putExtra(ExtraNames.USERS,
-		 data.getExtras().getStringArray(ExtraNames.USERS)); startActivity(i);
-		 break; case RESULT_CANCELED: break; }
-		 
-		 }
-		
+
+		if (requestCode == REQUEST_USER_SETTINGS) {
+			switch (resultCode) {
+			case RESULT_OK:
+				Intent i = new Intent(this, UserSettingsActivity.class);
+				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				startActivity(i);
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
+
+		}
+
 	}
 }

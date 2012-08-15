@@ -25,5 +25,7 @@
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
     <string name="user_settings">Update user photos</string>
+    <string name="buy_products">Buy Products</string>
+    <string name="bring_products">Bring Products</string>
 
 </resources>
