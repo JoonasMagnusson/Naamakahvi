@@ -42,39 +42,47 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1.33" >
-
-            <TableLayout
-                android:id="@+id/productTable"
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp" >
-
-                <TableRow
-                    android:id="@+id/productHeader"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <TextView
-                        android:id="@+id/tvProduct"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:text="@string/product"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    <TextView
-                        android:id="@+id/tvQty"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_span="5"
-                        android:layout_weight="0.06"
-                        android:text="@string/qty"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_marginBottom="30dp"
+                android:orientation="vertical" >
 
-                </TableRow>
-            </TableLayout>
+                <TableLayout
+                    android:id="@+id/productTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp" >
+
+                    <TableRow
+                        android:id="@+id/productHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <TextView
+                            android:id="@+id/tvProduct"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="5dp"
+                            android:text="@string/product"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <TextView
+                            android:id="@+id/tvQty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="5dp"
+                            android:layout_span="5"
+                            android:layout_weight="0.06"
+                            android:text="@string/qty"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+
         </ScrollView>
+
     </LinearLayout>
 
     <LinearLayout
