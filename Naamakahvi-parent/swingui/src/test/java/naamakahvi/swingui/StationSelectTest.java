@@ -55,12 +55,17 @@ public class StationSelectTest extends FestSwingJUnitTestCase {
 	public void stationsSelectable(){
 		for (int i = 0; i < 10; i++){
 			panel.button(JButtonMatcher.withText("station"+i)).click();
-			String s = GuiActionRunner.execute(new GuiQuery<String>(){
-				protected String executeInEDT(){
-					return master.selectedStation;
+			boolean b = GuiActionRunner.execute(new GuiQuery<Boolean>(){
+				protected Boolean executeInEDT(){
+					return master.uiCreated;
 				}
 			});
-			assertEquals(master.stations.get(i), s);
+			assertEquals(true, b);
+			GuiActionRunner.execute(new GuiTask(){
+				protected void executeInEDT(){
+					master.resetCreation();
+				}
+			});
 		}
 	}
 

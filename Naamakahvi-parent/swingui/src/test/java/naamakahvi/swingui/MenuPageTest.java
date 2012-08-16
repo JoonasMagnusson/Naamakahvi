@@ -83,6 +83,16 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 	}
 	
 	@Test
+	public void startsAddImage() {
+		panel.button(JButtonMatcher.withText("Add Images to Account")).click();
+		GuiActionRunner.execute(new GuiTask(){
+			protected void executeInEDT(){
+				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.currentLocation);
+			}
+		});
+	}
+	
+	@Test
 	public void logsOut() {
 		panel.button(JButtonMatcher.withText("Log Out")).click();
 		GuiActionRunner.execute(new GuiTask(){

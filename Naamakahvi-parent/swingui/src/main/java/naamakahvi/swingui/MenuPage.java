@@ -64,7 +64,7 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		constraints.weighty = 0.3;
 		constraints.weightx = 0.2;
 		
-		add = new JButton("Add Pictures to Account");
+		add = new JButton("Add Images to Account");
 		add.setFont(master.UI_FONT);
 		add.addActionListener(this);
 		layout.setConstraints(add, constraints);

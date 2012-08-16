@@ -22,10 +22,10 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 	public String selectedUserLN;
 	public boolean closed = false;
 	public ArrayList<String> stations;
-	public String selectedStation;
+	public boolean uiCreated = false;
 	
 	public DummyCafeUI(){
-		super(640, 480, 0, false, true, "999.999.999.999", -1);
+		super(0, false, true, "999.999.999.999", -1);
 		//setVisible(false);
 		container.removeAll();
 		l = new CardLayout();
@@ -41,8 +41,12 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 	}
 	
 	@Override
-	protected void createStore(String station){
-		selectedStation = station;
+	protected void createStore(Client client){
+		uiCreated = true;
+	}
+	
+	public void resetCreation(){
+		uiCreated = false;
 	}
 	
 	@Override
@@ -128,43 +132,6 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 	protected boolean loginUser(String username){
 		this.selectedUserUN = username;
 		return true;
-	}
-	
-	private class FakeProduct implements IProduct{
-		private String name;
-		private double price;
-		private int id, group;
-		private boolean buyable;
-		
-		public FakeProduct(String name, int group, double price,
-				int id, boolean buyable){
-			this.name = name;
-			this.group = group;
-			this.price = price;
-			this.id = id;
-			this.buyable = buyable;
-		}
-		
-		public String getName() {
-			return name;
-		}
-
-		public double getPrice() {
-			return price;
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public int getProductGroup() {
-			return group;
-		}
-
-		public boolean isBuyable() {
-			return buyable;
-		}
-		
 	}
 	
 	public IProduct[] generateProducts(){

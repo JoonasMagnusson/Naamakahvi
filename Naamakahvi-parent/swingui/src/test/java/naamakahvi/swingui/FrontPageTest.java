@@ -66,6 +66,17 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 	}
 	
 	@Test
+	public void startsAddPictureLogin() {
+		panel.button(JButtonMatcher.withText("Add Images to Existing Account")).click();
+		GuiActionRunner.execute(new GuiTask(){
+			protected void executeInEDT(){
+				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.continueLocation);
+				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.currentLocation);
+			}
+		});
+	}
+	
+	@Test
 	public void startsRegistration() {
 		panel.button(JButtonMatcher.withText("New User")).click();
 		GuiActionRunner.execute(new GuiTask(){

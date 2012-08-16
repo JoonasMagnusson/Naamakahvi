@@ -69,8 +69,6 @@ public class ShortListTest extends FestSwingJUnitTestCase {
 		panel.label(JLabelMatcher.withText("user0")).requireVisible();
 	}
 	
-	//TODO test saldo display
-	
 	@Test
 	public void userListButtonWorks(){
 		GuiActionRunner.execute(new GuiTask(){
@@ -106,11 +104,6 @@ public class ShortListTest extends FestSwingJUnitTestCase {
 		});
 		for ( int i = 0; i< 5; i++){
 			panel.button(JButtonMatcher.withText("user"+i)).click();
-			GuiActionRunner.execute(new GuiTask(){
-				protected void executeInEDT(){
-					assertEquals(true, master.closed);
-				}
-			});
 			String s = GuiActionRunner.execute(new GuiQuery<String>(){
 				protected String executeInEDT(){
 					return master.selectedUserUN;

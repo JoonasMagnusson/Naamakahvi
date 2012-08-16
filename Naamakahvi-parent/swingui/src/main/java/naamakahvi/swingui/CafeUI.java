@@ -36,7 +36,7 @@ public class CafeUI extends JFrame{
 	
 	//veloitukseen tarvittavat tiedot
 	private FaceCapture face;
-	private Client cli;
+	private Client client;
 	private String[] usernames = new String[1];
 	private IUser user;
 	private IProduct[] selProd;
@@ -78,7 +78,7 @@ public class CafeUI extends JFrame{
 	/**Luo uuden Swing-käyttöliittymäikkunan ja näyttää Station-valintanäkymän
 	 * 
 	 */
-	public CafeUI(int xres, int yres, int camera, boolean doFaceDetect, boolean camOffline, String ip, int port){
+	public CafeUI(int camera, boolean doFaceDetect, boolean camOffline, String ip, int port){
 		JLabel loading = new JLabel("Loading...", SwingConstants.CENTER);
 		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
 		add(loading);
@@ -117,43 +117,47 @@ public class CafeUI extends JFrame{
 		
 	}
 	
-	protected void createStore(String station){
-		try{
-			cli = new Client(ADDRESS_IP, ADDRESS_PORT, station);
-		}
-		catch (Exception e){
-			e.printStackTrace();
-			return;
-		}
+	protected void createStore(Client client){
+		this.client = client;
 		
 		front = new FrontPage(this);
+		front.setName("front");
 		container.add(front, VIEW_FRONT_PAGE);
 		
 		menu = new MenuPage(this);
+		menu.setName("menu");
 		container.add(menu, VIEW_MENU_PAGE);
 		
 		buycart = new PurchaseCartPage(this, MODE_BUY);
+		buycart.setName("buycart");
 		container.add(buycart, VIEW_BUY_LIST_PAGE);
 		
 		bringcart = new PurchaseCartPage(this, MODE_BRING);
+		bringcart.setName("bringcart");
 		container.add(bringcart, VIEW_BRING_LIST_PAGE);
 		
 		checkout = new CheckoutPage(this);
+		checkout.setName("checkout");
 		container.add(checkout, VIEW_CHECKOUT_PAGE);
 		
 		register = new RegistrationPage(this);
+		register.setName("register");
 		container.add(register, VIEW_REGISTRATION_PAGE);
 		
 		manual = new ManLoginPage(this);
+		manual.setName("manual");
 		container.add(manual, VIEW_MAN_LOGIN_PAGE);
 		
 		userlist = new UserListPage(this);
+		userlist.setName("userlist");
 		container.add(userlist, VIEW_USERLIST_PAGE);
 		
 		facelogin = new FaceLoginPage(this);
+		facelogin.setName("facelogin");
 		container.add(facelogin, VIEW_FACE_LOGIN_PAGE);
 		
 		add = new AddPicturePage(this);
+		add.setName("add");
 		container.add(add, VIEW_ADD_PICTURE_PAGE);
 		
 		switchPage(VIEW_FRONT_PAGE);
@@ -167,15 +171,12 @@ public class CafeUI extends JFrame{
 		}
 		if (VIEW_FRONT_PAGE.equals(page)){
 			viewSwitcher.show(container, page);
-			//front.resetPage();
 			user = null;
 			usernames = new String[1];
 			currentLocation = page;
 		}
 		if (VIEW_MENU_PAGE.equals(page)){
 			menu.setUser(usernames);
-			//menu.setCoffeeSaldo(client.getCoffeeSaldo(userName));
-			//menu.setEspressoSaldo(client.getEspressoSaldo(userName));
 			viewSwitcher.show(container, page);
 			currentLocation = page;
 		}
@@ -212,7 +213,7 @@ public class CafeUI extends JFrame{
 		}
 		if (VIEW_USERLIST_PAGE.equals(page)){
 			try{
-				userlist.listUsers(cli.listUsernames());
+				userlist.listUsers(client.listUsernames());
 			}
 			catch (ClientException e){
 				e.printStackTrace();
@@ -249,6 +250,10 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	protected String getPurchaseMode(){
+		return mode;
+	}
+	
 	protected FaceCanvas getCanvas(){
 		return face.getCanvas();
 	}
@@ -256,16 +261,16 @@ public class CafeUI extends JFrame{
 	protected boolean buyProduct(IProduct prod, int quantity){
 		try{
 			if (mode.equals(MODE_BUY)){
-				cli.buyProduct(user, prod, quantity);
+				client.buyProduct(user, prod, quantity);
 				front.setHelpText("Transaction successful");
 			}
 			else if (mode.equals(MODE_BRING)){
-				cli.bringProduct(user, prod, quantity);
+				client.bringProduct(user, prod, quantity);
 				front.setHelpText("Transaction successful");
 			}
 			else {
 				throw new RuntimeException(
-						"Attempted to buy wit illegal buy mode");
+						"Attempted to buy with illegal buy mode");
 			}
 			return true;
 		}
@@ -288,10 +293,10 @@ public class CafeUI extends JFrame{
 				}
 			}
 			
-			cli.registerUser(userName, givenName, familyName);
+			client.registerUser(userName, givenName, familyName);
 			for (int i = 0; i< streams.length; i++){
 				if (streams[i] != null)
-					cli.addImage(userName, streams[i].toByteArray());
+					client.addImage(userName, streams[i].toByteArray());
 			}
 			front.setHelpText("Registered user " + userName);
 			return true;
@@ -314,7 +319,7 @@ public class CafeUI extends JFrame{
 				if (images[i] != null){
 					streams[i] = new ByteArrayOutputStream();
 					ImageIO.write(resizeImage(images[i]), OUTPUT_IMAGE_FORMAT, streams[i]);
-					cli.addImage(user.getUserName(), streams[i].toByteArray());
+					client.addImage(user.getUserName(), streams[i].toByteArray());
 				}
 			}
 			return true;
@@ -343,7 +348,7 @@ public class CafeUI extends JFrame{
 	
 	protected boolean loginUser(String userName){
 		try {
-			user = cli.getUser(userName);
+			user = client.getUser(userName);
 			this.usernames[0] = user.getUserName();
 			return true;
 		}
@@ -356,7 +361,7 @@ public class CafeUI extends JFrame{
 	
 	protected List<IProduct> getBuyableProducts(){
 		try{
-			return cli.listBuyableProducts();
+			return client.listBuyableProducts();
 		}
 		catch (ClientException e){
 			e.printStackTrace();
@@ -366,7 +371,7 @@ public class CafeUI extends JFrame{
 	}
 	protected List<IProduct> getRawProducts(){
 		try{
-			return cli.listRawProducts();
+			return client.listRawProducts();
 		}
 		catch (ClientException e){
 			e.printStackTrace();
@@ -393,7 +398,7 @@ public class CafeUI extends JFrame{
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			ImageIO.write(resizeImage(img), OUTPUT_IMAGE_FORMAT, stream);
 			byte[] output = stream.toByteArray();
-			usernames = cli.identifyImage(output);
+			usernames = client.identifyImage(output);
 			if (usernames.length == 0){
 				facelogin.setHelpText("Unknown face");
 				return false;
@@ -421,7 +426,7 @@ public class CafeUI extends JFrame{
 		return true;
 	}
 	
-	private BufferedImage resizeImage(BufferedImage img){
+	protected BufferedImage resizeImage(BufferedImage img){
 		BufferedImage resize = new BufferedImage(200,200,
 				BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2 = resize.createGraphics();
@@ -499,7 +504,7 @@ public class CafeUI extends JFrame{
 			}
 		}
 		
-		CafeUI window = new CafeUI(xres, yres, cam, doFaceDetect, camOffline, ip, port);
+		CafeUI window = new CafeUI(cam, doFaceDetect, camOffline, ip, port);
 		window.setTitle("Facecafe");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);

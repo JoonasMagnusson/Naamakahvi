@@ -86,7 +86,7 @@ public class FrontPage extends JPanel implements ActionListener{
 		layout.setConstraints(register, constraints);
 		add(register);
 		
-		add = new JButton("Add Pictures to Existing Account");
+		add = new JButton("Add Images to Existing Account");
 		add.setFont(master.UI_FONT);
 		add.addActionListener(this);
 		

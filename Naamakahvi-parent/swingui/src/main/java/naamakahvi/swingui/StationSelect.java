@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.*;
+
+import naamakahvi.naamakahviclient.Client;
 /**A class implementing the station selection page of the Facecafe swingui
  * component.
  * The station selection page is displayed during program startup and shows
@@ -51,7 +53,8 @@ public class StationSelect extends JPanel implements ActionListener{
 		Object s = e.getSource();
 		for (int i = 0; i < stationButtons.length; i++){
 			if (s == stationButtons[i]){
-				master.createStore(stations.get(i));
+				master.createStore(new Client(master.ADDRESS_IP, 
+						master.ADDRESS_PORT, stations.get(i)));
 			}
 		}
 		

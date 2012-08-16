@@ -150,6 +150,7 @@ public class CheckoutPage extends JPanel implements ActionListener, CloseableVie
 					"Mode passed to checkout was neither buy nor bring");
 		}
 		header.setFont(master.UI_FONT_BIG);
+		header.setName("header");
 		purchasePanel.add(header);
 		
 		for (int i = 0; i < products.length; i++){
