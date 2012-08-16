@@ -284,7 +284,7 @@ class psqldb:
 		except  Exception ,e:
 			self.con.rollback()
 			return e		
-		self.con.commit()
+		#self.con.commit()
 		return True
 	
 	def listUsernames(self):
@@ -350,7 +350,7 @@ class psqldb:
 			self.con.rollback()		
 			return e
 		
-		self.con.commit()
+		#self.con.commit()
 		return True
 		
 	def selectExportProductData(self,product):
@@ -382,6 +382,8 @@ class psqldb:
 		self.decGroupBalanceById(group, amount)
 		self.updateUserBalancesDeduct(amount, group, user)
 		self.insertBuy(user,product,amount)
+		
+		self.con.commit()
 		
 		return True
 	
@@ -431,6 +433,8 @@ class psqldb:
 		except  Exception ,e:
 			self.con.rollback()			
 			return e
+			
+		self.con.commit()
 			
 		self.insertBring(user,rawproduct,sizeid,amount)
 		return True

@@ -24,7 +24,7 @@
 	</entry>
 	<entry key="selectEProductNames">
 		SELECT final_finalproductid, final_finname, final_engname,
-		final_swename, final_groupid FROM finalproduct ORDER BY final_finalproductid
+		final_swename, final_groupid, final_value FROM finalproduct ORDER BY final_finalproductid
 	</entry>
 	<entry key="selectIProductNames">
 		SELECT raw_rawproductid, raw_finname, raw_engname, raw_swename,
