@@ -451,11 +451,13 @@ public class Client {
      * @param amount the amount of the brought product
      */
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
+    	Product actual = (Product) product;
         doPost("/bring_product/",
-               "product_name", product.getName(),
+               "product_name", actual.getName(),
                "station_name", this.station,
                "amount", "" + amount,
-               "username", user.getUserName());
+               "username", user.getUserName(),
+               "size_id",Integer.toString(actual.getSizeId()));
     }
 
     /**
