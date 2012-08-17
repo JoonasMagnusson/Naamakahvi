@@ -14,8 +14,8 @@ class psqldb:
 		self.connect = "dbname=" + db + " user=" + user
 		self.xmldb =  xml
 		self.parseXML(xml)
-		print "DB Initialized."
-
+		print "DB Initialized."	
+	
 	def parseXML(self,xmlfile):
 		file = open(xmlfile,'r')
 		data = file.read()
@@ -27,6 +27,7 @@ class psqldb:
 	def dbconnect(self):
 		self.con = psycopg2.connect(self.connect) 
 		self.cur = self.con.cursor()
+	
 		
 	def dbclose(self):
 		self.cur.close()
@@ -40,21 +41,33 @@ class psqldb:
 
 
 	#Checks if the user has been created in the database (has registered).
+	
 	def login(self,user):
+	
 		
 		q = self.getQuery("isUserRegistered")
 		
+		cur = self.con.cursor()
+
+		
 		
 		try:
-			self.cur.execute(q,(user,))		
+			cur.execute(q,(user,))		
 		except  Exception ,e:
 			self.con.rollback()
 			print e
 		
-		print self.cur.rowcount
-		if (self.cur.rowcount > 0):
-			r = self.cur.fetchone()[0]
+		print cur.rowcount
+		if (cur.rowcount > 0):
+			r = cur.fetchone()[0]
+			
+			
+		cur.close()	
+		self.con.commit()
 
+
+		print "u",user
+		
 		if r == 'true':
 			return True
 		else: 
@@ -151,6 +164,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 	
 	def selectRawProductNames(self):
@@ -164,6 +179,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 	
 	def selectProductsizes(self):
@@ -178,6 +195,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 		
 	
@@ -192,6 +211,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 	
 	def getUserBalanceById(self,id,user):
@@ -205,6 +226,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 		
 	
@@ -245,14 +268,17 @@ class psqldb:
 			self.con.rollback()			
 			print e
 		
+		
 		if (self.cur.rowcount > 0):
+			self.con.commit()
 			return
 		
 		else:
 			print "Saldo Created"
+			self.con.commit()
 			self.insertUserBalances(0, groupid, user)
 	
-		
+
 		
 		
 	
@@ -298,6 +324,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 	
 	def selectUserData(self,user):
@@ -310,7 +338,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchone()
-		print result
+				
+		self.con.commit()
 		return result
 		
 	
@@ -325,6 +354,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 	
 	def getFinalproducts(self):
@@ -337,6 +368,8 @@ class psqldb:
 			print e
 			
 		result = self.cur.fetchall()
+		
+		self.con.commit()
 		return result
 	
 	def decGroupBalanceById(self,group,dec):
@@ -366,6 +399,7 @@ class psqldb:
 		
 		datadict = {"final_id":data[0], "group_id":data[1], "value":data[2], "fin":data[3], "eng":data[4], "swe":data[5], "deacttime":data[6]}
 		
+		self.con.commit()
 		return datadict
 		
 	def buy(self,product,amount,user):
@@ -457,16 +491,6 @@ class psqldb:
 			return e
 		self.con.commit()
 
-	def nukeTable(self,table):
-		
-		q = "TRUNCATE TABLE " + table +" CASCADE;"
-		
-		try:
-			self.cur.execute(q)
-		except  Exception ,e:
-			self.con.rollback()
-			return e
-		self.con.commit()
-		return True	
+
 		
 		
