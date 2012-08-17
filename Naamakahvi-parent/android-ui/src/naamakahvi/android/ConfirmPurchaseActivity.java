@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
-import naamakahvi.android.utils.ColorStringAdapter;
+import naamakahvi.android.utils.SaldoItemAdapter;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
@@ -44,7 +44,8 @@ public class ConfirmPurchaseActivity extends Activity {
 		handler = new Handler();
 		setCountdown();
 		ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
-		String[] listOfPossibleUsers = intent.getStringArrayExtra(ExtraNames.USERS);
+		String[] listOfPossibleUsers = intent
+				.getStringArrayExtra(ExtraNames.USERS);
 		setListView(possibleUsersListView, listOfPossibleUsers);
 		configureUserView(listOfPossibleUsers[0]);
 		setWhatYouAreBuyingText();
@@ -54,7 +55,8 @@ public class ConfirmPurchaseActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+					Client c = new Client(Config.SERVER_URL,
+							Config.SERVER_PORT, Config.STATION);
 					final IUser user = c.getUser(username);
 					handler.post(new Runnable() {
 						public void run() {
@@ -71,12 +73,14 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 
 	private void setListView(ListView listView, String[] list) {
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.new_list_bigger_text, android.R.id.text1,
-				list);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				R.layout.new_list_bigger_text, android.R.id.text1, list);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				String alternativeUser = (String) parent.getAdapter().getItem(position);
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				String alternativeUser = (String) parent.getAdapter().getItem(
+						position);
 				configureUserView(alternativeUser);
 				cd.cancel();
 				cd.start();
@@ -91,8 +95,9 @@ public class ConfirmPurchaseActivity extends Activity {
 
 	private void setRecognizedText(IUser buyer) {
 		TextView recognized = (TextView) findViewById(R.id.cp_nametext);
-		String newRecognizedText = "You were recognized as:\n" + buyer.getGivenName() + " " + buyer.getFamilyName()
-				+ " (" + username + ")";
+		String newRecognizedText = "You were recognized as:\n"
+				+ buyer.getGivenName() + " " + buyer.getFamilyName() + " ("
+				+ username + ")";
 		recognized.setText(newRecognizedText);
 	}
 
@@ -100,41 +105,37 @@ public class ConfirmPurchaseActivity extends Activity {
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
 		IProduct product = (IProduct) productAndAmountPair.getKey();
-		whatYouAreBuying.setText("You are buying " + productAndAmountPair.getValue() + " " + product.getName() + "(s)");
+		whatYouAreBuying.setText("You are buying "
+				+ productAndAmountPair.getValue() + " " + product.getName()
+				+ "(s)");
 	}
-	
+
 	private void setSaldos(IUser buyer) {
 		ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
 		List<SaldoItem> userBalance = buyer.getBalance();
-		String[] userSaldoTexts = new String[userBalance.size()];
-		String[] userSaldoColors = new String[userBalance.size()];
+		double[] deltas = new double[userBalance.size()];
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		IProduct product = (IProduct) productAndAmountPair.getKey();
 		int amount = (Integer) productAndAmountPair.getValue();
-		
+
 		for (int i = 0; i < userBalance.size(); i++) {
 			SaldoItem saldoItem = userBalance.get(i);
-			userSaldoTexts[i] = generateSaldoText(product, saldoItem, amount);
-			userSaldoColors[i] = generateSaldoColors(product, saldoItem, amount);
+			if (saldoItem.getGroupId() == product.getProductGroup()) {
+				deltas[i] = product.getPrice() * amount;
+				if (product.isBuyable())
+					deltas[i] = -deltas[i];
+			} else {
+				deltas[i] = 0;
+			}
+			;
 		}
-		
-		ColorStringAdapter adapter = new ColorStringAdapter(this, userSaldoTexts, userSaldoColors);
+
+		SaldoItemAdapter adapter = new SaldoItemAdapter(this, userBalance,
+				deltas);
 		coffeeSaldoView.setAdapter(adapter);
 	}
 
-	private String generateSaldoText(IProduct product, SaldoItem saldoItem, int amount) {
-		if (product.getProductGroup() == saldoItem.getGroupId())
-			return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo() + " - "
-				+ (amount * product.getPrice());
-		return "Your " + saldoItem.getGroupName() + " saldo is " + saldoItem.getSaldo();
-	}
-	
-	private String generateSaldoColors(IProduct product, SaldoItem saldoItem, int amount)  {
-		if ((saldoItem.getSaldo() - (amount*product.getPrice())) < 0)
-			return "negative";
-		return "positive";
-	}
-	
+
 	private void setCountdown() {
 		cd = new CountDownTimer(6000 * COUNTDOWN_LENGTH, 1000) {
 
@@ -170,9 +171,10 @@ public class ConfirmPurchaseActivity extends Activity {
 			}
 		}).start();
 	}
-	
+
 	private void buyOrBringProducts() throws ClientException {
-		Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+		Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT,
+				Config.STATION);
 		IUser buyer = c.getUser(username);
 		Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		IProduct product = (IProduct) productAndAmountPair.getKey();

@@ -101,6 +101,7 @@ public final class R {
         public static final int rec_string_prefix=0x7f070002;
         public static final int rec_string_suffix=0x7f070003;
         public static final int reg_button=0x7f070007;
+        public static final int saldo_item=0x7f07001a;
         public static final int shopping_cart=0x7f07000a;
         public static final int takepic_instruction=0x7f070014;
         public static final int thumb_rm_instruction=0x7f07000f;
