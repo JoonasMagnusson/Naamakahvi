@@ -453,7 +453,7 @@ public class Client {
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
     	Product actual = (Product) product;
         doPost("/bring_product/",
-               "product_name", actual.getName(),
+               "product_id", Integer.toString(actual.getId()),
                "station_name", this.station,
                "amount", "" + amount,
                "username", user.getUserName(),
