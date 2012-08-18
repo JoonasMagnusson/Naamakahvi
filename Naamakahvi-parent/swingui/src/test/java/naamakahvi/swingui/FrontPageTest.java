@@ -60,7 +60,7 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				assertEquals(CafeUI.VIEW_MENU_PAGE, master.continueLocation);
-				assertEquals(CafeUI.VIEW_USERLIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_USERLIST_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -71,7 +71,7 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.continueLocation);
-				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -81,7 +81,7 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 		panel.button(JButtonMatcher.withText("New User")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-				assertEquals(CafeUI.VIEW_REGISTRATION_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_REGISTRATION_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -92,7 +92,7 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				assertEquals(CafeUI.VIEW_BUY_LIST_PAGE, master.continueLocation);
-				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -103,7 +103,7 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				assertEquals(CafeUI.VIEW_BRING_LIST_PAGE, master.continueLocation);
-				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -138,7 +138,7 @@ public class FrontPageTest extends FestSwingJUnitTestCase{
 				GuiActionRunner.execute(new GuiTask(){
 					protected void executeInEDT(){
 						assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.continueLocation);
-						assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.currentLocation);
+						assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.getCurrentLocation());
 					}
 				});
 			}

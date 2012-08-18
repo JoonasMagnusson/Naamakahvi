@@ -85,7 +85,7 @@ public class ShortListTest extends FestSwingJUnitTestCase {
 			protected void executeInEDT(){
 				assertEquals(true, master.closed);
 				assertEquals("initial", master.continueLocation);
-				assertEquals(CafeUI.VIEW_USERLIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_USERLIST_PAGE, master.getCurrentLocation());
 			}
 		});
 	}

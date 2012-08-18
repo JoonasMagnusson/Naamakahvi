@@ -12,11 +12,12 @@ import java.io.IOException;
 
 import java.util.List;
 /**
- * Käyttöliittymän pääluokka, joka huolehtii tiedonsiirrosta clientin ja näkymien
- * välillä sekä käsittelee käyttäjän syötteet
+ * The main class of the Facecafe swingui component. Takes care of user
+ * interface program logic, contains all of the various views used by swingui
+ * and acts as an interface between the user and the program client.
  */
 public class CafeUI extends JFrame{
-	//Käyttöliittymän näkymät
+	//Interface views; all of the different pages the user can interact with
 	protected JPanel container;
 	private CardLayout viewSwitcher;
 	private FrontPage front;
@@ -29,12 +30,19 @@ public class CafeUI extends JFrame{
 	private UserListPage userlist;
 	private FaceLoginPage facelogin;
 	private AddPicturePage add;
-	//Sivu, jolle jatketaan välisivuilta (esim. käyttäjälistasta)
+
+	/**
+	 * A String containing The page that should be shown after exiting certain 
+	 * interstitial views (such as the user list page).
+	 * When the switchPage() method is called with the CONTINUE constant,
+	 * the page indicated by this variable is shown.
+	 * Storing any other Strings than location constants (VIEW_<page name>_PAGE)
+	 * in this variable will have no effect.
+	 */
 	protected String continueLocation = VIEW_FRONT_PAGE;
-	//Juuri nyt esillä oleva sivu
-	protected String currentLocation;
+	private String currentLocation;
 	
-	//veloitukseen tarvittavat tiedot
+	//Variables for storing and processing user, product and transaction data
 	private FaceCapture face;
 	private Client client;
 	private String[] usernames = new String[1];
@@ -43,40 +51,122 @@ public class CafeUI extends JFrame{
 	private int[] quantities;
 	private String mode;
 	
-	//käyttöiittymän resoluutio
-	//public final int X_RES;
-	//public final int Y_RES;
-	//fontit
+	//Fonts
+	/**
+	 * The standard font size used by the UI
+	 */
 	public final Font UI_FONT;
+	/**
+	 * The large font size used by the UI
+	 */
 	public final Font UI_FONT_BIG;
+	/**
+	 * The small font size used by the UI
+	 */
 	public final Font UI_FONT_SMALL;
 	
-	//Näkymien tunnistamisessa käytetyt vakiot
+	//Constants used to identify the various pages in the swingui interface
+	/**
+	 * A String identifying the the front page view of the UI
+	 */
 	public static final String VIEW_FRONT_PAGE = "front";
+	/**
+	 * A String identifying the the registration page view of the UI
+	 */
 	public static final String VIEW_REGISTRATION_PAGE = "register";
+	/**
+	 * A String identifying the the checkout page view of the UI
+	 */
 	public static final String VIEW_CHECKOUT_PAGE = "checkout";
+	/**
+	 * DEPRECATED: replaced by VIEW_USERLIST_PAGE
+	 * A String identifying the the manual login page view of the UI
+	 */
 	public static final String VIEW_MAN_LOGIN_PAGE = "manual";
+	/**
+	 * A String identifying the the buy cart page view of the UI
+	 */
 	public static final String VIEW_BUY_LIST_PAGE = "buycart";
+	/**
+	 * A String identifying the the bring cart page view of the UI
+	 */
 	public static final String VIEW_BRING_LIST_PAGE = "bringcart";
+	/**
+	 * A String identifying the the logged in user menu page view of the UI
+	 */
 	public static final String VIEW_MENU_PAGE = "menu";
+	/**
+	 * A String identifying the the station selection page view of the UI
+	 */
 	public static final String VIEW_STATION_PAGE = "station";
+	/**
+	 * A String identifying the the user list page view of the UI
+	 */
 	public static final String VIEW_USERLIST_PAGE = "userlist";
+	/**
+	 * A String identifying the the face login page view of the UI
+	 */
 	public static final String VIEW_FACE_LOGIN_PAGE = "facelogin";
+	/**
+	 * A String identifying the the picture addition page view of the UI
+	 */
 	public static final String VIEW_ADD_PICTURE_PAGE = "add";
+	/**
+	 * A String used in conjunction with the switchPage method and the
+	 * continueLocation variable to allow interstitial pages such as the login
+	 * pages to use multiple continue locations depending on the use case
+	 */
 	public static final String CONTINUE = "continue";
 	
-	//muut vakiot
+	//Other constants
+	/**
+	 * The maximum amount of possible face matches that can be returned from
+	 * the server before asking the user to login through the user list instead
+	 */
 	public static final int MAX_IDENTIFIED_USERS = 5;
+	/**
+	 * A String indicating the encoding used when sending images to server
+	 * NOTE: OpenJDK can't do jpg compression, so using another image format
+	 * is recommended
+	 * 
+	 * @See		javax.imageio.ImageIO
+	 */
 	public static final String OUTPUT_IMAGE_FORMAT = "png";
+	/**
+	 * A String that should be passed to methods to indicate buying products
+	 */
 	public static final String MODE_BUY = "buy";
+	/**
+	 * A String that should be passed to methods to indicate bringing products
+	 */
 	public static final String MODE_BRING = "bring";
+	/**
+	 * An integer indicating the resolution of images sent to the Facecafe server
+	 */
+	public static final int IMAGE_SIZE = 200;
 	
-	//Backendin osoite
+	//Server address
+	/**
+	 * The ip or url of the Facecafe backend server
+	 */
 	public final String ADDRESS_IP;
+	/**
+	 * The port of the Facecafe backend server
+	 */
 	public final int ADDRESS_PORT;
 	
-	/**Luo uuden Swing-käyttöliittymäikkunan ja näyttää Station-valintanäkymän
+	/**Creates a new swingui frame, attempts to contact server and displays the
+	 * station selection view
 	 * 
+	 * @param camera		the number of the camera to use with face detection
+	 * 						(see also: the FaceCapture class)
+	 * @param doFaceDetect	enables active face detection if set to true
+	 * 						(see also: the FaceCapture class)
+	 * @param camOffline	disables camera and skips trying to load any associated
+	 * 						libraries and resources if set to true
+	 * 						(see also: the FaceCapture class)
+	 * @param ip			The ip or url of the Facecafe backend server
+	 * @param port			The port of the Facecafe backend server
 	 */
 	public CafeUI(int camera, boolean doFaceDetect, boolean camOffline, String ip, int port){
 		JLabel loading = new JLabel("Loading...", SwingConstants.CENTER);
@@ -116,7 +206,11 @@ public class CafeUI extends JFrame{
 		}
 		
 	}
-	
+	/**Initializes a CafeUI object and creates all of the UI views.
+	 * 
+	 * @param client	The Client object that the CafeUI object should use
+	 * 					in order to contact the server
+	 */
 	protected void createStore(Client client){
 		this.client = client;
 		
@@ -163,6 +257,16 @@ public class CafeUI extends JFrame{
 		switchPage(VIEW_FRONT_PAGE);
 	}
 	
+	/**Switches the page currently shown to the user
+	 * 
+	 * @param page		A String identifying the view that should be shown.
+	 * 					Accepts any of the view identifying constants defined
+	 * 					in this class (VIEW_<page name>_PAGE) or the CONTINUE
+	 * 					constant, which causes this function to recursively
+	 * 					call itself with the contents of the continueLocation
+	 * 					variable. Passing any other string will cause this
+	 * 					method to do nothing.
+	 */
 	protected void switchPage(String page){
 		if (CONTINUE.equals(page) && !CONTINUE.equals(continueLocation)){
 			switchPage(continueLocation);
@@ -230,6 +334,13 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	/**Gets the account balances of the currently logged in user
+	 * 
+	 * @return		A List of SaldoItem objects containing the account balances
+	 * 				of the currently logged in user.
+	 * 				Returns null if no one is currently logged in or the user has
+	 * 				no associated balances.
+	 */
 	protected List<SaldoItem> getSaldo(){
 		if (user == null){
 			System.err.println("null user");
@@ -238,6 +349,17 @@ public class CafeUI extends JFrame{
 		return user.getBalance();
 	}
 	
+	/**Sets the purchase mode of this CafeUI object. The purchase mode determines
+	 * whether the object marks products purchased with the buyProduct method as
+	 * bought or brought.
+	 * 
+	 * @param mode		A String indicating whether future transactions should
+	 * 					be interpreted as buying or bringing products.
+	 * 					CafeUI.MODE_BUY indicates buying, while CafeUI.MODE_BRING
+	 * 					indicates bringing
+	 * @throws	IllegalArgumentException	If the passed mode is neither
+	 * 					CafeUI.MODE_BUY nor CafeUI.MODE_BRING
+	 */
 	protected void setPurchaseMode(String mode){
 		if (MODE_BUY.equals(mode))
 				this.mode = mode;
@@ -249,22 +371,62 @@ public class CafeUI extends JFrame{
 			
 		}
 	}
-	
+	/**Gets the current purchase mode of this CafeUI object
+	 * 
+	 * @return	Either Cafe.UI_MODE_BUY if the purchase mode is "buy",
+	 * 			CafeUI.MODE_BRING if the mode is "bring" or null if the mode has
+	 * 			not been set.
+	 */
 	protected String getPurchaseMode(){
 		return mode;
 	}
+	/**Gets the currently displayed view.
+	 * 
+	 * @return	The view constant (CafeUI.VIEW_<page name>_PAGE) corresponding
+	 * 			to the currently visible page.
+	 */
+	public String getCurrentLocation(){
+		return currentLocation;
+	}
 	
+	/**Gets a new FaceCanvas object associated with this CafeUI object's
+	 * FaceCapture object.
+	 * 
+	 * @see		FaceCapture.FaceCanvas
+	 * 
+	 * @return	A newly created FaceCanvas object
+	 */
 	protected FaceCanvas getCanvas(){
 		return face.getCanvas();
 	}
 	
+	/**Sends a message to the Facecafe server indicating that the currently
+	 * logged in user has bought or brought products. Use setPurchaseMode to
+	 * set the purchase mode beforehand.
+	 * 
+	 * @param prod		The product that is being bought or brought
+	 * @param quantity	The amount of products of this type being bought or
+	 * 					brought
+	 * @return			A boolean indicating whether the transaction was successful
+	 * @throws	RuntimeException	If the purchase mode has not been set
+	 * 								or if the mode did not match the output of
+	 * 								the product's isBuyable method
+	 */
 	protected boolean buyProduct(IProduct prod, int quantity){
 		try{
 			if (mode.equals(MODE_BUY)){
+				if (!prod.isBuyable()){
+					throw new RuntimeException(
+							"Attempted to buy a raw product");
+				}
 				client.buyProduct(user, prod, quantity);
 				front.setHelpText("Transaction successful");
 			}
 			else if (mode.equals(MODE_BRING)){
+				if (prod.isBuyable()){
+					throw new RuntimeException(
+							"Attempted to bring a buyable product");
+				}
 				client.bringProduct(user, prod, quantity);
 				front.setHelpText("Transaction successful");
 			}
@@ -282,6 +444,17 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	/**Creates a new user account on the Facecafe server
+	 * 
+	 * @param userName		The username of the account
+	 * @param givenName		The user's given name
+	 * @param familyName	The user's family name
+	 * @param images		An array of BufferedImage objects containing images
+	 * 						that should be associated with the new user account
+	 * 						for face recognition purposes.
+	 * @return				A boolean indicating whether or not the account was
+	 * 						successfully created
+	 */
 	protected boolean registerUser(String userName, String givenName,
 			String familyName, BufferedImage[] images){
 		try {
@@ -312,6 +485,14 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	/**Associates images with the currently logged in user account for face
+	 * recognition purposes
+	 * 
+	 * @param images	An array of BufferedImage objects containing the images
+	 * 					to be added
+	 * @return			A boolean indicating whether or not the images were
+	 * 					successfully added
+	 */
 	protected boolean addImages(BufferedImage[] images){
 		try{
 			ByteArrayOutputStream[] streams = new ByteArrayOutputStream[images.length];
@@ -335,6 +516,14 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	/**Switches the currently logged in user to one of the best face matches
+	 * returned during face login
+	 * 
+	 * @param username	The username that should be logged in
+	 * @return			Returns true if the login was successful, returns false
+	 * 					if the server returned an error or the username was not
+	 * 					one of the best face matches
+	 */
 	protected boolean switchUser(String username){
 		if (usernames.length < 2) return false;
 		for (int i = 1; i < usernames.length; i++){
@@ -346,6 +535,12 @@ public class CafeUI extends JFrame{
 		return false;
 	}
 	
+	/**Sets a user as the currently logged in user and fetches their account
+	 * information from the server
+	 * 
+	 * @param userName	The username of the user that should be logged in
+	 * @return			A boolean indicating whether the login was successful
+	 */
 	protected boolean loginUser(String userName){
 		try {
 			user = client.getUser(userName);
@@ -359,6 +554,11 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	/**Fetches a list of buyable products from the server.
+	 * 
+	 * @return	A List of IProduct objects containing the currently buyable
+	 * 			products.
+	 */
 	protected List<IProduct> getBuyableProducts(){
 		try{
 			return client.listBuyableProducts();
@@ -369,6 +569,12 @@ public class CafeUI extends JFrame{
 			return null;
 		}
 	}
+	
+	/**Fetches a list of raw products from the server.
+	 * 
+	 * @return	A List of IProduct objects containing the products that can
+	 * 			currently be brought
+	 */
 	protected List<IProduct> getRawProducts(){
 		try{
 			return client.listRawProducts();
@@ -379,15 +585,32 @@ public class CafeUI extends JFrame{
 		}
 	}
 	
+	/**Selects products. The selected products can be bought or brought from
+	 * the checkout view.
+	 * 
+	 * @param prods
+	 * @param amounts
+	 */
 	protected void selectProduct(IProduct[] prods, int[] amounts){
 		selProd = prods;
 		quantities = amounts;
 	}
 	
+	/**Uses this CafeUI object's associated FaceCapture object to take a picture
+	 * of a face currently visible on the system's webcam
+	 * 
+	 * @return	A BufferedImage representation of a face or null, if no faces
+	 * 			were detected or the camera is not online
+	 */
 	protected BufferedImage takePic(){
 		return face.takePic();
 	}
 	
+	/**Takes a picture using the system's webcam, finds a face from it and logs
+	 * in an user account associated with the face
+	 * 
+	 * @return	A boolean indicating whether the login was successful
+	 */
 	protected boolean validateImage(){
 		BufferedImage img = face.takePic();
 		if (img == null){
@@ -399,6 +622,7 @@ public class CafeUI extends JFrame{
 			ImageIO.write(resizeImage(img), OUTPUT_IMAGE_FORMAT, stream);
 			byte[] output = stream.toByteArray();
 			usernames = client.identifyImage(output);
+			//no face matches
 			if (usernames.length == 0){
 				facelogin.setHelpText("Unknown face");
 				return false;
@@ -416,7 +640,7 @@ public class CafeUI extends JFrame{
 			return false;
 		}
 		
-		
+		//too many face matches
 		if (usernames.length > MAX_IDENTIFIED_USERS){
 			switchPage(VIEW_USERLIST_PAGE);
 		}
@@ -426,19 +650,35 @@ public class CafeUI extends JFrame{
 		return true;
 	}
 	
+	/**Resizes an image to a size that can be sent to the server.
+	 * The resolution of the resized image is determined by the IMAGE_SIZE
+	 * constant.
+	 * 
+	 * @param img	A BufferedImage object that should be resized
+	 * @return		A resized BufferedImage
+	 */
 	protected BufferedImage resizeImage(BufferedImage img){
 		BufferedImage resize = new BufferedImage(200,200,
 				BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2 = resize.createGraphics();
-		g2.drawImage(img, 0, 0, 200, 200, null);
+		g2.drawImage(img, 0, 0, IMAGE_SIZE, IMAGE_SIZE, null);
 		g2.dispose();
 		return resize;
 	}
 	
-	protected void setContinueLocation(String loc){
-		continueLocation = loc;
-	}
-	
+	/**The main method of the CafeUI class. Creates a new Facecafe UI using
+	 * command line parameters.
+	 * 
+	 * @param args	Command line parameters (remove quotes):
+	 * 		"xres:"number	The initial horizontal resolution of the new frame
+	 * 		"yres:"number	The initial vertical resolution of the new frame
+	 * 		"cam:"number	The number of the camera that should be used for
+	 * 						face detection
+	 * 		"ip:"string		The url of the Facecafe server
+	 * 		"port:"number	The port of the Facecafe server
+	 * 		"dofacedetect"	Activate active face detection
+	 * 		"nocam"			Disable camera functionality
+	 */
 	public static void main(String[] args) {
 		int xres = 800;
 		int yres = 600;

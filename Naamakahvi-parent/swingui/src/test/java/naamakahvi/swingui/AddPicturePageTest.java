@@ -93,7 +93,7 @@ public class AddPicturePageTest extends FestSwingJUnitTestCase {
 		panel.button(JButtonMatcher.withText("Back to Menu")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-				assertEquals(CafeUI.VIEW_MENU_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_MENU_PAGE, master.getCurrentLocation());
 			}
 		});
 	}

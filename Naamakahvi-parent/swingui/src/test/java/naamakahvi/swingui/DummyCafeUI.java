@@ -23,6 +23,7 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 	public boolean closed = false;
 	public ArrayList<String> stations;
 	public boolean uiCreated = false;
+	public String location;
 	
 	public DummyCafeUI(){
 		super(0, false, true, "999.999.999.999", -1);
@@ -30,7 +31,7 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 		container.removeAll();
 		l = new CardLayout();
 		container.setLayout(l);
-		currentLocation = "initial";
+		location = "initial";
 		
 	}
 	
@@ -51,7 +52,12 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 	
 	@Override
 	protected void switchPage(String page){
-		currentLocation = page;
+		location = page;
+	}
+	
+	@Override
+	public String getCurrentLocation(){
+		return location;
 	}
 
 	@Override
