@@ -347,6 +347,7 @@ public class Client {
      * Gets all buyable products from the server and makes a list of IProduct objects 
      * Method: Get
      * Path: /list_buyable_products/
+     * Parameters: station_name
      * 
      * Example server response: 
      * {
@@ -382,6 +383,7 @@ public class Client {
      * Path: /buy_product/
      * Parameters: product_id
      *             amount
+     *             station_name
      *             username
      * 
      * Example server response:
@@ -440,6 +442,7 @@ public class Client {
      *             station_name
      *             amount
      *             username
+     *             size_id
      * 
      * Example server response:
      * {
@@ -451,18 +454,17 @@ public class Client {
      * @param amount the amount of the brought product
      */
     public void bringProduct(IUser user, IProduct product, int amount) throws ClientException {
-    	Product actual = (Product) product;
         doPost("/bring_product/",
-               "product_id", Integer.toString(actual.getId()),
+               "product_id", Integer.toString(product.getId()),
                "station_name", this.station,
                "amount", "" + amount,
                "username", user.getUserName(),
-               "size_id",Integer.toString(actual.getSizeId()));
+               "size_id",Integer.toString(product.getSizeId()));
     }
 
     /**
      * Sends an image of a user to the server to get an ordered list of matching user names,
-     * best match first.
+     * the best match first.
      * 
      * Example server response:
      * {
