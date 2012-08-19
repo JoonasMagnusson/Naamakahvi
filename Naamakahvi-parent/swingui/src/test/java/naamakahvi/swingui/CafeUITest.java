@@ -27,7 +27,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 	protected void onSetUp() {
 		master = GuiActionRunner.execute(new GuiQuery<CafeUI>(){
 			protected CafeUI executeInEDT(){
-				CafeUI ui = new CafeUI(0, false, true, "999.999.999.999", -1);
+				CafeUI ui = new CafeUI(0, 15, false, true, "999.999.999.999", -1);
 				cli = new DummyClient();
 				ui.createStore(cli);
 				return ui;

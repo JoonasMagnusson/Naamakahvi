@@ -160,6 +160,7 @@ public class CafeUI extends JFrame{
 	 * 
 	 * @param camera		the number of the camera to use with face detection
 	 * 						(see also: the FaceCapture class)
+	 * @param font			the font size used by the UI for medium size text
 	 * @param doFaceDetect	enables active face detection if set to true
 	 * 						(see also: the FaceCapture class)
 	 * @param camOffline	disables camera and skips trying to load any associated
@@ -168,14 +169,14 @@ public class CafeUI extends JFrame{
 	 * @param ip			The ip or url of the Facecafe backend server
 	 * @param port			The port of the Facecafe backend server
 	 */
-	public CafeUI(int camera, boolean doFaceDetect, boolean camOffline, String ip, int port){
+	public CafeUI(int camera, int font, boolean doFaceDetect, boolean camOffline, String ip, int port){
 		JLabel loading = new JLabel("Loading...", SwingConstants.CENTER);
 		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
 		add(loading);
 		
-		UI_FONT = new Font("Sans Serif", Font.PLAIN, 20);
-		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, 30);
-		UI_FONT_SMALL = new Font("Sans Serif", Font.PLAIN, 15);
+		UI_FONT = new Font("Sans Serif", Font.PLAIN, font);
+		UI_FONT_BIG = new Font("Sans Serif", Font.PLAIN, font +10);
+		UI_FONT_SMALL = new Font("Sans Serif", Font.PLAIN, font -5);
 		
 		ADDRESS_IP = ip;
 		ADDRESS_PORT = port;
@@ -672,6 +673,7 @@ public class CafeUI extends JFrame{
 	 * @param args	Command line parameters (remove quotes):
 	 * 		"xres:"number	The initial horizontal resolution of the new frame
 	 * 		"yres:"number	The initial vertical resolution of the new frame
+	 * 		"font":number	The size used by the UI for medium-size text (minimum 10)
 	 * 		"cam:"number	The number of the camera that should be used for
 	 * 						face detection
 	 * 		"ip:"string		The url of the Facecafe server
@@ -682,6 +684,7 @@ public class CafeUI extends JFrame{
 	public static void main(String[] args) {
 		int xres = 800;
 		int yres = 600;
+		int font = 20;
 		int cam = 0;
 		boolean doFaceDetect = false;
 		boolean camOffline = false;
@@ -708,6 +711,17 @@ public class CafeUI extends JFrame{
 					System.err.println(
 							"Error: could not parse vertical resolution: not an integer\n" +
 							"Defaulting to 600");
+				}
+			}
+			if (args[i].length() > 5 && 
+					"font:".equalsIgnoreCase(args[i].substring(0, 5))){
+				try{
+					font = Integer.parseInt(args[i].substring(5));
+				}
+				catch (NumberFormatException e){
+					System.err.println(
+							"Error: could not parse font size: not an integer\n" +
+							"Defaulting to 20");
 				}
 			}
 			if (args[i].length() > 4 && 
@@ -743,8 +757,12 @@ public class CafeUI extends JFrame{
 				camOffline = true;
 			}
 		}
+		if (font < 10){
+			font = 10;
+			System.out.println("Font size too small; defaulting to 10");
+		}
 		
-		CafeUI window = new CafeUI(cam, doFaceDetect, camOffline, ip, port);
+		CafeUI window = new CafeUI(cam, font, doFaceDetect, camOffline, ip, port);
 		window.setTitle("Facecafe");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);

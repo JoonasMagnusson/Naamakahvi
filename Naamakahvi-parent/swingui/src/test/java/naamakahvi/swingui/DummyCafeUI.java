@@ -26,7 +26,7 @@ public class DummyCafeUI extends CafeUI implements CloseableView{
 	public String location;
 	
 	public DummyCafeUI(){
-		super(0, false, true, "999.999.999.999", -1);
+		super(0, 15, false, true, "999.999.999.999", -1);
 		//setVisible(false);
 		container.removeAll();
 		l = new CardLayout();
