@@ -100,6 +100,7 @@ public final class R {
         public static final int qty=0x7f07000d;
         public static final int rec_string_prefix=0x7f070002;
         public static final int rec_string_suffix=0x7f070003;
+        public static final int recog_instruction=0x7f07001b;
         public static final int reg_button=0x7f070007;
         public static final int saldo_item=0x7f07001a;
         public static final int shopping_cart=0x7f07000a;

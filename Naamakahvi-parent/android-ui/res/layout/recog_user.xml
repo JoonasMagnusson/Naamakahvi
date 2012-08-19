@@ -11,29 +11,13 @@
         android:layout_gravity="center"
         android:layout_margin="20dp"
         android:layout_weight="0.49" />
-
-    <LinearLayout
+
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_weight="0.10" >
-
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="onBackClick"
-            android:text="back" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="userListClick"
-            android:text="user list" />
-
-    </LinearLayout>
+        android:text="@string/recog_instruction"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>
