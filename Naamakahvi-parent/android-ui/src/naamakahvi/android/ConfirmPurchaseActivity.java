@@ -178,4 +178,8 @@ public class ConfirmPurchaseActivity extends Activity {
 		setResult(RESULT_CANCELED);
 		finish();
 	}
+	
+	public void onUserListClick(View v) {
+		
+	}
 }

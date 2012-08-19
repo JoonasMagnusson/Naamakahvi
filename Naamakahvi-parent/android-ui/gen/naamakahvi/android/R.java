@@ -24,8 +24,8 @@ public final class R {
         public static final int bQty3=0x7f080023;
         public static final int bQty4=0x7f080024;
         public static final int bQtyO=0x7f080025;
-        public static final int button1=0x7f080006;
-        public static final int button2=0x7f080005;
+        public static final int button1=0x7f080004;
+        public static final int button2=0x7f080003;
         public static final int clientRegisterButton=0x7f08001d;
         public static final int coffeeSaldos=0x7f080002;
         public static final int cp_nametext=0x7f080000;
@@ -36,7 +36,7 @@ public final class R {
         public static final int imageView1=0x7f080026;
         public static final int modeText=0x7f08000a;
         public static final int mode_button=0x7f08000b;
-        public static final int notYou=0x7f080003;
+        public static final int notYou=0x7f080005;
         public static final int productHeader=0x7f08000e;
         public static final int productTable=0x7f08000d;
         public static final int product_name=0x7f080020;
@@ -56,7 +56,7 @@ public final class R {
         public static final int tvProduct=0x7f08000f;
         public static final int tvQty=0x7f080010;
         public static final int userListView=0x7f080009;
-        public static final int userlistButton=0x7f080004;
+        public static final int userlistButton=0x7f080006;
         public static final int whatYouBought=0x7f080001;
     }
     public static final class integer {
