@@ -8,48 +8,38 @@
         android:layout_width="fill_parent"
         android:layout_height="639dp"
         android:orientation="horizontal"
-        android:padding="20dp" >
+        android:padding="20dp"
+        android:layout_gravity="center" >
         
         <LinearLayout
-            android:layout_width="602dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:layout_gravity="center">
 
             <TextView
                 android:id="@+id/cp_nametext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="You were recognized as:"
-                android:textSize="40dp" />
+                android:textSize="40dp"
+                android:layout_gravity="center"/>
                
-        </LinearLayout>
 
-        <View
-            android:id="@+id/separator1"
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:background="#333333" />
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical" >
-        	
             <TextView
             	android:id="@+id/whatYouBought"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:text="This would show what you bought but theres been an error"
-            	android:textSize="40dp" />
+            	android:textSize="40dp"
+            	android:layout_gravity="center"/>
             
            <ListView
                android:id="@+id/coffeeSaldos"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:layout_gravity="bottom" >
+               android:layout_marginLeft="250dp"
+               android:layout_gravity="center" >
 
     		</ListView>
             
