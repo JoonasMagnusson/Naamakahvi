@@ -180,6 +180,8 @@ public class ConfirmPurchaseActivity extends Activity {
 	}
 	
 	public void onUserListClick(View v) {
-		
+		Intent i = new Intent(this, LoginwithusernameActivity.class);
+		cd.cancel();
+		startActivity(i);
 	}
 }
