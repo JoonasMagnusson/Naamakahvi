@@ -1,0 +1,27 @@
+digraph {
+	node [shape=box]
+	labeljust="l"
+
+	subgraph cluster_front {
+		label="Frontend"
+		ui [label="User\nInterface"]
+		face_capture [label="Face Capture\nComponent"]
+		client [label="Client"]
+		ui -> face_capture	
+		ui -> client
+	}
+
+	subgraph cluster_back {
+		label="Backend"
+		server [label="Server"]
+		face_recog [label="Face Recognition\nComponent"]
+		face_db [label="Face Database"]
+		station_db [label="Station Database"]
+		server -> face_recog
+		server -> face_db
+		server -> station_db
+	}
+
+	client -> server [style=dotted,label="HTTP"]
+	server -> client [style=dotted]
+}
