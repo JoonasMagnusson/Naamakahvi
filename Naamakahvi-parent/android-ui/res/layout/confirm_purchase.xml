@@ -21,14 +21,7 @@
                 android:layout_height="wrap_content"
                 android:text="You were recognized as:"
                 android:textSize="40dp" />
-            
-            <TextView
-            	android:id="@+id/possibleUsersHeader"
-            	android:layout_width="wrap_content"
-            	android:layout_height="wrap_content"
-            	android:text="The nearest hits that might be you:"
-            	android:textSize="35sp" />
-            
+               
         </LinearLayout>
 
         <View
