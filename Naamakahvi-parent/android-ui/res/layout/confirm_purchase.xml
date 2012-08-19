@@ -6,65 +6,44 @@
     
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="639dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="20dp" >
+        android:padding="20dp"
+        android:layout_gravity="center">
         
         <LinearLayout
-            android:layout_width="602dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:layout_gravity="center">
 
             <TextView
                 android:id="@+id/cp_nametext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="You were recognized as:"
-                android:textSize="40dp" />
-            
-            <TextView
-            	android:id="@+id/possibleUsersHeader"
-            	android:layout_width="wrap_content"
-            	android:layout_height="wrap_content"
-            	android:text="The nearest hits that might be you:"
-            	android:textSize="35sp" />
-            
-        	<ListView
-        		android:id="@+id/possibleUsers"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
-    		</ListView>
-            
-        </LinearLayout>
+                android:textSize="40dp"
+                android:layout_gravity="center"/>
+               
 
-        <View
-            android:id="@+id/separator1"
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:background="#333333" />
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical" >
-        	
             <TextView
             	android:id="@+id/whatYouBought"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:text="This would show what you bought but theres been an error"
-            	android:textSize="40dp" />
+            	android:textSize="40dp"
+            	android:layout_gravity="center"/>
             
            <ListView
                android:id="@+id/coffeeSaldos"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:layout_gravity="bottom" >
+               android:layout_marginLeft="250dp"
+               android:layout_gravity="center" >
 
     		</ListView>
+    		
+
             
         </LinearLayout>
         
@@ -74,23 +53,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="435dp"
-        android:layout_marginTop="10dp"
-        android:layout_weight="1" >
+        android:layout_marginTop="25dp" >
 
         <Button
             android:id="@+id/button2"
             android:layout_width="200dp"
-            android:layout_height="match_parent"
+            android:layout_height="100dp"
             android:onClick="onCPCancelClick"
             android:text="@string/cancel" />
 
         <Button
             android:id="@+id/button1"
             android:layout_width="200dp"
-            android:layout_height="match_parent"
+            android:layout_height="100dp"
             android:layout_gravity="center"
             android:onClick="onCPOkClick"
             android:text="@string/confirm" />
+    </LinearLayout>
+    
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="150dp">
+
+           <TextView
+            	android:id="@+id/notYou"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:text="Is this user not you? Go to userlist"
+            	android:textSize="35dp"
+            	android:layout_gravity="center"/>
+           
+            <Button
+            android:id="@+id/userlistButton"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:onClick="onUserListClick"
+            android:text="Userlist"
+            android:layout_gravity="center" />
     </LinearLayout>
 
 </LinearLayout> 
