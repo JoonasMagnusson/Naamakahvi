@@ -33,7 +33,7 @@
 	<entry key="selectProductsizes">
 		SELECT distinct  * from productsize inner join rawproduct on 
 		(productsize.ps_rawproductid = rawproduct.raw_rawproductid) 
-		where rawproduct.raw_deacttime is NULL;
+		where rawproduct.raw_deacttime is NULL ORDER BY raw_rawproductid
 	</entry>	
 	<entry key="selectSizes">
 		SELECT ps_productsizeid, ps_size FROM productsize
