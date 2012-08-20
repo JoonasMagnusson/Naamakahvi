@@ -206,11 +206,11 @@ def buy():
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
     if request.method == 'POST':
-        productname = request.form['product_name']
+        #productname = request.form['product_name']
         
         rawproductid = request.form['product_id']
         sizeid = request.form['size_id']
-        stationname = request.form['station_name']
+        #stationname = request.form['station']
         amount = request.form['amount']
         user = request.form['username']
         

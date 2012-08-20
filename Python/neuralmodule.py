@@ -4,6 +4,9 @@ import sys,numpy
 import scipy
 from scipy import spatial
 import pickle
+import os
+import shutil
+
 
 #Uncomment to view full arrays
 #numpy.set_printoptions(threshold='nan')
@@ -25,6 +28,11 @@ class neuralmodule:
         self.ANN_persons = 0
         self.ANN_names = []    
         self.PANN = []
+        
+        self.dir = "images"
+        
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
         
         
         
@@ -67,6 +75,22 @@ class neuralmodule:
         mat = tempmat.copy()
         return mat
     
+    #Saves images for sinister purposes
+    def saveImage(self,name,image):
+        
+        bdir = self.dir + "/" + name
+        
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
+        
+        #save max 100 images
+        for i in range(0,100):
+            fname = bdir + "/" + name + "_img_" + str(i)
+            if not os.path.exists(fname):
+                shutil.copyfile(image, fname)
+                break    
+
+    
     #Trains the recognizer and updates userlist
     def train(self,train,name):
         
@@ -84,6 +108,7 @@ class neuralmodule:
         self.userlist.append(name)
 
         #print "Training", train
+        self.saveImage(name, train)
         tempmat = self.prepareImage(train)
         
         if (self.tmat != None):
