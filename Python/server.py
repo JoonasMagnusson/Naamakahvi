@@ -10,6 +10,10 @@ app = Flask(__name__)
 
 dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
 cvm = neuralmodule.neuralmodule()
+savefile = "data.pkl"
+
+if os.path.exists(savefile):
+    cvm.loadData(savefile)
 
 def resp_ok(**kwargs):
     ans = {}
@@ -46,6 +50,7 @@ def train():
         user = request.form['username']
         filename = request.form['filename']
         cvm.train(filename,user)
+        cvm.saveData(savefile)
         return resp_ok()
 
     else:

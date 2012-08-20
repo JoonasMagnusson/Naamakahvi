@@ -36,9 +36,9 @@ class neuralmodule:
         
         
         
-    def saveData(self):
+    def saveData(self,file):
         
-        output = open('data.pkl', 'wb')
+        output = open(file, 'wb')
         
         pickle.dump(self.SAMPLES, output)
         pickle.dump(self.tmat, output)
@@ -48,9 +48,9 @@ class neuralmodule:
         
         output.close()
             
-    def loadData(self,datafile):
+    def loadData(self,file):
         
-        input = open('data.pkl', 'rb')
+        input = open(file, 'rb')
         
         self.SAMPLES = pickle.load(input)
         self.tmat = pickle.load(input)
