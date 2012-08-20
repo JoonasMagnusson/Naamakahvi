@@ -88,6 +88,7 @@ def upload():
             print file
             file.save(secure_filename(file.filename))
             cvm.train(secure_filename(file.filename),user)
+            cvm.saveData(savefile)
             return resp_ok()
         else:
             return resp_failure('NoFileInRequestError')

@@ -45,7 +45,7 @@ class neuralmodule:
         pickle.dump(self.userlist, output)
         pickle.dump(self.ANN_persons, output)
         pickle.dump(self.ANN_names, output)
-        
+        print "Data Saved", file
         output.close()
             
     def loadData(self,file):
@@ -57,7 +57,7 @@ class neuralmodule:
         self.userlist = pickle.load(input)
         self.ANN_persons = pickle.load(input)
         self.ANN_names = pickle.load(input)
-        
+        print "Data loaded", file
         self.computeNets()
 
     
