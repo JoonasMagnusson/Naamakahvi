@@ -62,7 +62,7 @@ public class CartPageBuyTest extends FestSwingJUnitTestCase {
 					assertEquals(3-i, master.amounts[i]);
 				}
 				assertEquals(CafeUI.MODE_BUY, master.purchaseMode);
-				assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.getCurrentLocation());
 			}
 		});
 	}

@@ -119,8 +119,6 @@ public class LoginwithusernameActivity extends Activity {
 				String item = (String) parent.getAdapter().getItem(position);
 				if (item == null)
 					return;
-				Toast.makeText(getApplicationContext(), item, Toast.LENGTH_LONG)
-						.show();
 				Intent i = new Intent();
 				i.putExtra(ExtraNames.USERS, new String[] { item });
 				i.putExtra(ExtraNames.PRODUCTS, mOrder);

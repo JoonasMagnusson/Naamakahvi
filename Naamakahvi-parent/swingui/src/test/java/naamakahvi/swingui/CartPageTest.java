@@ -140,7 +140,7 @@ public class CartPageTest extends FestSwingJUnitTestCase {
 		panel.button(JButtonMatcher.withText("Cancel")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-					assertEquals(CafeUI.VIEW_MENU_PAGE, master.currentLocation);
+					assertEquals(CafeUI.VIEW_MENU_PAGE, master.getCurrentLocation());
 			}
 		});
 	}

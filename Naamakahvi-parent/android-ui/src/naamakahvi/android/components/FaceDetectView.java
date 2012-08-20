@@ -37,14 +37,17 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 
 	private final String TAG = "FaceDetectView";
 
-	private final float RELATIVE_FACE_SIZE = 0.3f;
+	private final float RELATIVE_FACE_SIZE = 0.6f;
 	private final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
 
 	private int mAbsoluteFaceSize = 0;
 
 	private VideoCapture mCamera;
 	private SurfaceHolder mHolder;
+
 	private Mat mGrabFrame;
+	private int mNumFacesInGrabFrame = 0;
+
 	private Mat mRgba;
 	private Mat mGray;
 
@@ -147,33 +150,15 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 	public Bitmap grabFrame() throws Exception {
 		synchronized (this) {
 
-			MatOfRect faces = new MatOfRect();
-
-			if (mDetector != null)
-				mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize),
-						new Size());
-
-			Rect[] facesArray = faces.toArray();
-
-			if (facesArray.length != 1) {
-				if (facesArray.length < 1) {
+			if (mNumFacesInGrabFrame != 1) {
+				if (mNumFacesInGrabFrame < 1) {
 					throw new Exception("No faces detected");
 				} else {
 					throw new Exception("More than one face detected");
 				}
 			}
+			
 			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE, GRAB_IMAGE_SIDE, Bitmap.Config.ARGB_8888);
-
-			Rect face = facesArray[0];
-
-			Size s = new Size(face.width, face.height);
-			Point p = new Point(face.x + (face.width / 2), face.y + (face.height / 2));
-			Log.d(TAG, "face x:" + face.x + "," + face.y + " face width:" + face.width + " face height:" + face.height
-					+ " m size:" + mGrabFrame.cols() + "," + mGrabFrame.rows());
-			Imgproc.getRectSubPix(mGrabFrame, s, p, mGrabFrame);
-
-			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = mirror the image
-			Imgproc.resize(mGrabFrame, mGrabFrame, new Size(200, 200)); // resize
 
 			try {
 				Utils.matToBitmap(mGrabFrame, bmp);
@@ -204,8 +189,6 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 		vc.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		vc.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
 
-		mGray.copyTo(mGrabFrame);
-
 		if (mAbsoluteFaceSize == 0) {
 			int height = mGray.rows();
 			if (Math.round(height * RELATIVE_FACE_SIZE) > 0) {
@@ -219,9 +202,23 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 			mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
 
 		Rect[] facesArray = faces.toArray();
+
 		for (int i = 0; i < facesArray.length; i++)
 			// tunnistetut naamat k�yd��n l�pi
 			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
+
+		mNumFacesInGrabFrame = facesArray.length;
+
+		if (mNumFacesInGrabFrame == 1) {
+			mGray.copyTo(mGrabFrame);
+			Rect face = facesArray[0];
+			Size s = new Size(face.width, face.height);
+			Point p = new Point(face.x + (face.width / 2), face.y + (face.height / 2));
+			Imgproc.getRectSubPix(mGrabFrame, s, p, mGrabFrame);
+
+			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = mirror the image
+			Imgproc.resize(mGrabFrame, mGrabFrame, new Size(200, 200)); // resize
+		}
 
 		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
 
@@ -280,7 +277,7 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 				mGray.release();
 			if (mGrabFrame != null)
 				mGrabFrame.release();
-			
+
 			mRgba = null;
 			mGray = null;
 		}

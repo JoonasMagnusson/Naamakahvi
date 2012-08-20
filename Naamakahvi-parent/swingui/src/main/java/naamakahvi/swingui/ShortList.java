@@ -118,7 +118,7 @@ public class ShortList extends JPanel implements ActionListener{
 		
 		if (s == switchUser){
 			container.closeView();
-			master.continueLocation = master.currentLocation;
+			master.continueLocation = master.getCurrentLocation();
 			master.switchPage(CafeUI.VIEW_USERLIST_PAGE);
 		}
 		if (userbuttons == null) return;

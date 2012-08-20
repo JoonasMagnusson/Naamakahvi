@@ -25,6 +25,7 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
@@ -44,6 +45,7 @@ public class UserSettingsActivity extends Activity {
 
 		mPics = new ArrayList<Bitmap>();
 
+		((TextView)findViewById(R.id.textView1)).setText(R.string.user_settings);
 		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
 
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));

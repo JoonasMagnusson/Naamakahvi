@@ -43,10 +43,8 @@ public class ConfirmPurchaseActivity extends Activity {
 		intent = getIntent();
 		handler = new Handler();
 		setCountdown();
-		ListView possibleUsersListView = (ListView) findViewById(R.id.possibleUsers);
 		String[] listOfPossibleUsers = intent
 				.getStringArrayExtra(ExtraNames.USERS);
-		setListView(possibleUsersListView, listOfPossibleUsers);
 		configureUserView(listOfPossibleUsers[0]);
 		setWhatYouAreBuyingText();
 	}
@@ -70,22 +68,6 @@ public class ConfirmPurchaseActivity extends Activity {
 				}
 			}
 		}).start();
-	}
-
-	private void setListView(ListView listView, String[] list) {
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				R.layout.new_list_bigger_text, android.R.id.text1, list);
-		listView.setAdapter(adapter);
-		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				String alternativeUser = (String) parent.getAdapter().getItem(
-						position);
-				configureUserView(alternativeUser);
-				cd.cancel();
-				cd.start();
-			}
-		});
 	}
 
 	private void configureUserView(String name) {
@@ -195,5 +177,11 @@ public class ConfirmPurchaseActivity extends Activity {
 	public void onCPCancelClick(View v) {
 		setResult(RESULT_CANCELED);
 		finish();
+	}
+	
+	public void onUserListClick(View v) {
+		Intent i = new Intent(this, LoginwithusernameActivity.class);
+		cd.cancel();
+		startActivity(i);
 	}
 }

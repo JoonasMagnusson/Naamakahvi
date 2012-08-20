@@ -27,7 +27,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 	protected void onSetUp() {
 		master = GuiActionRunner.execute(new GuiQuery<CafeUI>(){
 			protected CafeUI executeInEDT(){
-				CafeUI ui = new CafeUI(0, false, true, "999.999.999.999", -1);
+				CafeUI ui = new CafeUI(0, 15, false, true, "999.999.999.999", -1);
 				cli = new DummyClient();
 				ui.createStore(cli);
 				return ui;
@@ -64,14 +64,14 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 			protected void executeInEDT(){
 				master.continueLocation = CafeUI.VIEW_ADD_PICTURE_PAGE;
 				master.switchPage(CafeUI.CONTINUE);
-				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE,master.getCurrentLocation());
 			}
 		});
 		window.panel("add").requireVisible();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				master.switchPage(CafeUI.CONTINUE);
-				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("front").requireVisible();
@@ -84,7 +84,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 			protected void executeInEDT(){
 				master.switchPage(CafeUI.VIEW_ADD_PICTURE_PAGE);
 				master.switchPage(CafeUI.VIEW_FRONT_PAGE);
-				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("front").requireVisible();
@@ -97,7 +97,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 			protected void executeInEDT(){
 				master.loginUser("testUN");
 				master.switchPage(CafeUI.VIEW_MENU_PAGE);
-				assertEquals(CafeUI.VIEW_MENU_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_MENU_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("menu").requireVisible();
@@ -110,7 +110,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				master.switchPage(CafeUI.VIEW_REGISTRATION_PAGE);
-				assertEquals(CafeUI.VIEW_REGISTRATION_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_REGISTRATION_PAGE,master.getCurrentLocation());
 			}
 		});
 		window.panel("register").requireVisible();
@@ -123,7 +123,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 			protected void executeInEDT(){
 				master.loginUser("testUN");
 				master.switchPage(CafeUI.VIEW_BUY_LIST_PAGE);
-				assertEquals(CafeUI.VIEW_BUY_LIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_BUY_LIST_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("buycart").requireVisible();
@@ -138,7 +138,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 			protected void executeInEDT(){
 				master.loginUser("testUN");
 				master.switchPage(CafeUI.VIEW_BRING_LIST_PAGE);
-				assertEquals(CafeUI.VIEW_BRING_LIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_BRING_LIST_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("bringcart").requireVisible();
@@ -160,7 +160,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 				amounts[1] = 2;
 				master.selectProduct(prods, amounts);
 				master.switchPage(CafeUI.VIEW_CHECKOUT_PAGE);
-				assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("checkout").requireVisible();
@@ -175,7 +175,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
-				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FACE_LOGIN_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("facelogin").requireVisible();
@@ -187,7 +187,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				master.switchPage(CafeUI.VIEW_USERLIST_PAGE);
-				assertEquals(CafeUI.VIEW_USERLIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_USERLIST_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("userlist").requireVisible();
@@ -203,7 +203,7 @@ public class CafeUITest extends FestSwingJUnitTestCase{
 			protected void executeInEDT(){
 				master.loginUser("testUN");
 				master.switchPage(CafeUI.VIEW_ADD_PICTURE_PAGE);
-				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.getCurrentLocation());
 			}
 		});
 		window.panel("add").requireVisible();

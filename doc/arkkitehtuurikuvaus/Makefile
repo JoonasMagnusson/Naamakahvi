@@ -1,2 +1,2 @@
-arkkitehtuurikuvaus: arkkitehtuurikuvaus.tex overall-structure.png
+arkkitehtuurikuvaus: arkkitehtuurikuvaus.tex
 	pdflatex arkkitehtuurikuvaus.tex

@@ -120,7 +120,7 @@ public class CheckoutPageTest extends FestSwingJUnitTestCase{
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
 				assertEquals(false, checkout.countingDown);
-				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.getCurrentLocation());
 			}
 		});
 	}

@@ -28,5 +28,6 @@
     <string name="buy_products">Buy Products</string>
     <string name="bring_products">Bring Products</string>
     <string name="saldo_item">Your %1$s saldo is:</string>
+    <string name="recog_instruction">Move your head until a green square appears around your face.</string>
 
 </resources>

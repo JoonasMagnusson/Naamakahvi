@@ -67,7 +67,7 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 		panel.button(JButtonMatcher.withText("Buy Multiple Products")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-				assertEquals(CafeUI.VIEW_BUY_LIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_BUY_LIST_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -77,7 +77,7 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 		panel.button(JButtonMatcher.withText("Bring Products")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-				assertEquals(CafeUI.VIEW_BRING_LIST_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_BRING_LIST_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -87,7 +87,7 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 		panel.button(JButtonMatcher.withText("Add Images to Account")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_ADD_PICTURE_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -97,7 +97,7 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 		panel.button(JButtonMatcher.withText("Log Out")).click();
 		GuiActionRunner.execute(new GuiTask(){
 			protected void executeInEDT(){
-				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.currentLocation);
+				assertEquals(CafeUI.VIEW_FRONT_PAGE, master.getCurrentLocation());
 			}
 		});
 	}
@@ -127,7 +127,7 @@ public class MenuPageTest extends FestSwingJUnitTestCase {
 				assertEquals(j+1, (int)a[2]);
 				GuiActionRunner.execute(new GuiTask(){
 					protected void executeInEDT(){
-						assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.currentLocation);
+						assertEquals(CafeUI.VIEW_CHECKOUT_PAGE, master.getCurrentLocation());
 						assertEquals(CafeUI.MODE_BUY, master.purchaseMode);
 					}
 				});

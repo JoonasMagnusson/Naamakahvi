@@ -176,12 +176,12 @@ public class FrontPage extends JPanel implements ActionListener{
 		}
 		if (s == buycart){
 			setHelpText(DEFAULTHELP);
-			master.setContinueLocation(CafeUI.VIEW_BUY_LIST_PAGE);
+			master.continueLocation = CafeUI.VIEW_BUY_LIST_PAGE;
 			master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
 		}
 		if (s == bringcart){
 			setHelpText(DEFAULTHELP);
-			master.setContinueLocation(CafeUI.VIEW_BRING_LIST_PAGE);
+			master.continueLocation = CafeUI.VIEW_BRING_LIST_PAGE;
 			master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
 		}
 		for (int i = 0; i < buyprodButtons.length; i++){
@@ -195,7 +195,7 @@ public class FrontPage extends JPanel implements ActionListener{
 					amounts[0] = j+1;
 					master.setPurchaseMode(CafeUI.MODE_BUY);
 					master.selectProduct(prods, amounts);
-					master.setContinueLocation(CafeUI.VIEW_CHECKOUT_PAGE);
+					master.continueLocation = CafeUI.VIEW_CHECKOUT_PAGE;
 					master.switchPage(CafeUI.VIEW_FACE_LOGIN_PAGE);
 				}
 			}
