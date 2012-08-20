@@ -19,7 +19,7 @@ class Product implements IProduct {
     }
 
     public String getName() {
-        return this.name;
+        return Character.toUpperCase(this.name.charAt(0)) + this.name.substring(1);
     }
 
     public double getPrice() {
