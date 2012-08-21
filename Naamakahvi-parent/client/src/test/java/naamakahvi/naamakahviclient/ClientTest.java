@@ -352,6 +352,37 @@ public class ClientTest {
     }
 
     @Test
+    public void registrationWithEmptyGivenNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", "", "Nieminen");
+    }
+
+    @Test
+    public void registrationWithEmptyFamilyNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", "Veikko", "");
+    }
+
+    @Test
+    public void registrationWithNullNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser(null, "Veikko", "Nieminen");
+    }
+
+    @Test
+    public void registrationWithNullGivenNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", null, "Nieminen");
+    }
+
+    @Test
+    public void registrationWithNullFamilyNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", "Veikko", null);
+    }
+
+
+    @Test
     public void authenticationWithUnknownNameFails() throws AuthenticationException {
         thrown.expect(ClientException.class);
         thrown.expectMessage("Authentication failed");
