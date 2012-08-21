@@ -209,8 +209,11 @@ public class ClientTest {
             ans.add("status", new JsonPrimitive("ok"));
             JsonArray ar = new JsonArray();
 
-            for (String s : new String[]{"user1", "user2", "user3", "user4"}) {
-                ar.add(new JsonPrimitive(s));
+            for (String username : new String[]{"user1", "user2", "user3", "user4"}) {
+                JsonObject obj = new JsonObject();
+                obj.add("username", new JsonPrimitive(username));
+                obj.add("goodmatch", new JsonPrimitive(true));
+                ar.add(obj);
             }
 
             ans.add("idlist", ar);
@@ -478,12 +481,12 @@ public class ClientTest {
     @Test
     public void imageAuthenticationListsCorrectUsers() throws ClientException {
         byte[] bytes = new byte[2];
-        String[] usernames = client.identifyImage(bytes);
+        List<IdentifyResult> results = client.identifyImage(bytes);
 
-        assertTrue(usernames[0].equals("user1")
-                && usernames[1].equals("user2")
-                && usernames[2].equals("user3")
-                && usernames[3].equals("user4"));
+        assertTrue(results.get(0).username.equals("user1")
+                   && results.get(1).username.equals("user2")
+                   && results.get(2).username.equals("user3")
+                   && results.get(3).username.equals("user4"));
     }
 
     @Test

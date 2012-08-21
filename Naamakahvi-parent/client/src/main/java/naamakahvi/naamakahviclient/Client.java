@@ -309,7 +309,7 @@ public class Client {
         try {
             JsonObject obj = doPost("/get_user/",
                     "username", username);
-
+            
             JsonObject data = obj.get("data").getAsJsonObject();
             String uname = data.get("username").getAsString();
             String given = data.get("given").getAsString();
@@ -471,19 +471,19 @@ public class Client {
     }
 
     /**
-     * Sends an image of a user to the server to get an ordered list of matching user names,
-     * the best match first.
+     * Sends an image of a user to the server to get an ordered list of matching user names and 
+     * whether the match is considered good.
      * 
      * Example server response:
      * {
      *      "status":"ok",
-     *      "idlist":["user1","user2","user3","user4"]
+     *      "idlist":[{"username":"user1", "goodmatch":true}, {"username":"user2", "goodmatch":false}]
      * }
      * 
      * @param imagedata the image
-     * @return list of identified usernames 
+     * @return list of results
      */
-    public String[] identifyImage(byte[] imagedata) throws ClientException {
+    public List<IdentifyResult> identifyImage(byte[] imagedata) throws ClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/identify/"));
@@ -497,7 +497,16 @@ public class Client {
             checkResponseStatus(jsonResponse);
             
             JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
-            return jsonArrayToStringArray(jarr);
+            
+            List<IdentifyResult> ans = new ArrayList<IdentifyResult>();
+
+            for (JsonElement e : jarr) {
+                String username = e.getAsJsonObject().get("username").getAsString();
+                boolean goodmatch = e.getAsJsonObject().get("goodmatch").getAsBoolean();
+                ans.add(new IdentifyResult(username, goodmatch));
+            }
+
+            return ans;
             
         } catch (Exception ex) {
             throw new AuthenticationException(ex.toString());
