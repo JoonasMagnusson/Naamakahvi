@@ -40,10 +40,16 @@
 % \item Main functionalities described in natural language
 % \end{itemize}
 
-The staff of the Department of Computer Science has two coffee syndicates. Both of them provide an espresso machine and the other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters. The Facecafe software keeps track of each member’s balance, using face recognition to identify users.
+The staff of the Department of Computer Science has two coffee syndicates. 
+Both of them provide an espresso machine and the other syndicate also has 
+a drip coffee maker. The members pay for their coffee by bringing products 
+to be used in the machine, e.g. espresso beans or filters. The Facecafe 
+software keeps track of each member’s balance, using face recognition to 
+identify users.
+
+
 
 \section{System Purpose: Requirements}
-
 
 \subsection{Functional Requirements}
    % --> Bullet point list
@@ -66,14 +72,14 @@ The staff of the Department of Computer Science has two coffee syndicates. Both 
    % performance
 
 \begin{itemize}
-\item{The application can be used on an Android tablet or a desktop equipped with touch screen}
+\item{The application can be used on an Android tablet or a desktop equipped with a touch screen}
 \item{The software is simple to use and the core functionalities do not require many clicks}
 \item{The user does not have to wait for very long}  
 \end{itemize}
 
 \section{Structure}
 
-\subsection{Overview: overall structure}
+\subsection{Overview: Overall Structure}
 % --> Diagram of all components and their collaboration with each other
 \includegraphics[scale=0.5]{components.pdf}
 
@@ -116,7 +122,7 @@ requests, and receiving JSON-objects from the server.
 
 \subsubsection{Backend/server}
 % redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
-% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ tietokannat ja serverin opencv-palikka)
+% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
 The server updates the database and gets data from it on client
 requests and tells the client whether or not the requested operation
 was successful. The server is an HTTP-server implemented in Python, and
@@ -152,6 +158,7 @@ usernames or other information.
 % - description of the scenario
 % - how scenario interacts with components
 
+% kuinka monta kuvaa?
 \subsubsection{Registration}
 \textbf{Type:} Use case\\
 \textbf{Description:} The user enters their name and username to register on the system. 
@@ -166,11 +173,18 @@ The user can also have pictures taken of their face if they want to use face rec
 \item{The server saves the new images to the database and trains the neural network. See~\ref{sec:add-train}.}
 \end{enumerate}
 
+% kuinka monta kuvaa?
 \subsubsection{Authentication using face recognition}
 \textbf{Type:} Use case\\
 \textbf{Description:} When the user has chosen a product to buy or bring, 
-a picture is taken of their face. \\
-\textbf{Component interaction:} \\
+multiple pictures are taken of their face. The user is told who was recognized. \\
+\textbf{Component interaction:} 
+\begin{enumerate} 
+\item{Pictures are taken and sent to the server. See~\ref{sec:pic}.}
+\item{The server identifies the user in the images and makes a sorted list of the matching users. See~\ref{sec:recognition}.}
+\item{The server sends the list of matching usernames to the client.}
+\item{The client returns the list to the user interface.}
+\end{enumerate}
 
 \subsubsection{Authentication using username}
 \textbf{Type:} Use case\\
@@ -186,25 +200,25 @@ a picture is taken of their face. \\
 
 \subsubsection{Buying coffee}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user chooses the product and the amount of it they want to buy. 
+\textbf{Description:} The user chooses a product and the amount of it they want to buy. 
 The user's balance is shown and the user has to confirm the purchase.\\
 \textbf{Component interaction:}
 \begin{enumerate} 
 \item{The user interface passes the buying user, the bought product and the amount of it to the client.}
 \item{The client sends its station name, the user's username, the product id and the amount to the server.}
-\item{The server calculates the user's new balance and saves it in the database.}
+\item{The server calculates the user's new balance and saves it to the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
 \subsubsection{Bringing a product (paying)}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user chooses the amount of the product they are bringing. 
+\textbf{Description:} The user chooses a product and the amount they are bringing. 
 The user's balance is shown and the user has to confirm the action.\\
 \textbf{Component interaction:}
 \begin{enumerate} 
 \item{The user interface passes the user, the brought product and the amount of it to the client.}
 \item{The client sends its station name, the user's username, the product id, the amount of packages and the package size of the product to the server.}
-\item{The server calculates the user's new balance and saves it in the database.}
+\item{The server calculates the user's new balance and saves it to the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
@@ -221,6 +235,7 @@ The pictures will overwrite the user's old user pictures.\\
 \textbf{Component interaction:}\\
 
 \subsubsection{Face recognition}
+\label{sec:recognition}
 \textbf{Type:} System operation\\
 \textbf{Description:}\\
 \textbf{Component interaction:}\\
@@ -273,10 +288,18 @@ The components are located in the following directories in the codebase:
 % dependencies between components, e.g. ``KujeProcessor and WebApp must stay
 % on the same physical server because ...
 
+Since the frontend and the backend communicate using HTTP, they can be
+located on separate physical servers. %tietokannat?
+
 \subsection{Deployment}
 % Deployment: How components are deployed and possible constraints
 
+\subsubsection{Constraints}
+
+
+
 \section{Testing}
-asdf
+
+
 
 \end{document}
