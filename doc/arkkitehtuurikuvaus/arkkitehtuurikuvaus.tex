@@ -162,15 +162,16 @@ The user can also have pictures taken of their face if they want to use face rec
 \item{The client sends the user data to the server.}
 \item{Provided that the username does not already exist and it is valid, the server creates a new user in the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
-\item{If pictures were taken they are sent to the server as described in section~\ref{sec:add-train}.}
+\item{Pictures are taken and sent to the server. See~\ref{sec:pic}.}
+\item{The server saves the new images to the database and trains the neural network. See~\ref{sec:add-train}.}
 \end{enumerate}
 
 \subsubsection{Authentication using face recognition}
 \textbf{Type:} Use case\\
 \textbf{Description:} When the user has chosen a product to buy or bring, 
-a picture is taken of their face. The user is then shown the best matching usernames...\\
+a picture is taken of their face. \\
 \textbf{Component interaction:} \\
-   
+
 \subsubsection{Authentication using username}
 \textbf{Type:} Use case\\
 \textbf{Description:} The user chooses their username from a list and can then proceed to make a purchase or bring a product.\\
@@ -207,12 +208,13 @@ The user's balance is shown and the user has to confirm the action.\\
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
-\subsubsection{Adding new photographs}
+\subsubsection{Adding new user pictures}
 \textbf{Type:} Use case\\
-\textbf{Description:}\\
+\textbf{Description:} The user chooses their username from a list and takes pictures of their face. 
+The pictures will overwrite the user's old user pictures.\\
 \textbf{Component interaction:}\\
 
-\subsubsection{Adding and training user images}
+\subsubsection{Saving images and training the neural network}
 \label{sec:add-train}
 \textbf{Type:} System operation\\
 \textbf{Description:}\\
@@ -223,7 +225,8 @@ The user's balance is shown and the user has to confirm the action.\\
 \textbf{Description:}\\
 \textbf{Component interaction:}\\
 
-\subsubsection{Getting user information from the database}
+\subsubsection{Taking a picture}
+\label{sec:pic}
 \textbf{Type:} System operation\\
 \textbf{Description:} \\
 \textbf{Component interaction:}\\
