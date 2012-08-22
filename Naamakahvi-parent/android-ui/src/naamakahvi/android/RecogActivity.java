@@ -16,6 +16,7 @@ import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
+import naamakahvi.naamakahviclient.ClientException;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,9 @@ public class RecogActivity extends Activity {
 
 	public static final String TAG = "RecogActivity";
 
+	/**
+	 * Timer for periodically taking photos
+	 */
 	class ShotTimer extends Thread {
 		private Handler hand;
 		private boolean canceled = false;
@@ -40,10 +44,18 @@ public class RecogActivity extends Activity {
 			this.hand = hand;
 		}
 
+		/**
+		 * Cancels the timer
+		 */
 		synchronized public void cancel() {
 			this.canceled = true;
 		}
 
+		/**
+		 * Returns whether the timer is canceled
+		 * 
+		 * @return True if canceled, false if still running
+		 */
 		synchronized public boolean isCanceled() {
 			return canceled;
 		}
@@ -53,9 +65,9 @@ public class RecogActivity extends Activity {
 			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(1000); // wait for camera to initialize & auto
+									// white balance etc.
 			} catch (InterruptedException e2) {
-				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
 
@@ -90,12 +102,15 @@ public class RecogActivity extends Activity {
 						});
 					}
 
+				} catch (ClientException e) {
+					//Connection problem
+					//TODO show error
 				} catch (Exception e) {
+					// Zero or too many faces detected (or catastrophic failure)
 					e.printStackTrace();
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -112,6 +127,7 @@ public class RecogActivity extends Activity {
 
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
+		
 		mOrder = getIntent().getParcelableExtra(ExtraNames.PRODUCTS);
 	}
 
@@ -133,16 +149,6 @@ public class RecogActivity extends Activity {
 		final Handler hand = new Handler(getMainLooper());
 		mShotTimer = new ShotTimer(hand);
 		mShotTimer.start();
-	}
-
-	public void userListClick(View v) {
-		Intent i = new Intent(this, LoginwithusernameActivity.class);
-		i.putExtra(ExtraNames.PRODUCTS, mOrder);
-		startActivityForResult(i, SELECT_USERNAME);
-	}
-
-	public void onBackClick(View v) {
-		this.onBackPressed();
 	}
 
 	private class ValueComparator implements Comparator<String> {

@@ -309,7 +309,7 @@ public class MainActivity extends Activity {
 		TableLayout t = (TableLayout) findViewById(R.id.productTable);
 		TableRow[] children = new TableRow[t.getChildCount()];
 
-		for (int i = children.length-1; i > 0; --i) {
+		for (int i = children.length - 1; i > 0; --i) {
 			children[i] = (TableRow) t.getChildAt(i);
 			t.removeView(children[i]);
 		}

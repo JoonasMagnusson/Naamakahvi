@@ -3,7 +3,9 @@ package naamakahvi.android.components;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.GridView;
-
+/**
+ * Subclass of GridView with scrolling functionality disabled
+ */
 public class NoScrollGridView extends GridView {
 
 	public NoScrollGridView(Context context, AttributeSet attrs) {

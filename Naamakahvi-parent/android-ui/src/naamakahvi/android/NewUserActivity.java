@@ -28,6 +28,7 @@ import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.ThumbAdapter;
 
 public class NewUserActivity extends Activity {
 	private final String TAG = "NewUserActivity";
@@ -172,48 +173,6 @@ public class NewUserActivity extends Activity {
 			GridView g = (GridView) findViewById(R.id.thumbGrid);
 			((BaseAdapter) g.getAdapter()).notifyDataSetChanged();
 		}
-	}
-
-	public class ThumbAdapter extends BaseAdapter {
-		private LayoutInflater inflater;
-
-		public ThumbAdapter(Context context, List<Bitmap> data) {
-			this.inflater = LayoutInflater.from(context);
-			this.mBitmaps = data;
-		}
-
-		private List<Bitmap> mBitmaps;
-
-		public int getCount() {
-			return 6;
-		}
-
-		public Bitmap getItem(int position) {
-			if (position < 0 || position >= mBitmaps.size())
-				return null;
-			return mBitmaps.get(position);
-		}
-
-		public long getItemId(int position) {
-			if (position < getCount() && position >= 0) {
-				return position;
-			}
-			return -1;
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final Bitmap bmp = getItem(position);
-
-			if (convertView == null) {
-				convertView = this.inflater.inflate(R.layout.thumb_layout, null);
-			}
-
-			ImageView thumb = ((ImageView) convertView.findViewById(R.id.imageView1));
-			thumb.setImageBitmap(bmp);
-			thumb.setMaxHeight(100);
-			return convertView;
-		}
-
 	}
 
 }
