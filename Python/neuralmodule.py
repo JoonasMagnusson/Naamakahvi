@@ -154,6 +154,8 @@ class neuralmodule:
     #Returs array containing matches sorted from best to worst
     def identify(self,imatrix):
 
+        match_threshold = 0.6
+        match = False
 
         rec = self.prepareImage(imatrix)
 
@@ -165,6 +167,10 @@ class neuralmodule:
         for h in range(0,len(self.PANN)):
             net = self.PANN[h]
             nil, res = net.predict(pre2)
+            
+            if (res > match_threshold):
+                match = True
+                
             major.append(res[0].flatten()[0])
             
         
@@ -172,4 +178,4 @@ class neuralmodule:
         my = dict(zy)
         sy = sorted(my,key=my.__getitem__)
         
-        return sy[::-1],my
+        return sy[::-1],match
