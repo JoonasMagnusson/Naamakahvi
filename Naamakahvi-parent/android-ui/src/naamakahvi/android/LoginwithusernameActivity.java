@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.DialogHelper;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
@@ -42,16 +43,17 @@ public class LoginwithusernameActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loading_screen);
-		
+
 		if (getIntent().hasExtra(ExtraNames.PRODUCTS)) {
 			mOrder = getIntent().getExtras().getParcelable(ExtraNames.PRODUCTS);
 		} else {
 			mOrder = null;
 		}
-		
+
 		final Handler hand = new Handler(getMainLooper());
 
 		final Context con = this;
+		final Activity act = this;
 
 		new Thread(new Runnable() {
 
@@ -72,16 +74,10 @@ public class LoginwithusernameActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(con);
-							builder.setCancelable(false);
-							builder.setMessage("Fetching data from server failed. Reason: " + ex.getMessage());
-							builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-									finish();
-								}
-							});
-							builder.show();
+
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage(), act)
+									.show();
+
 						}
 					});
 				}
@@ -91,10 +87,15 @@ public class LoginwithusernameActivity extends Activity {
 
 	}
 
+	/**
+	 * Called after fetching data from server
+	 * 
+	 * @param users
+	 *            List of usernames from the server
+	 */
 	public void loaded(String[] users) {
 		setContentView(R.layout.loginwithusername);
 		ListView userlistView = (ListView) findViewById(R.id.userListView);
-		
 
 		AlphabeticalStringArrayAdapter adapter = new AlphabeticalStringArrayAdapter(this, users);
 		userlistView.setAdapter(adapter);
@@ -116,6 +117,10 @@ public class LoginwithusernameActivity extends Activity {
 
 	}
 
+	/**
+	 * Adapter that sorts a string array alphabetically and splits it into
+	 * sections
+	 */
 	private static class AlphabeticalStringArrayAdapter extends BaseAdapter implements SectionIndexer {
 
 		public static final int TYPE_HEADER = 0, TYPE_USERNAME = 1;
@@ -130,9 +135,9 @@ public class LoginwithusernameActivity extends Activity {
 
 			inflater = LayoutInflater.from(con);
 			this.data = new ArrayList<String>();
-			this.names = new ArrayList<String>();
-			this.indices = new ArrayList<Integer>();
-
+			this.names = new ArrayList<String>(); // keeps track of section names
+			this.indices = new ArrayList<Integer>(); // keeps track of section start points
+												     // section names[i] starts at index indices[i]
 			int numSections = 0;
 
 			for (int i = 0; i < data.length; ++i) { // initialize sections
@@ -141,18 +146,23 @@ public class LoginwithusernameActivity extends Activity {
 					s = "a";
 				char firstletter = s.toUpperCase().charAt(0);
 
-				if (isEmpty() || lastSectionName().charAt(0) != firstletter) { // new
-																				// section
-					this.data.add("-- HEADER -- SHOULD NOT BE VISIBLE --");
-					// add placeholder in data for easier indexing
+				if (isEmpty() || lastSectionName().charAt(0) != firstletter) { // new section
+					this.data.add("-- HEADER -- SHOULD NOT BE VISIBLE --"); // add placeholder in data for easier indexing
 					this.addSection(Character.toString(firstletter), i + numSections);
-					++numSections; // keep track of index offset caused by
-									// section headers
+					++numSections; // keep track of index offset caused by section headers
 				}
 				this.data.add(s);
 			}
 		}
 
+		/**
+		 * Adds a section
+		 * 
+		 * @param name
+		 *            Section name
+		 * @param index
+		 *            section index
+		 */
 		private void addSection(String name, int index) {
 			names.add(name);
 			indices.add(index);
@@ -228,7 +238,9 @@ public class LoginwithusernameActivity extends Activity {
 				else
 					convertView = inflater.inflate(R.layout.list_item_text, null);
 			}
+
 			int headerIndex = indices.indexOf(position);
+
 			if (headerIndex >= 0) {
 				((TextView) convertView).setText(names.get(headerIndex));
 			} else {

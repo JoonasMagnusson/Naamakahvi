@@ -2,20 +2,13 @@
 <resources>
 
     <string name="hello">Hello World, Naamakahvi_Menu!</string>
-    <string name="app_name">Naamakahvi_Android</string>
+    <string name="app_name">Facecafe client</string>
     <string name="rec_string_prefix">You were recognized as:</string>
-    <string name="rec_string_suffix">Is this correct?</string>
     <string name="chk_order">Order:</string>
-    <string name="countdown_prefix">Confirming in</string>
-    <string name="countdown_suffix">s</string>
     <string name="reg_button">New user</string>
     <string name="user_list">User List</string>
-    <string name="other_order">Other order</string>
-    <string name="shopping_cart">Shopping cart:</string>
-    <string name="checkout">Checkout</string>
     <string name="product">Product</string>
     <string name="qty">Quantity</string>
-    <string name="other_payment">Other payment...</string>
     <string name="thumb_rm_instruction">Touch to remove picture</string>
     <string name="pleasewait">Please Wait...</string>
     <string name="username">Username:</string>
@@ -29,5 +22,11 @@
     <string name="bring_products">Bring Products</string>
     <string name="saldo_item">Your %1$s saldo is:</string>
     <string name="recog_instruction">Move your head until a green square appears around your face.</string>
+    <string name="pleaseUsername">Please enter an username.</string>
+    <string name="pleaseFirstName">Please enter first name.</string>
+    <string name="pleaseLastName">Please enter last name.</string>
+    <string name="errorCantRegister">Unable to register: </string>
+    <string name="successRegistration">Successfully registered as: </string>
+    <string name="errorFetchData">Fetching data from server failed: </string>
 
 </resources>

@@ -30,6 +30,7 @@ import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.DialogHelper;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.android.utils.ThumbAdapter;
 
@@ -52,7 +53,7 @@ public class UserSettingsActivity extends Activity {
 
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));
 
-		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() { //set thumbnail onlcick listener
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ThumbAdapter a = (ThumbAdapter) parent.getAdapter();
 				if (a.getItem(position) != null) {
@@ -67,8 +68,10 @@ public class UserSettingsActivity extends Activity {
 
 		final Handler hand = new Handler(getMainLooper());
 		final Intent i = getIntent();
+		final Context con = this;
+		final Activity act = this;
 
-		new Thread(new Runnable() {
+		new Thread(new Runnable() { // fetch user data
 
 			public void run() {
 				try {
@@ -80,8 +83,14 @@ public class UserSettingsActivity extends Activity {
 							loaded(user);
 						}
 					});
-				} catch (ClientException e) {
-					// TODO Auto-generated catch block
+				} catch (final ClientException e) {
+					hand.post(new Runnable() {
+
+						public void run() {
+							DialogHelper.errorDialog(con, "Unable to fetch user data : " + e.getMessage(), act).show();
+						}
+					});
+
 					e.printStackTrace();
 				}
 			}
@@ -112,7 +121,6 @@ public class UserSettingsActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).releaseCamera();
 
@@ -120,7 +128,6 @@ public class UserSettingsActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
 	}
@@ -140,7 +147,7 @@ public class UserSettingsActivity extends Activity {
 		pd.setIndeterminate(true);
 		pd.setCancelable(false);
 
-		new Thread(new Runnable() {
+		new Thread(new Runnable() { // update user photos
 
 			public void run() {
 				try {
@@ -165,7 +172,7 @@ public class UserSettingsActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							Toast.makeText(getApplicationContext(), "Updatet photos for " + username, Toast.LENGTH_LONG)
+							Toast.makeText(getApplicationContext(), "Updated photos for " + username, Toast.LENGTH_LONG)
 									.show();
 						}
 					});
@@ -182,17 +189,7 @@ public class UserSettingsActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(con);
-							builder.setCancelable(false);
-							builder.setMessage("Updating photos failed: " + ex.getMessage());
-							builder.setTitle("Error");
-
-							builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-								}
-							});
-							builder.show();
+							DialogHelper.errorDialog(con, "Unable to update photos: " + ex.getMessage()).show();
 						}
 					});
 				}
