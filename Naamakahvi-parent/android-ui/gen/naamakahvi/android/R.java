@@ -81,32 +81,31 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f070001;
-        public static final int bring_products=0x7f070019;
-        public static final int buy_products=0x7f070018;
-        public static final int cancel=0x7f070015;
-        public static final int checkout=0x7f07000b;
-        public static final int chk_order=0x7f070004;
-        public static final int confirm=0x7f070016;
-        public static final int countdown_prefix=0x7f070005;
-        public static final int countdown_suffix=0x7f070006;
-        public static final int first_name=0x7f070012;
+        public static final int bring_products=0x7f070012;
+        public static final int buy_products=0x7f070011;
+        public static final int cancel=0x7f07000e;
+        public static final int chk_order=0x7f070003;
+        public static final int confirm=0x7f07000f;
+        public static final int errorCantRegister=0x7f070018;
+        public static final int errorFetchData=0x7f07001a;
+        public static final int first_name=0x7f07000b;
         public static final int hello=0x7f070000;
-        public static final int last_name=0x7f070013;
-        public static final int other_order=0x7f070009;
-        public static final int other_payment=0x7f07000e;
-        public static final int pleasewait=0x7f070010;
-        public static final int product=0x7f07000c;
-        public static final int qty=0x7f07000d;
+        public static final int last_name=0x7f07000c;
+        public static final int pleaseFirstName=0x7f070016;
+        public static final int pleaseLastName=0x7f070017;
+        public static final int pleaseUsername=0x7f070015;
+        public static final int pleasewait=0x7f070009;
+        public static final int product=0x7f070006;
+        public static final int qty=0x7f070007;
         public static final int rec_string_prefix=0x7f070002;
-        public static final int rec_string_suffix=0x7f070003;
-        public static final int recog_instruction=0x7f07001b;
-        public static final int reg_button=0x7f070007;
-        public static final int saldo_item=0x7f07001a;
-        public static final int shopping_cart=0x7f07000a;
-        public static final int takepic_instruction=0x7f070014;
-        public static final int thumb_rm_instruction=0x7f07000f;
-        public static final int user_list=0x7f070008;
-        public static final int user_settings=0x7f070017;
-        public static final int username=0x7f070011;
+        public static final int recog_instruction=0x7f070014;
+        public static final int reg_button=0x7f070004;
+        public static final int saldo_item=0x7f070013;
+        public static final int successRegistration=0x7f070019;
+        public static final int takepic_instruction=0x7f07000d;
+        public static final int thumb_rm_instruction=0x7f070008;
+        public static final int user_list=0x7f070005;
+        public static final int user_settings=0x7f070010;
+        public static final int username=0x7f07000a;
     }
 }

@@ -30,7 +30,9 @@ import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.DialogHelper;
 import naamakahvi.android.utils.ExtraNames;
+import naamakahvi.android.utils.ThumbAdapter;
 
 public class UserSettingsActivity extends Activity {
 	private final String TAG = "NewUserActivity";
@@ -45,14 +47,14 @@ public class UserSettingsActivity extends Activity {
 
 		mPics = new ArrayList<Bitmap>();
 
-		((TextView)findViewById(R.id.textView1)).setText(R.string.user_settings);
+		((TextView) findViewById(R.id.textView1)).setText(R.string.user_settings);
+
 		GridView thumbs = (GridView) findViewById(R.id.thumbGrid);
 
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));
 
-		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() { //set thumbnail onlcick listener
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ThumbAdapter a = (ThumbAdapter) parent.getAdapter();
 				if (a.getItem(position) != null) {
 
@@ -63,22 +65,32 @@ public class UserSettingsActivity extends Activity {
 
 			}
 		});
+
 		final Handler hand = new Handler(getMainLooper());
 		final Intent i = getIntent();
-		new Thread(new Runnable() {
+		final Context con = this;
+		final Activity act = this;
+
+		new Thread(new Runnable() { // fetch user data
 
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT,
-							Config.STATION);
+					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 					final IUser user = c.getUser(i.getExtras().getStringArray(ExtraNames.USERS)[0]);
+
 					hand.post(new Runnable() {
 						public void run() {
 							loaded(user);
 						}
 					});
-				} catch (ClientException e) {
-					// TODO Auto-generated catch block
+				} catch (final ClientException e) {
+					hand.post(new Runnable() {
+
+						public void run() {
+							DialogHelper.errorDialog(con, "Unable to fetch user data : " + e.getMessage(), act).show();
+						}
+					});
+
 					e.printStackTrace();
 				}
 			}
@@ -86,7 +98,14 @@ public class UserSettingsActivity extends Activity {
 
 	}
 
+	/**
+	 * Called after data for this screen has been fetched from the server.
+	 * 
+	 * @param user
+	 *            The user whose photos are being updated
+	 */
 	private void loaded(IUser user) {
+
 		EditText edit = ((EditText) findViewById(R.id.editTextUsername));
 		edit.setEnabled(false);
 		edit.setText(user.getUserName());
@@ -102,7 +121,6 @@ public class UserSettingsActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).releaseCamera();
 
@@ -110,19 +128,26 @@ public class UserSettingsActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
 	}
 
+	/**
+	 * OnClick handler for the "OK" button
+	 * 
+	 * @param v
+	 *            The view that handled the onClick event
+	 */
 	public void onRegistrationClick(View v) {
 		final Handler hand = new Handler(getMainLooper());
 		final Context con = this;
+
 		final ProgressDialog pd = new ProgressDialog(con);
 		pd.setMessage("Please Wait...");
 		pd.setIndeterminate(true);
 		pd.setCancelable(false);
-		new Thread(new Runnable() {
+
+		new Thread(new Runnable() { // update user photos
 
 			public void run() {
 				try {
@@ -133,32 +158,26 @@ public class UserSettingsActivity extends Activity {
 						}
 					});
 
-					Client client = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, Config.STATION);
+					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 
-					final String username = ((EditText) findViewById(R.id.editTextUsername))
-							.getText().toString();
+					final String username = ((EditText) findViewById(R.id.editTextUsername)).getText().toString();
 
 					for (Bitmap b : mPics) {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */,
-								bos);
+						b.compress(CompressFormat.PNG, 0, bos);
 						byte[] bitmapdata = bos.toByteArray();
 						client.addImage(username, bitmapdata);
 					}
 
-					// tarkistetaan onko username varattu. jos on, kirjoitetaan
-					// se ja
-					// pyydet��n uutta else finish()
 					hand.post(new Runnable() {
 
 						public void run() {
-							Toast.makeText(getApplicationContext(),
-									"Successfully registered as: " + username,
-									Toast.LENGTH_LONG).show();
+							Toast.makeText(getApplicationContext(), "Updated photos for " + username, Toast.LENGTH_LONG)
+									.show();
 						}
 					});
 					finish();
+
 				} catch (final Exception ex) {
 					hand.post(new Runnable() {
 						public void run() {
@@ -170,22 +189,7 @@ public class UserSettingsActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									con);
-							builder.setCancelable(false);
-							builder.setMessage("Registration failed: "
-									+ ex.getMessage());
-							builder.setTitle("Error");
-							builder.setPositiveButton("OK",
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-											finish();
-										}
-									});
-							builder.show();
+							DialogHelper.errorDialog(con, "Unable to update photos: " + ex.getMessage()).show();
 						}
 					});
 				}
@@ -201,12 +205,17 @@ public class UserSettingsActivity extends Activity {
 
 	}
 
+	/**
+	 * OnClick handler for camera preview
+	 * 
+	 * @param v
+	 *            The view that handled the onClick event
+	 */
 	public void addPicture(View v) {
 		if (mPics.size() < 6) {
 			Bitmap bmp;
 			try {
-				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1))
-						.grabFrame();
+				bmp = ((FaceDetectView) findViewById(R.id.faceDetectView1)).grabFrame();
 			} catch (Exception e) {
 				Log.d(TAG, "Exception: " + e.getMessage());
 				e.printStackTrace();
@@ -218,50 +227,6 @@ public class UserSettingsActivity extends Activity {
 			GridView g = (GridView) findViewById(R.id.thumbGrid);
 			((BaseAdapter) g.getAdapter()).notifyDataSetChanged();
 		}
-	}
-
-	public class ThumbAdapter extends BaseAdapter {
-		private LayoutInflater inflater;
-
-		public ThumbAdapter(Context context, List<Bitmap> data) {
-			this.inflater = LayoutInflater.from(context);
-			this.mBitmaps = data;
-		}
-
-		private List<Bitmap> mBitmaps;
-
-		public int getCount() {
-			return 6;
-		}
-
-		public Bitmap getItem(int position) {
-			if (position < 0 || position >= mBitmaps.size())
-				return null;
-			return mBitmaps.get(position);
-		}
-
-		public long getItemId(int position) {
-			if (position < getCount() && position >= 0) {
-				return position;
-			}
-			return -1;
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final Bitmap bmp = getItem(position);
-
-			if (convertView == null) {
-				convertView = this.inflater
-						.inflate(R.layout.thumb_layout, null);
-			}
-
-			ImageView thumb = ((ImageView) convertView
-					.findViewById(R.id.imageView1));
-			thumb.setImageBitmap(bmp);
-			thumb.setMaxHeight(100);
-			return convertView;
-		}
-
 	}
 
 }

@@ -216,8 +216,16 @@ public class Client {
     public void registerUser(String username, String givenName,
             String familyName) throws RegistrationException {
 
-        if (username.equals("")) {
-            throw new RegistrationException("Username must not be empty.");
+        if (username == null || username.equals("")) {
+            throw new RegistrationException("username must be non-null and non-empty");
+        }
+
+        if (givenName == null || givenName.equals("")) {
+            throw new RegistrationException("givenName must be non-null and non-empty");
+        }
+
+        if (familyName == null || familyName.equals("")) {
+            throw new RegistrationException("familyName must be non-null and non-empty");
         }
 
         try {

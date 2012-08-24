@@ -10,6 +10,10 @@ app = Flask(__name__)
 
 dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
 cvm = neuralmodule.neuralmodule()
+savefile = "data.pkl"
+
+if os.path.exists(savefile):
+    cvm.loadData(savefile)
 
 stations = {"Station1":dbm}
 
@@ -48,6 +52,7 @@ def train():
         user = request.form['username']
         filename = request.form['filename']
         cvm.train(filename,user)
+        cvm.saveData(savefile)
         return resp_ok()
 
     else:
@@ -85,6 +90,7 @@ def upload():
             print file
             file.save(secure_filename(file.filename))
             cvm.train(secure_filename(file.filename),user)
+            cvm.saveData(savefile)
             return resp_ok()
         else:
             return resp_failure('NoFileInRequestError')
@@ -227,7 +233,9 @@ def bring():
         
         rawproductid = request.form['product_id']
         sizeid = request.form['size_id']
+
         station = request.form['station_name']
+
         amount = request.form['amount']
         user = request.form['username']
         station = request.form['station_name']

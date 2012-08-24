@@ -6,6 +6,7 @@ import java.util.prefs.Preferences;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.DialogHelper;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.android.utils.ProductCache;
 import naamakahvi.naamakahviclient.Client;
@@ -58,9 +59,7 @@ public class MainActivity extends Activity {
 		int port = mPreferences.getInt("port", -1);
 		String station = mPreferences.getString("station", null);
 
-		if (server == null || station == null || port < 1) { // no config saved
-																// or invalid
-																// config
+		if (server == null || station == null || port < 1) { // no config saved or invalid config
 			showServerDialog();
 		} else {
 			Config.SERVER_URL = server;
@@ -77,7 +76,7 @@ public class MainActivity extends Activity {
 	 */
 	private void showServerDialog() {
 		final EditText servEdit = new EditText(this);
-
+		servEdit.setSingleLine();
 		final Handler hand = new Handler(getMainLooper());
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -104,10 +103,12 @@ public class MainActivity extends Activity {
 	 * process
 	 */
 	private void showPortDialog() {
-		final EditText portEdit = new EditText(this);
 
+		final EditText portEdit = new EditText(this);
+		portEdit.setSingleLine();
 		final Handler hand = new Handler(getMainLooper());
 		final Context con = this;
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setCancelable(false);
 		builder.setTitle("Port");
@@ -158,7 +159,7 @@ public class MainActivity extends Activity {
 
 						public void run() {
 
-							showErrorDialog(con, e);
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + e.getMessage()).show();
 						}
 					});
 					return;
@@ -248,35 +249,13 @@ public class MainActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							showErrorDialog(con, ex);
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage()).show();
 						}
 					});
 				}
 			}
 		}).start();
 
-	}
-
-	/**
-	 * Displays a non-cancelable error dialog with a message from an exception
-	 * 
-	 * @param con
-	 *            Dialog context
-	 * @param ex
-	 *            The exception whose message to show.
-	 */
-	private void showErrorDialog(Context con, Exception ex) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(con);
-		builder.setCancelable(false);
-		builder.setTitle("Error");
-		builder.setMessage("Fetching data from server failed: " + ex.getMessage());
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				finish();
-			}
-		});
-		builder.show();
 	}
 
 	public void onUserSettingsClick(View v) {
@@ -309,7 +288,7 @@ public class MainActivity extends Activity {
 		TableLayout t = (TableLayout) findViewById(R.id.productTable);
 		TableRow[] children = new TableRow[t.getChildCount()];
 
-		for (int i = children.length-1; i > 0; --i) {
+		for (int i = children.length - 1; i > 0; --i) {
 			children[i] = (TableRow) t.getChildAt(i);
 			t.removeView(children[i]);
 		}

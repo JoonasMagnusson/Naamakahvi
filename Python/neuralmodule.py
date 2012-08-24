@@ -4,6 +4,9 @@ import sys,numpy
 import scipy
 from scipy import spatial
 import pickle
+import os
+import shutil
+
 
 #Uncomment to view full arrays
 #numpy.set_printoptions(threshold='nan')
@@ -26,30 +29,35 @@ class neuralmodule:
         self.ANN_names = []    
         self.PANN = []
         
+        self.dir = "images"
+        
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
         
         
-    def saveData(self):
         
-        output = open('data.pkl', 'wb')
+    def saveData(self,file):
+        
+        output = open(file, 'wb')
         
         pickle.dump(self.SAMPLES, output)
         pickle.dump(self.tmat, output)
         pickle.dump(self.userlist, output)
         pickle.dump(self.ANN_persons, output)
         pickle.dump(self.ANN_names, output)
-        
+        print "Data Saved", file
         output.close()
             
-    def loadData(self,datafile):
+    def loadData(self,file):
         
-        input = open('data.pkl', 'rb')
+        input = open(file, 'rb')
         
         self.SAMPLES = pickle.load(input)
         self.tmat = pickle.load(input)
         self.userlist = pickle.load(input)
         self.ANN_persons = pickle.load(input)
         self.ANN_names = pickle.load(input)
-        
+        print "Data loaded", file
         self.computeNets()
 
     
@@ -66,6 +74,22 @@ class neuralmodule:
         tempmat = tempmat.reshape(-1)
         mat = tempmat.copy()
         return mat
+    
+    #Saves images for sinister purposes
+    def saveImage(self,name,image):
+        
+        bdir = self.dir + "/" + name
+        
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
+        
+        #save max 100 images
+        for i in range(0,100):
+            fname = bdir + "/" + name + "_img_" + str(i)
+            if not os.path.exists(fname):
+                shutil.copyfile(image, fname)
+                break    
+
     
     #Trains the recognizer and updates userlist
     def train(self,train,name):
@@ -84,6 +108,7 @@ class neuralmodule:
         self.userlist.append(name)
 
         #print "Training", train
+        self.saveImage(name, train)
         tempmat = self.prepareImage(train)
         
         if (self.tmat != None):
@@ -129,6 +154,8 @@ class neuralmodule:
     #Returs array containing matches sorted from best to worst
     def identify(self,imatrix):
 
+        match_threshold = 0.6
+        match = False
 
         rec = self.prepareImage(imatrix)
 
@@ -140,6 +167,10 @@ class neuralmodule:
         for h in range(0,len(self.PANN)):
             net = self.PANN[h]
             nil, res = net.predict(pre2)
+            
+            if (res > match_threshold):
+                match = True
+                
             major.append(res[0].flatten()[0])
             
         
@@ -147,4 +178,4 @@ class neuralmodule:
         my = dict(zy)
         sy = sorted(my,key=my.__getitem__)
         
-        return sy[::-1],my
+        return sy[::-1],match
