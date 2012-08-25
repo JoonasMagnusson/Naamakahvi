@@ -64,7 +64,6 @@ public class NewUserActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).releaseCamera();
 
@@ -72,7 +71,6 @@ public class NewUserActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
 	}
@@ -86,18 +84,18 @@ public class NewUserActivity extends Activity {
 	public void onRegistrationClick(View v) {
 
 		final String username = ((EditText) findViewById(R.id.editTextUsername)).getText().toString();
-		final String etunimi = ((EditText) findViewById(R.id.editTextEtunimi)).getText().toString();
-		final String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi)).getText().toString();
+		final String firstname = ((EditText) findViewById(R.id.editTextEtunimi)).getText().toString();
+		final String lastname = ((EditText) findViewById(R.id.editTextSukunimi)).getText().toString();
 
 		if (username.equals("")) {
 			DialogHelper.errorDialog(this, getString(R.string.pleaseUsername)).show();
 			return;
 		}
-		if (etunimi.equals("")) {
+		if (firstname.equals("")) {
 			DialogHelper.errorDialog(this, getString(R.string.pleaseFirstName)).show();
 			return;
 		}
-		if (username.equals("")) {
+		if (lastname.equals("")) {
 			DialogHelper.errorDialog(this, getString(R.string.pleaseLastName)).show();
 			return;
 		}
@@ -122,7 +120,7 @@ public class NewUserActivity extends Activity {
 					});
 
 					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-					client.registerUser(username, etunimi, sukunimi);
+					client.registerUser(username, firstname, lastname);
 
 					for (Bitmap b : mPics) {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
