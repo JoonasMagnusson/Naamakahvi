@@ -36,7 +36,7 @@ public class AddPicturePage extends JPanel implements ActionListener, CloseableV
 	/**
 	 * The maximum amount of images that can be registered at the same time.
 	 */
-	public static final int MAX_IMAGES = 5;
+	public static final int MAX_IMAGES = 6;
 	/**Creates a new image addition page.
 	 * 
 	 * @param master	The CafeUI object that this page is associated with.

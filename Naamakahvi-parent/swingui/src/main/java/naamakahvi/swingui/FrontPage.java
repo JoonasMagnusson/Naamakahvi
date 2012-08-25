@@ -187,7 +187,6 @@ public class FrontPage extends JPanel implements ActionListener{
 		for (int i = 0; i < buyprodButtons.length; i++){
 			for (int j = 0; j < buyprodButtons[i].length; j++){
 				if (s == buyprodButtons[i][j]){
-					//canvas.deactivate();
 					setHelpText(DEFAULTHELP);
 					IProduct[] prods = new IProduct[1];
 					prods[0] = buyproducts[i];
