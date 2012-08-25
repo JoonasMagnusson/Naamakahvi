@@ -142,6 +142,7 @@ public class MainActivity extends Activity {
 	 *            handler to which UI events are posted
 	 */
 	private void fetchStations(final Context con, final Handler hand) {
+		final Activity act = this;
 		new Thread(new Runnable() {
 
 			public void run() {
@@ -159,7 +160,7 @@ public class MainActivity extends Activity {
 
 						public void run() {
 
-							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + e.getMessage()).show();
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + e.getMessage(), act).show();
 						}
 					});
 					return;
