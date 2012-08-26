@@ -33,7 +33,7 @@ public class RegistrationPage extends JPanel implements ActionListener{
 	 * The maximum amount of pictures the user is allowed to associate with
 	 * their account during initial account creation.
 	 */
-	protected static final int MAX_THUMBCOUNT = 5;
+	protected static final int MAX_THUMBCOUNT = 6;
 	/**Creates a new registration page.
 	 * 
 	 * @param master	The CafeUI object that this page is associated with.

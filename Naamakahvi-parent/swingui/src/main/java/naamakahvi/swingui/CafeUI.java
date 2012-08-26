@@ -171,7 +171,7 @@ public class CafeUI extends JFrame{
 	 */
 	public CafeUI(int camera, int font, boolean doFaceDetect, boolean camOffline, String ip, int port){
 		JLabel loading = new JLabel("Loading...", SwingConstants.CENTER);
-		loading.setFont(new Font("Sans Serif", Font.PLAIN, 20));
+		loading.setFont(new Font("Sans Serif", Font.PLAIN, font));
 		add(loading);
 		
 		UI_FONT = new Font("Sans Serif", Font.PLAIN, font);
@@ -628,6 +628,14 @@ public class CafeUI extends JFrame{
 				facelogin.setHelpText("Unknown face");
 				return false;
 			}
+			//Too many matches, trim to 5
+			if (usernames.length > MAX_IDENTIFIED_USERS){
+				String[] temp = new String[MAX_IDENTIFIED_USERS];
+				for(int i = 0; i < MAX_IDENTIFIED_USERS; i++){
+					temp[i] = usernames[i];
+				}
+				usernames = temp;
+			}
 			loginUser(usernames[0]);
 		}
 		catch (ClientException e){
@@ -641,13 +649,7 @@ public class CafeUI extends JFrame{
 			return false;
 		}
 		
-		//too many face matches
-		if (usernames.length > MAX_IDENTIFIED_USERS){
-			switchPage(VIEW_USERLIST_PAGE);
-		}
-		else{
-			switchPage(CONTINUE);
-		}
+		switchPage(CONTINUE);
 		return true;
 	}
 	

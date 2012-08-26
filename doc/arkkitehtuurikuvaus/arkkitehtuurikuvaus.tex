@@ -169,7 +169,7 @@ usernames or other information.
 \subsubsection{Registration}
 \textbf{Type:} Use case\\
 \textbf{Description:} The user enters their name and username to register on the system. 
-The user can also have pictures taken of their face if they want to use face recognition but it is optional.\\
+The user can also optionally have taken of their face if they want to use face recognition.\\
 \textbf{Component interaction:} 
 \begin{enumerate} 
 \item{The user interface passes the submitted name and username to the client.}
@@ -317,7 +317,17 @@ To achieve the best possible face recognition results, the camera should be
 placed in a well lit environment.
 
 \section{Testing}
+\subsection{Swing-UI}
+The Swing-UI component has unit tests written using the FEST-Swing (fest.easytesting.org)
+and JUnit (www.junit.org) testing APIs. The tests are included with the source code in the
+Naamakahvi-parent/swingui/src/test/ directory. 
 
+The tests for individual UI views use a dummy main-UI class (DummyCafeUI.java) to provide
+test data, while the tests for the main UI class use a dummy client (DummyClient.java).
+
+Notably, the methods relating to the face recognition functionality in the program were
+not tested, as this would have required emulating a camera feed and was therefore outside
+the scope of the project.
 
 
 \end{document}
