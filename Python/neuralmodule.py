@@ -213,6 +213,7 @@ class neuralmodule:
             result.append(r)
             if(r[1] > match_threshold):
                 match = True
+            print r
         
         my = dict(result)
         sy = sorted(my,key=my.__getitem__)
