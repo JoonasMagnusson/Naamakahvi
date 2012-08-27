@@ -120,7 +120,9 @@ def register():
                     db.register(user,given,family) 
                     
                     groupIDs = db.getGroupIDs()
+                    
                     for i in groupIDs:
+                    	print i
                     	db.insertUserBalances(user, i, 0)
                     
                     
