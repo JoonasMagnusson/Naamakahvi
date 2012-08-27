@@ -276,6 +276,14 @@ the server.}
 \textbf{Type:} System operation\\
 \textbf{Description:}\\
 \textbf{Component interaction:}\\
+\begin{enumerate}
+\item{Server recieves image and username from the client}
+\item{Server transfers recieved image to face recognition module (FRM)}
+\item{FRM saves image to disk to a folder with user name. A maximum of 100 pictures per user can be stored.}
+\item{FRM creates a neural network for user, if it does not already exist}
+\item{FRM uses recieved image to (re)train all neural networks}
+\item{FRM notifies client when it has finished training neural networks}
+\end{enumerate}
 
 \subsubsection{Face Recognition}
 \label{sec:recognition}
@@ -286,8 +294,10 @@ the server.}
 \item{The UI takes a picture with the camera and extracts a face from it.}
 \item{The UI passes the image of the face on to the client.}
 \item{The client uploads the image to the server.}
-\item{??????}
-\item{Profit}
+\item{Server transfers image to face recognition module (FRM)}
+\item{FRM queries all saved neural networks for match. If there's no match, null is returned.}
+\item{FRM reports best match to server}
+\item{Server reports best match to client}
 \item{The client receives the username for the best match (or null) from the server.}
 \item{The UI receives the username and recognizes the user, or receives null and asks the user to select their username from a list the server.}
 \end{enumerate}
