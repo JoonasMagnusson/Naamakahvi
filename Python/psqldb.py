@@ -8,13 +8,22 @@ class psqldb:
 	#Constructor
 	#db: 	Database to be used
 	#xml: 	XML-file containig SQL queries
-	def __init__(self,db,user,xml):
+	def __init__(self,db,user):
 		self.dbname = db
 		self.user = user
 		self.connect = "dbname=" + db + " user=" + user
-		self.xmldb =  xml
-		self.parseXML(xml)
+		self.xmldb = 'dbqueries.xml'
+		self.parseXML(self.xmldb)
 		print "DB Initialized."	
+	
+	
+	def __enter__(self):
+		self.dbconnect()
+		return self
+	
+	def __exit__(self,*args):
+		self.dbclose()
+		
 	
 	def parseXML(self,xmlfile):
 		file = open(xmlfile,'r')
@@ -31,6 +40,7 @@ class psqldb:
 		
 	def dbclose(self):
 		self.cur.close()
+		self.con.close()
 		
 
 	def getQuery(self,qname):
@@ -491,6 +501,17 @@ class psqldb:
 			return e
 		self.con.commit()
 
+	def getGroupIDs(self):
+		q = self.getQuery("getGroupIDs")
+		self.cur.execute(q)
+		
+		result = self.cur.fetchall()
+		ret = []
+		for row in result:
+			ret.append(row[0])
+		
+		return ret
+		
 
 		
 		
