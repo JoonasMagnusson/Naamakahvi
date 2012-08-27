@@ -37,7 +37,15 @@ if(conf.has_option('PickleFile', 'file')):
             if(conf.has_option(y, 'passwd')):
                l.append(conf.get(y, 'passwd'))
             else:
-                l.append('')
+                l.append(None)
+            if(conf.has_option(y, 'host')):
+               l.append(conf.get(y, 'host'))
+            else:
+                l.append(None)
+            if(conf.has_option(y, 'port')):
+               l.append(int(conf.get(y, 'port')))
+            else:
+                l.append(None)
             dbdict[y] = l
     except:
         print "Failed to parse (some) config data."
@@ -46,7 +54,7 @@ else:
 
 stationlist = {}
 for key in dbdict.iterkeys():
-    stationlist[key] = psqldb.psqldb(dbdict[key][0],dbdict[key][1],dbdict[key][2])
+    stationlist[key] = psqldb.psqldb(dbdict[key][0],dbdict[key][1],dbdict[key][2],dbdict[key][3],dbdict[key][4])
 
 
 
