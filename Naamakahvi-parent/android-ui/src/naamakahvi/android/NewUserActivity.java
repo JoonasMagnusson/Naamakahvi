@@ -28,6 +28,7 @@ import android.widget.Toast;
 import naamakahvi.android.R;
 import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.DialogHelper;
 import naamakahvi.android.utils.ThumbAdapter;
 
 public class NewUserActivity extends Activity {
@@ -63,7 +64,6 @@ public class NewUserActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).releaseCamera();
 
@@ -71,18 +71,43 @@ public class NewUserActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		((FaceDetectView) findViewById(R.id.faceDetectView1)).openCamera();
 	}
 
+	/**
+	 * OnClick handler for the "OK" button
+	 * 
+	 * @param v
+	 *            The view that handled the onClick event
+	 */
 	public void onRegistrationClick(View v) {
+
+		final String username = ((EditText) findViewById(R.id.editTextUsername)).getText().toString();
+		final String firstname = ((EditText) findViewById(R.id.editTextEtunimi)).getText().toString();
+		final String lastname = ((EditText) findViewById(R.id.editTextSukunimi)).getText().toString();
+
+		if (username.equals("")) {
+			DialogHelper.errorDialog(this, getString(R.string.pleaseUsername)).show();
+			return;
+		}
+		if (firstname.equals("")) {
+			DialogHelper.errorDialog(this, getString(R.string.pleaseFirstName)).show();
+			return;
+		}
+		if (lastname.equals("")) {
+			DialogHelper.errorDialog(this, getString(R.string.pleaseLastName)).show();
+			return;
+		}
+
 		final Handler hand = new Handler(getMainLooper());
 		final Context con = this;
+
 		final ProgressDialog pd = new ProgressDialog(con);
-		pd.setMessage("Please Wait...");
+		pd.setMessage(getString(R.string.pleasewait));
 		pd.setIndeterminate(true);
 		pd.setCancelable(false);
+
 		new Thread(new Runnable() {
 
 			public void run() {
@@ -95,31 +120,25 @@ public class NewUserActivity extends Activity {
 					});
 
 					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-
-					final String username = ((EditText) findViewById(R.id.editTextUsername)).getText().toString();
-					String etunimi = ((EditText) findViewById(R.id.editTextEtunimi)).getText().toString();
-					String sukunimi = ((EditText) findViewById(R.id.editTextSukunimi)).getText().toString();
-
-					client.registerUser(username, etunimi, sukunimi);
+					client.registerUser(username, firstname, lastname);
 
 					for (Bitmap b : mPics) {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
 						b.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);
 						byte[] bitmapdata = bos.toByteArray();
+
 						client.addImage(username, bitmapdata);
 					}
 
-					// tarkistetaan onko username varattu. jos on, kirjoitetaan
-					// se ja
-					// pyydet��n uutta else finish()
 					hand.post(new Runnable() {
-
 						public void run() {
-							Toast.makeText(getApplicationContext(), "Successfully registered as: " + username,
+							Toast.makeText(getApplicationContext(), con.getString(R.string.successRegistration) + username,
 									Toast.LENGTH_LONG).show();
 						}
 					});
+
 					finish();
+
 				} catch (final Exception ex) {
 					hand.post(new Runnable() {
 						public void run() {
@@ -129,19 +148,9 @@ public class NewUserActivity extends Activity {
 					Log.d(TAG, ex.getMessage());
 					ex.printStackTrace();
 					hand.post(new Runnable() {
-
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(con);
-							builder.setCancelable(false);
-							builder.setMessage("Registration failed: " + ex.getMessage());
-							builder.setTitle("Error");
-							builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-									finish();
-								}
-							});
-							builder.show();
+							DialogHelper.errorDialog(con, con.getString(R.string.errorCantRegister) + ex.getMessage())
+									.show();
 						}
 					});
 				}

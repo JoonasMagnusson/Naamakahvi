@@ -96,10 +96,7 @@ public class ShortList extends JPanel implements ActionListener{
 	private void loadBalance(){
 		List<SaldoItem> saldos = master.getSaldo();
 		if (saldos == null){
-			//TODO restore when saldos are working reliably
-			System.err.println("Invalid saldo");
 			return;
-			//throw new NullPointerException("Could not retrieve user balance");
 		}
 		saldolist.removeAll();
 		saldolist.setLayout(new GridLayout(0, 1));

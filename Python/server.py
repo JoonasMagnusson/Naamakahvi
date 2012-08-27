@@ -15,6 +15,8 @@ savefile = "data.pkl"
 if os.path.exists(savefile):
     cvm.loadData(savefile)
 
+stations = {"Station1":dbm}
+
 def resp_ok(**kwargs):
     ans = {}
     ans['status'] = 'ok'
@@ -29,13 +31,13 @@ def resp_failure(status_msg, **kwargs):
         ans[k] = v
     return json.dumps(ans)
 
-@app.before_request
-def before_request():
-    dbm.dbconnect()
+#@app.before_request
+#def before_request(station):
+#    stations[station].dbconnect()
     
 @app.teardown_request
-def teardown_request(exception):
-    dbm.dbclose()
+def teardown_request(exception,station):
+    stations[station].dbclose()
 
 #Returns available products and other useful stuff. (not yet implemented,obviously)
 @app.route('/')
@@ -104,15 +106,19 @@ def register():
         user = request.form['username']
         given = request.form['given']
         family = request.form['family']
-        if(not dbm.login(user)):
-            r = dbm.register(user,given,family)
-            if r:
-                return resp_ok(username=user)
-            else:
-                return resp_failure('UserCreationFailed')
         
-        else:
-            return resp_failure('UserAlreadyExistsError')
+        
+        
+        for db in stations:
+        	if(not stations[db].login(user)):
+        	    r = stations[db].register(user,given,family)
+            	if r:
+            	    return resp_ok(username=user)
+            	else:
+            	    return resp_failure('UserCreationFailed')
+        
+        	else:
+            	return resp_failure('UserAlreadyExistsError')
     else:
         return resp_failure('Error')
 
@@ -122,13 +128,15 @@ def register():
 def login():
     if request.method == 'POST':
         user = request.form['username']
-        if(dbm.login(user)):
+        station = request.form['station_name']
+        stations[station].dbconnect()
+        if(stations[station].login(user)):
             resp = {}
             
-            udata = dbm.selectUserData(user)
+            udata = stations[station].selectUserData(user)
             print "############"
             print udata
-            bal = getBalance(user)
+            bal = getBalance(user,station)
             resp["username"] = user
             resp["given"] = udata[1]
             resp["family"] = udata[2]
@@ -143,8 +151,10 @@ def login():
 @app.route('/list_buyable_products/',methods=['POST','GET'])
 def buyableProducts():
 
+    station = request.args["station_name"]
+    stations[station].dbconnect()
     ret = []
-    rslt = dbm.selectFinProductNames()
+    rslt = stations[station].selectFinProductNames()
     for x,y in enumerate(rslt):
         ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[4],"product_price":y[5]}))
 
@@ -156,8 +166,10 @@ def buyableProducts():
 @app.route('/list_raw_products/',methods=['POST','GET'])
 def rawsizes():
     
+    station = request.args["station_name"]
+    stations[station].dbconnect()
     ret = []
-    rslt = dbm.selectProductsizes()
+    rslt = stations[station].selectProductsizes()
     print rslt
     for x,y in enumerate(rslt):
         z = y[1]*y[8]
@@ -173,8 +185,10 @@ def rawsizes():
 @app.route('/list_usernames/',methods=['POST','GET'])
 def listUsernames():
 	
+    station = request.args["station_name"]
+    stations[station].dbconnect()
     ret= []    
-    rslt = dbm.listUsernames()
+    rslt = stations[station].listUsernames()
 
     for x,y in enumerate(rslt):
 	ret.append(y[0]) 
@@ -184,7 +198,9 @@ def listUsernames():
 
 @app.route('/list_product_prices/',methods=['POST','GET'])
 def productPrices():
-    rslt = dbm.getFinalproducts()
+    station = request.args["station_name"]
+    stations[station].dbconnect()
+    rslt = stations[station].getFinalproducts()
     return resp_ok(product_prices=rslt)
 
 
@@ -197,8 +213,10 @@ def buy():
         product = request.form['product_id']
         user = request.form['username']
         amount = request.form['amount']
+        station = request.form['station_name']
+        stations[station].dbconnect()
         
-        r = dbm.buy(product,amount,user)
+        r = stations[station].buy(product,amount,user)
         #print product,amount,user
         
         if r:
@@ -215,11 +233,15 @@ def bring():
         
         rawproductid = request.form['product_id']
         sizeid = request.form['size_id']
-        #stationname = request.form['station']
+
+        station = request.form['station_name']
+
         amount = request.form['amount']
         user = request.form['username']
+        station = request.form['station_name']
+        stations[station].dbconnect()
         
-        r = dbm.bring(sizeid,rawproductid,amount,user)
+        r = stations[station].bring(sizeid,rawproductid,amount,user)
         
         if r:
             return resp_ok()
@@ -228,12 +250,14 @@ def bring():
 
 @app.route('/list_stations/',methods=['POST','GET'])
 def stations():
-    stations = ["Station1","Station2"]
+    #stations = ["Station1","Station2"]
     return resp_ok(stations=stations)
 
-def getBalance(user):
+def getBalance(user,station):
+
+	stations[station].dbconnect()
     
-    rslt = dbm.selectUserBalances(user)
+    rslt = stations[station].selectUserBalances(user)
     ret = []
     print "Saldos"
     print rslt
