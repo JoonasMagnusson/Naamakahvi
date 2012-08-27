@@ -101,15 +101,16 @@ def register():
         user = request.form['username']
         given = request.form['given']
         family = request.form['family']
-        
-        for db in stationlist:
-            if(not stationlist[db].login(user)):
-                if r:
-                    return resp_ok(username=user)
-            	else:
-                    return resp_failure('UserCreationFailed')        
-            else:
-            	return resp_failure('UserAlreadyExistsError')
+
+
+        for database in stationlist:
+            with database as db:
+                if(not db.login(user)):
+                    db.register(user,given,family)   
+                else:
+                	return resp_failure('UserAlreadyExistsError')
+        return resp_ok(username=user)
+
     else:
         return resp_failure('Error')
 
@@ -185,7 +186,7 @@ def listUsernames():
     with stationlist[station] as db:
 
         ret= []    
-        rslt = sdb.listUsernames()
+        rslt = db.listUsernames()
     
         for x,y in enumerate(rslt):
            ret.append(y[0]) 
