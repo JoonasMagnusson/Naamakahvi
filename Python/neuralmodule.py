@@ -8,6 +8,38 @@ import os
 import shutil
 
 
+class userNet:
+
+    
+    def __init__(self):
+        
+        self.name = None
+        self.net = None
+        self.params = dict(bp_dw_scale = 0.1,train_method = cv2.ANN_MLP_TRAIN_PARAMS_BACKPROP)
+        self.hidden = 10
+        
+    def getName(self):
+        
+        return self.name
+    
+    
+    def train(self,name,eigens,map,samples):
+        
+        self.name = name
+        shape = numpy.array([samples,self.hidden,1])
+        self.net = cv2.ANN_MLP()
+        self.net.create(shape)
+        
+        self.net.train(eigens,map,None,params = self.params)
+
+        
+        
+    def identify(self,imgmat):
+        
+        nil, res = self.net.predict(imgmat)
+
+        return self.name,res[0][0]
+
 #Uncomment to view full arrays
 #numpy.set_printoptions(threshold='nan')
 
@@ -28,6 +60,7 @@ class neuralmodule:
         self.ANN_persons = 0
         self.ANN_names = []    
         self.PANN = []
+        self.pnets = []
         
         self.dir = "images"
         
@@ -45,7 +78,7 @@ class neuralmodule:
         pickle.dump(self.userlist, output)
         pickle.dump(self.ANN_persons, output)
         pickle.dump(self.ANN_names, output)
-        print "Data Saved", file
+        #print "Data Saved", file
         output.close()
             
     def loadData(self,file):
@@ -117,17 +150,19 @@ class neuralmodule:
         else:
             self.tmat = tempmat.copy()
         
-        self.computeNets()
+        #self.computeNets()
         
         #print self.tmat.shape
 
     def computeNets(self):
 
-        #print "Doing PCA"        
+        pnets = []
+
+        #Doing PCA       
         self.mean,self.eigens = cv2.PCACompute(self.tmat,maxComponents=self.SAMPLES)
         self.projection = cv2.PCAProject(self.tmat, self.mean, self.eigens)
         
-        #print "Training ANN_MLP"
+        #Training ANN_MLP, creating matrices for opencv neural subsystem
         if(self.SAMPLES > 1):
             
             
@@ -140,16 +175,13 @@ class neuralmodule:
             
             
             for m in range(0, g.shape[1]):
-        #        print i
-                shape2 = numpy.array([self.SAMPLES,20,1])
-                net2 = cv2.ANN_MLP()
-                net2.create(shape2)
-                net2.train(self.projection,g[:,m],None,params = self.ANN_params)
-                if (m >= len(self.PANN)):
-                    self.PANN.append(net2)
-                else:
-                    self.PANN[m] = net2
-    
+                
+                verk = userNet()
+                verk.train(self.ANN_names[m], self.projection, g[:,m], self.SAMPLES)
+                pnets.append(verk)
+            
+            self.pnets = pnets
+                
     #Tries to identify person based on input image.
     #Returs array containing matches sorted from best to worst
     def identify(self,imatrix):
@@ -162,20 +194,14 @@ class neuralmodule:
         proj = cv2.PCAProject(rec, self.mean[0], self.eigens)
 
         pre2 = numpy.float32([proj.flatten()]) 
-
-        major = []
-        for h in range(0,len(self.PANN)):
-            net = self.PANN[h]
-            nil, res = net.predict(pre2)
-            
-            if (res > match_threshold):
-                match = True
-                
-            major.append(res[0].flatten()[0])
-            
         
-        zy = zip(self.ANN_names,major)
-        my = dict(zy)
+        result = []
+        
+        for a,b in enumerate(self.pnets):
+            result.append(b.identify(pre2))
+
+        
+        my = dict(result)
         sy = sorted(my,key=my.__getitem__)
         
         return sy[::-1],match
