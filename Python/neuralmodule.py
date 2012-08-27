@@ -135,6 +135,7 @@ class neuralmodule:
         count = self.userlist.count(name)
         
         print count
+        
         if (count > 5):
             
             r = [i for i, x in enumerate(self.userlist) if x == name][0]
