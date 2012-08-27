@@ -109,10 +109,8 @@ def identify():
         #user = request.form['username']
         file = request.files['file']
         if file:
-            print secure_filename(file.filename)
             file.save(secure_filename(file.filename))
             id,prob = cvm.identify(secure_filename(file.filename))
-            print id,prob
             
             if(prob == False):
                 return resp_ok(username=None)
@@ -131,7 +129,6 @@ def upload():
         file = request.files['file']
         user = request.form['username']
         if file:
-            print file
             file.save(secure_filename(file.filename))
             cvm.train(secure_filename(file.filename),user)
             cvm.computeNets()
@@ -161,8 +158,6 @@ def register():
                     groupIDs = db.getGroupIDs()
                     
                     for i in groupIDs:
-                    	print "group_id"
-                    	print i
                     	db.updateUserBalances(0, i, user)
                     
                     
@@ -187,8 +182,6 @@ def login():
                 resp = {}
                 
                 udata = db.selectUserData(user)
-                print "############"
-                print udata
                 bal = getBalance(user,station)
                 resp["username"] = user
                 resp["given"] = udata[1]
@@ -323,8 +316,6 @@ def getBalance(user,station):
         
         rslt = db.selectUserBalances(user)
         ret = []
-        print "Saldos"
-        print rslt
         for x,y in enumerate(rslt):
             retz = {}
             retz['group_id'] = y[0]
