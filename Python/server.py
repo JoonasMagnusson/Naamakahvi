@@ -11,14 +11,18 @@ import os,sys
 
 app = Flask(__name__)
 
-debug = True
+#Set to false in production environments
+debug = False
 
+#Load face recognition module
 try:
     cvm = neuralmodule.neuralmodule()
 except:
     sys.exit("Failed to create neural module")
     
 conf = cp.RawConfigParser()
+
+#Read server.conf
 try:
     conf.readfp(open('server.conf'))
 except:
@@ -58,16 +62,9 @@ for key in dbdict.iterkeys():
 
 
 
+
 if os.path.exists(savefile):
     cvm.loadData(savefile)
-
-
-def init():
-    
-    conf = cparser.ConfigParser()
-    config.readfp(open('server.cfg'))
-
-
 
 
 def resp_ok(**kwargs):
@@ -206,6 +203,7 @@ def login():
     else:
         return resp_failure('Error')
 
+#Lists buyable products
 @app.route('/list_buyable_products/',methods=['POST','GET'])
 def buyableProducts():
 
@@ -255,7 +253,7 @@ def listUsernames():
 
         return resp_ok(usernames=ret)
 
-
+#product prices
 @app.route('/list_product_prices/',methods=['POST','GET'])
 def productPrices():
     station = request.args["station_name"]
@@ -290,6 +288,7 @@ def buy():
     else:
         return json.dumps({'status':'Error'})
 
+#Allows user to supply raw products
 @app.route('/bring_product/',methods=['POST','GET'])
 def bring():
     if request.method == 'POST':

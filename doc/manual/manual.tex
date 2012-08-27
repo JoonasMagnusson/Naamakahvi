@@ -191,9 +191,41 @@ or log in manually and click "Add Images to Account" in the user menu.}
 \section{Server}
 \subsection{Prerequisites}
 Naamakahvi Server depends on following python packages:
+\begin{enumerate}
 \item{OpenCV (http://opencv.org/) and its Python bindings}
 \item{FLASK microframework (http://flask.pocoo.org/)}
-\item{Pythons numpy module}
+\item{numpy module}
+\end{enumerate}
+\newpage
 \subsection{Configuration}
+Server has one configuration file called \emph{server.conf} at the root of the server folder.
+\begin{verbatim}
+[PickleFile]
+#File for saving face recognition internal data
+file = save.pkl
 
+#Format:
+
+[NameOfStation]
+dbname = name_of_postgresql_database
+user   = database_username
+passwd = database_password (optional)
+host   = database_address (optional)
+port   = port (optional)
+
+[NameOfAnotherStation]
+dbname = name_of_postgresql_database
+user   = database_username
+
+
+\end{verbatim}
+\emph{Stations} are used to configure distinct points-of-sale. Each station has own saldos, but facial data is shared.
+At minimum station needs to have a name (in the brackets), name of postgresql database and username. Additionally
+host and port may be specified.
+
+\emph{PickleFile} is a special file that stores configurations of face recognition module. File is automatically created
+when running server first time. It is recommended to backup this file often.
+\subsection{Running}
+The server is started by issuing \emph{python2 server.py} in the server directory. Server can be run inside screen for
+easy access. Server will use port 5000 by default. This may be changed by editing server.py directly.
 \end{document}
