@@ -350,7 +350,9 @@ machines from the server.
 The accuracy of face recognition depends highly on the light in the 
 photographs. Poor lighting or changes in it can lead to inaccurate results.
 To achieve the best possible face recognition results, the camera should be 
-placed in a well lit environment.
+placed in a well lit environment. Six pictures per user are recommended.
+Due to the computational intensity of face recognition, adding new users
+might become slow if user count exceeds 40.
 
 \section{Testing}
 
@@ -376,6 +378,8 @@ The client has JUnit tests for its methods. They are located in Naamakahvi-paren
 directory. The tests use Apache LocalTestServer as a test server.
 
 \subsection{Server}
-The server has tests for all the major database transactions and facial recognition.
+The server has tests for all the major database transactions and facial recognition. 
+Access to the ORL face database is neccessary for running tests (http://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html).
+A working database dump is needed for database transaction tests.
 
 \end{document}
