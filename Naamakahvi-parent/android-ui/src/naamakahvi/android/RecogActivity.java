@@ -28,6 +28,15 @@ import android.view.View;
 
 public class RecogActivity extends Activity {
 	public static final short SELECT_USERNAME = 0;
+	/**
+	 * Number of photos to take while identifying user
+	 */
+	public static final int NUM_PHOTOS = 5;
+	/**
+	 * Number of times user has to be recognized correctly
+	 */
+	public static final int NUM_RECOG = 3;
+
 	private Basket mOrder;
 	private ShotTimer mShotTimer;
 
@@ -71,7 +80,7 @@ public class RecogActivity extends Activity {
 				e2.printStackTrace();
 			}
 
-			final String[][] namearrays = new String[5][];
+			final String[] namearray = new String[5];
 			int identifycount = 0;
 			while (!isCanceled()) {
 				try {
@@ -83,28 +92,31 @@ public class RecogActivity extends Activity {
 					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
 					byte[] bitmapdata = bos.toByteArray();
 
-					final String[] users = client.identifyImage(bitmapdata);
+					final String user = client.identifyImage(bitmapdata);
 
-					namearrays[identifycount] = users;
+					namearray[identifycount] = user;
+					Log.d(TAG,"" + user);
 					identifycount++;
 
-					if (identifycount == 5) {
+					if (identifycount == NUM_PHOTOS) {
 						this.cancel();
+						final String recoguser = rankNames(namearray);
 
 						hand.post(new Runnable() {
 							public void run() {
 								Intent i = new Intent();
-								i.putExtra(ExtraNames.USERS, rankNames(namearrays));
+								i.putExtra(ExtraNames.USERS, recoguser);
 								i.putExtra(ExtraNames.PRODUCTS, mOrder);
 								setResult(RESULT_OK, i);
 								finish();
 							}
 						});
+
 					}
 
 				} catch (ClientException e) {
 					//Connection problem
-					//TODO show error
+					e.printStackTrace();
 				} catch (Exception e) {
 					// Zero or too many faces detected (or catastrophic failure)
 					e.printStackTrace();
@@ -127,7 +139,7 @@ public class RecogActivity extends Activity {
 
 		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 		face.openCamera();
-		
+
 		mOrder = getIntent().getParcelableExtra(ExtraNames.PRODUCTS);
 	}
 
@@ -151,58 +163,35 @@ public class RecogActivity extends Activity {
 		mShotTimer.start();
 	}
 
-	private class ValueComparator implements Comparator<String> {
-		private Map<String, Double> m;
-
-		public ValueComparator(Map<String, Double> m) {
-			this.m = m;
-		}
-
-		public int compare(String a, String b) {
-			if (a == null && b != null)
-				return 1;
-			if (a != null && b == null)
-				return -1;
-			if (a == null && b == null)
-				return 0;
-
-			if (m.get(a) < m.get(b)) {
-				return 1;
-			} else if (m.get(a) == m.get(b)) {
-				return 0;
-			} else {
-				return -1;
-			}
-
-		}
-
-	}
-
-	private String[] rankNames(String[][] params) {
+	private String rankNames(String[] params) {
 		if (params.length < 1)
 			return null;
 		else if (params.length == 1)
 			return params[0];
 
-		HashMap<String, Double> namePoints = new HashMap<String, Double>();
+		HashMap<String, Integer> namePoints = new HashMap<String, Integer>();
 
-		for (String[] names : params) {
-			double score = 1.0;
-			for (String s : names) {
-				Double d = namePoints.get(s);
-				if (d == null) {
-					namePoints.put(s, score);
-				} else {
-					namePoints.put(s, d + score);
-				}
-				score /= 2;
+		for (String name : params) {
+
+			Integer d = namePoints.get(name);
+			if (d == null) {
+				namePoints.put(name, 1);
+			} else {
+				namePoints.put(name, d + 1);
 			}
+
 		}
-		Comparator<String> comp = new ValueComparator(namePoints);
-		TreeMap<String, Double> sortedNames = new TreeMap<String, Double>(comp);
-		sortedNames.putAll(namePoints);
-		Object[] nameList = sortedNames.keySet().toArray();
-		return Arrays.copyOf(nameList, nameList.length, String[].class);
+		Map.Entry<String, Integer> max = null;
+		for (Map.Entry<String, Integer> e : namePoints.entrySet()) {
+			if (max == null) {
+				max = e;
+				continue;
+			}
+			if (e.getValue() > max.getValue())
+				max = e;
+		}
+
+		return (max.getValue() >= NUM_RECOG) ? (String) max.getKey() : null;
 	}
 
 	@Override
@@ -211,7 +200,7 @@ public class RecogActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
 				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				setResult(RESULT_OK, i);
 				finish();

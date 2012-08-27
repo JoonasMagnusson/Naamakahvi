@@ -108,7 +108,7 @@ public class LoginwithusernameActivity extends Activity {
 				if (item == null)
 					return;
 				Intent i = new Intent();
-				i.putExtra(ExtraNames.USERS, new String[] { item });
+				i.putExtra(ExtraNames.USERS, item );
 				i.putExtra(ExtraNames.PRODUCTS, mOrder);
 				setResult(RESULT_OK, i);
 				finish();

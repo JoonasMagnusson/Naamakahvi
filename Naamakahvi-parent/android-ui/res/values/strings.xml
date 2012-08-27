@@ -28,5 +28,6 @@
     <string name="errorCantRegister">Unable to register: </string>
     <string name="successRegistration">Successfully registered as: </string>
     <string name="errorFetchData">Fetching data from server failed: </string>
+     <string name="errorIdentify">Could not identify you, please choose your username from the list. </string>
 
 </resources>
