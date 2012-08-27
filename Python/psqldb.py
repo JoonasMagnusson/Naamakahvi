@@ -13,7 +13,7 @@ class psqldb:
 		self.user = user
 		self.connect = "dbname=" + db + " user=" + user
 		self.xmldb = 'dbqueries.xml'
-		self.parseXML(xml)
+		self.parseXML(self.xmldb)
 		print "DB Initialized."	
 	
 	
