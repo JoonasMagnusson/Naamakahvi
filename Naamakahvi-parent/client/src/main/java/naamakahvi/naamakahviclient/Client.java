@@ -481,19 +481,19 @@ public class Client {
     }
 
     /**
-     * Sends an image of a user to the server to get an ordered list of matching user names,
-     * the best match first.
+     * Sends an image of a user to the server to get an username of the user that 
+     * matches the best, or null if no user is a sufficiently good match for the image.
      * 
      * Example server response:
      * {
      *      "status":"ok",
-     *      "idlist":["user1","user2","user3","user4"]
+     *      "username": "veijo"
      * }
      * 
      * @param imagedata the image
      * @return list of identified usernames 
      */
-    public String[] identifyImage(byte[] imagedata) throws ClientException {
+    public String identifyImage(byte[] imagedata) throws ClientException {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(buildURI("/identify/"));
@@ -505,9 +505,14 @@ public class Client {
 
             JsonObject jsonResponse = responseToJson(response);         
             checkResponseStatus(jsonResponse);
+
+            JsonElement username = jsonResponse.getAsJsonObject().get("username");
             
-            JsonArray jarr = jsonResponse.get("idlist").getAsJsonArray();
-            return jsonArrayToStringArray(jarr);
+            if (username.isJsonNull()) {
+                throw new ClientException("no (good) match for that image");
+            } else {
+                return username.getAsString();
+            }
             
         } catch (Exception ex) {
             throw new AuthenticationException(ex.toString());
