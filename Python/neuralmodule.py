@@ -5,7 +5,12 @@ import pickle
 import os
 import shutil
 
+#Uncomment to view full arrays
+#numpy.set_printoptions(threshold='nan')
 
+
+#userNet class represents users neural network
+#It contains users name and trained network
 class userNet:
 
     
@@ -38,8 +43,7 @@ class userNet:
 
         return self.name,res[0][0]
 
-#Uncomment to view full arrays
-#numpy.set_printoptions(threshold='nan')
+
 
 class neuralmodule:
     
@@ -66,7 +70,7 @@ class neuralmodule:
             os.makedirs(self.dir)
         
         
-        
+    #Pickles essential data to a file    
     def saveData(self,file):
         
         output = open(file, 'wb')
@@ -78,7 +82,8 @@ class neuralmodule:
         pickle.dump(self.ANN_names, output)
         #print "Data Saved", file
         output.close()
-            
+    
+    #Loads essential data from file and trains networks        
     def loadData(self,file):
         
         input = open(file, 'rb')
@@ -106,7 +111,7 @@ class neuralmodule:
         mat = tempmat.copy()
         return mat
     
-    #Saves images for sinister purposes
+    #Saves images
     def saveImage(self,name,image):
         
         bdir = self.dir + "/" + name
@@ -122,7 +127,7 @@ class neuralmodule:
                 break    
 
     
-    #Trains the recognizer and updates userlist
+    #Trains the recognizer and updates user list
     def train(self,train,name):
         
         print self.userlist
@@ -162,6 +167,7 @@ class neuralmodule:
         
         #print self.tmat.shape
 
+    #Computes individual neural networks
     def computeNets(self):
 
         pnets = []

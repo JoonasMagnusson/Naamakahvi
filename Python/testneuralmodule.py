@@ -5,7 +5,9 @@ import sys
 
 
 
-#This test needs ORL face database. Caveat emptor.
+#This test needs ORL face database.
+#Database must be located in a folder named ORL and it's 
+#structure must be intact
 
 
 class Testneuralmodule(unittest.TestCase):

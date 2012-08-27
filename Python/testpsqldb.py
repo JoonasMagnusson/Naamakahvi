@@ -5,8 +5,8 @@ import sys
 
 
 #Tests for psqldb -class.
-#Assumes stuff about the test database, caveat emptor.
-
+#Assumes that test database has several buyable products and raw products with
+#IDs of 1 and 2
 class Testpsqldb(unittest.TestCase):
     
     
@@ -14,7 +14,7 @@ class Testpsqldb(unittest.TestCase):
     def setUp(self):
         
         self.log = logging.getLogger( "Testpsqldb.TestConnect" )
-        self.db = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
+        self.db = psqldb.psqldb('naamakanta','sam',None,None,None)
         
         self.db.dbconnect()
                 
