@@ -45,9 +45,10 @@ Both of them provide an espresso machine and the other syndicate also has
 a drip coffee maker. The members pay for their coffee by bringing products 
 to be used in the machine, e.g. espresso beans or filters. The Facecafe 
 software keeps track of each member’s balance, using face recognition to 
-identify users. The Facecafe software can be used on an Android tablet
-or a desktop computer and it is supposed to replace earlier 
-methods for track keeping.
+identify users. The software can be used on an Android tablet
+or a desktop computer and it is supposed to replace other methods for track 
+keeping. Facecafe uses the old database of Coffee Touch software, a system 
+that has earlier been used for the same purpose.
 
 Registration is required to use the system. Upon registration, pictures are
 taken of the user's face for later identification. If the user does not want
@@ -199,12 +200,10 @@ but it is optional.\\
 multiple pictures are taken of their face. The user is told who was recognized. \\
 \textbf{Component interaction:} 
 \begin{enumerate} 
-\item{Pictures are taken.}
-\item{The user interface passes the images to the client.}
-\item{The client sends the images to the server.}
-\item{The server identifies the user in the images and makes a sorted list of the matching users. See~\ref{sec:recognition}.}
-\item{The server sends the list of matching usernames to the client.}
-\item{The client returns the list to the user interface.}
+\item{The user interface takes a picture with the camera and extracts a face from it.}
+\item{The user interface passes the image of the face on to the client.}
+\item{The client uploads the image to the server.}
+\item{The server identifies the user in the images. See~\ref{sec:recognition}.}
 \end{enumerate}
 
 \subsubsection{Authentication Using Username}
@@ -259,7 +258,7 @@ The pictures will overwrite the user's old user pictures.\\
 \textbf{Type:} Use case\\
 \textbf{Description:} The user selects the location of the frontend. Different locations
 have different account balances.\\
-\textbf{Component interaction:}\\
+\textbf{Component interaction:}
 \begin{enumerate}
 \item{The UI requests a list of stations from the client.}
 \item{The client requests a list of stations from the server.}
@@ -270,11 +269,12 @@ have different account balances.\\
 the server.}
 \end{enumerate}
 
-\subsubsection{Saving Images And Training the Neural Network}
+\subsubsection{Saving an Image And Training the Neural Network}
 \label{sec:add-train}
 \textbf{Type:} System operation\\
-\textbf{Description:}\\
-\textbf{Component interaction:}\\
+\textbf{Description:} A new image is saved to the database and the neural network
+used in recognition is trained.\\
+\textbf{Component interaction:}
 \begin{enumerate}
 \item{Server recieves image and username from the client}
 \item{Server transfers recieved image to face recognition module (FRM)}
@@ -287,12 +287,9 @@ the server.}
 \subsubsection{Face Recognition}
 \label{sec:recognition}
 \textbf{Type:} System operation\\
-\textbf{Description:} The user uses face recognition to identify.
+\textbf{Description:} The system recognizes the user from an image.\\
 \textbf{Component interaction:}
 \begin{enumerate}
-\item{The UI takes a picture with the camera and extracts a face from it.}
-\item{The UI passes the image of the face on to the client.}
-\item{The client uploads the image to the server.}
 \item{Server transfers image to face recognition module (FRM)}
 \item{FRM queries all saved neural networks for match. If there's no match, null is returned.}
 \item{FRM reports best match to server}
@@ -350,7 +347,9 @@ machines from the server.
 The accuracy of face recognition depends highly on the light in the 
 photographs. Poor lighting or changes in it can lead to inaccurate results.
 To achieve the best possible face recognition results, the camera should be 
-placed in a well lit environment.
+placed in a well lit environment. Six pictures per user are recommended.
+Due to the computational intensity of face recognition, adding new users
+might become slow if user count exceeds 40.
 
 \section{Testing}
 
@@ -376,6 +375,8 @@ The client has JUnit tests for its methods. They are located in Naamakahvi-paren
 directory. The tests use Apache LocalTestServer as a test server.
 
 \subsection{Server}
-The server has tests for all the major database transactions and facial recognition.
+The server has tests for all the major database transactions and facial recognition. 
+Access to the ORL face database is neccessary for running tests (http://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html).
+A working database dump is needed for database transaction tests.
 
 \end{document}
