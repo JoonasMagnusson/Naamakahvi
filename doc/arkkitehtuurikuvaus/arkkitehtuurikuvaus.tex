@@ -246,8 +246,18 @@ The pictures will overwrite the user's old user pictures.\\
 
 \subsubsection{Selecting the Station}
 \textbf{Type:} Use case\\
-\textbf{Description:} \\
+\textbf{Description:} The user selects the location of the frontend. Different locations
+have different account balances.\\
 \textbf{Component interaction:}\\
+\begin{enumerate}
+\item{The UI requests a list of stations from the client.}
+\item{The client requests a list of stations from the server.}
+\item{The server sends the station list to the client, which passes it to the UI.}
+\item{The UI shows the station list to the user.}
+\item{The user selects the correct station.}
+\item{The UI passes the selection to the client, which uses it in future communications with
+the server.}
+\end{enumerate}
 
 \subsubsection{Taking a Picture}
 \label{sec:pic}

@@ -75,11 +75,7 @@ public class DummyClient extends Client {
 		purchase = user.getUserName() + " brought " + amount + "x " + product.getName();
 	}
 	
-	public String[] identifyImage(byte[] imagedata){
-		String[] s  = new String[idResults];
-		for (int i = 0; i < idResults; i++){
-			s[i] = "user" + i;
-		}
-		return s;
+	public String identifyImage(byte[] imagedata){
+		return "username";
 	}
 }

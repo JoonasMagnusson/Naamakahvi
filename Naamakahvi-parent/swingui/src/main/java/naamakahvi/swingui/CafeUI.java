@@ -622,12 +622,14 @@ public class CafeUI extends JFrame{
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			ImageIO.write(resizeImage(img), OUTPUT_IMAGE_FORMAT, stream);
 			byte[] output = stream.toByteArray();
-			usernames = client.identifyImage(output);
+			usernames = new String[1];
+			usernames[0] = client.identifyImage(output);
 			//no face matches
-			if (usernames.length == 0){
+			if (usernames[0] == null){
 				facelogin.setHelpText("Unknown face");
 				return false;
 			}
+			/*DEPRECATED			
 			//Too many matches, trim to 5
 			if (usernames.length > MAX_IDENTIFIED_USERS){
 				String[] temp = new String[MAX_IDENTIFIED_USERS];
@@ -635,7 +637,7 @@ public class CafeUI extends JFrame{
 					temp[i] = usernames[i];
 				}
 				usernames = temp;
-			}
+			}*/
 			loginUser(usernames[0]);
 		}
 		catch (ClientException e){

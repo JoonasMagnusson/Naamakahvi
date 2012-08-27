@@ -36,10 +36,18 @@ public class MenuPage extends JPanel implements ActionListener, CloseableView{
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.insets = new Insets(3,3,3,3);
 		constraints.fill = GridBagConstraints.BOTH;
-		constraints.weightx = 0.2;
-		constraints.weighty = 1.0;
+		constraints.weighty = 0.0;
 		setLayout(layout);
 		
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		
+		JLabel header = new JLabel("User Menu", SwingConstants.CENTER);
+		header.setFont(master.UI_FONT_BIG);
+		layout.setConstraints(header, constraints);
+		add(header);
+		
+		constraints.weighty = 1.0;
+		constraints.weightx = 0.2;
 		constraints.gridheight = 8;
 		constraints.gridwidth = 1;
 		

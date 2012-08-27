@@ -40,17 +40,23 @@ public class FrontPage extends JPanel implements ActionListener{
 		constraints.insets = new Insets(3,3,3,3);
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weightx = 1.0;
-		constraints.weighty = 1.0;
+		constraints.weighty = 0.0;
 		setLayout(layout);
 		
 		constraints.gridheight = 1;
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
+		JLabel header = new JLabel("Facecafe", SwingConstants.CENTER);
+		header.setFont(master.UI_FONT_BIG);
+		layout.setConstraints(header, constraints);
+		add(header);
+		
 		helpText = new JLabel(DEFAULTHELP, SwingConstants.CENTER);
 		helpText.setFont(master.UI_FONT);
 		layout.setConstraints(helpText, constraints);
 		add(helpText);
-				
+		
+		constraints.weighty = 1.0;
 		constraints.gridheight = 7;
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		
