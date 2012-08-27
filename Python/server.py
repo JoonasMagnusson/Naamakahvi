@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
 cvm = neuralmodule.neuralmodule()
-savefile = "data.pkl"
+savefile = "testdat2a.pkl"
 
 if os.path.exists(savefile):
     cvm.loadData(savefile)
@@ -71,9 +71,12 @@ def identify():
             print secure_filename(file.filename)
             file.save(secure_filename(file.filename))
             id,prob = cvm.identify(secure_filename(file.filename))
-            print id
-            print prob
-            return resp_ok(idlist=id,acc=str(prob))
+            print id,prob
+            
+            if(prob == False):
+                return resp_ok(username=None)
+            else:
+                return resp_ok(username=id[0])
         else:
             return resp_failure('Error')
             
@@ -90,6 +93,7 @@ def upload():
             print file
             file.save(secure_filename(file.filename))
             cvm.train(secure_filename(file.filename),user)
+            cvm.computeNets()
             cvm.saveData(savefile)
             return resp_ok()
         else:
@@ -107,17 +111,13 @@ def register():
         given = request.form['given']
         family = request.form['family']
         
-        
-        
         for db in stations:
-        	if(not stations[db].login(user)):
-        	    r = stations[db].register(user,given,family)
-            	if r:
-            	    return resp_ok(username=user)
+            if(not stations[db].login(user)):
+                if r:
+                    return resp_ok(username=user)
             	else:
-            	    return resp_failure('UserCreationFailed')
-        
-        	else:
+                    return resp_failure('UserCreationFailed')        
+            else:
             	return resp_failure('UserAlreadyExistsError')
     else:
         return resp_failure('Error')
@@ -255,7 +255,7 @@ def stations():
 
 def getBalance(user,station):
 
-	stations[station].dbconnect()
+    stations[station].dbconnect()
     
     rslt = stations[station].selectUserBalances(user)
     ret = []
