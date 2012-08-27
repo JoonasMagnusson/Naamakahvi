@@ -190,7 +190,7 @@ but it is optional.\\
 \item{6 pictures are taken.}
 \item{The user interface passes the images to the client.}
 \item{The client sends the images to the server.}
-\item{The server saves the new images to the database and trains the neural network. See~\ref{sec:add-train}.}
+\item{The server saves the new images to the image database and trains the neural network. See~\ref{sec:add-train}.}
 \end{enumerate}
 
 \subsubsection{Authentication Using Face Recognition}
@@ -239,7 +239,7 @@ The user's balance is shown and the user has to confirm the action.\\
 \begin{enumerate} 
 \item{The user interface passes the user, the brought product and the amount of it to the client.}
 \item{The client sends its station name, the user's username, the product id, the amount of packages and the package size of the product to the server.}
-\item{The server calculates the user's new balance and saves it to the database.}
+\item{The server calculates the user's new balance and saves it to the station database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
@@ -344,7 +344,7 @@ The components are located in the following directories in the codebase:
 
 Since the frontend and the backend communicate using HTTP, they can be
 located on separate physical servers. The databases may be stored on separate
-machines from the server.%tietokannat?
+machines from the server.
 
 \subsection{Constraints}
 The accuracy of face recognition depends highly on the light in the 
