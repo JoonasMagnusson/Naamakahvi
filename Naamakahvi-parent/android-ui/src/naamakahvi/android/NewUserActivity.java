@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -182,6 +183,7 @@ public class NewUserActivity extends Activity {
 			GridView g = (GridView) findViewById(R.id.thumbGrid);
 			((BaseAdapter) g.getAdapter()).notifyDataSetChanged();
 		}
+		((Button) findViewById(R.id.clientRegisterButton)).setEnabled(mPics.size() == 6 || mPics.size() == 0);
 	}
 
 }
