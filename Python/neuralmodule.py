@@ -1,8 +1,6 @@
 import cv2
 import cv
 import sys,numpy
-import scipy
-from scipy import spatial
 import pickle
 import os
 import shutil
@@ -47,7 +45,7 @@ class neuralmodule:
     
 
     def __init__(self):
-        #print "CV Initialized."
+        print "Face recognition module initialized."
         self.SAMPLES = 0
         self.mean = None
         self.eigens = None
@@ -90,7 +88,7 @@ class neuralmodule:
         self.userlist = pickle.load(input)
         self.ANN_persons = pickle.load(input)
         self.ANN_names = pickle.load(input)
-        print "Data loaded", file
+        #print "Data loaded", file
         self.computeNets()
 
     
@@ -213,7 +211,7 @@ class neuralmodule:
             result.append(r)
             if(r[1] > match_threshold):
                 match = True
-            print r
+            #print r
         
         my = dict(result)
         sy = sorted(my,key=my.__getitem__)
