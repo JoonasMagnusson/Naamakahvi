@@ -127,28 +127,38 @@ class neuralmodule:
     #Trains the recognizer and updates userlist
     def train(self,train,name):
         
-        #print self.userlist
-        
-        
-        self.SAMPLES += 1
+        print self.userlist
 
-        #Count discrete users for ANN_MLP
-        if name not in self.userlist:
-            self.ANN_names.append(name)
-            self.ANN_persons += 1
-        
-        
-        self.userlist.append(name)
-
-        #print "Training", train
         self.saveImage(name, train)
         tempmat = self.prepareImage(train)
         
-        if (self.tmat != None):
-            self.tmat = numpy.vstack((self.tmat,tempmat))
-
+        count = self.userlist.count(name)
+        
+        print count
+        
+        if (count > 5):
+            
+            r = [i for i, x in enumerate(self.userlist) if x == name][0]
+            print r
+            self.tmat[r,:] = tempmat
+            print numpy.shape(self.tmat)
+            
         else:
-            self.tmat = tempmat.copy()
+            
+            
+            self.SAMPLES += 1
+
+            if name not in self.userlist:
+                self.ANN_names.append(name)
+                self.ANN_persons += 1
+    
+            self.userlist.append(name)
+                
+            if (self.tmat != None):
+                self.tmat = numpy.vstack((self.tmat,tempmat))
+    
+            else:
+                self.tmat = tempmat.copy()
         
         #self.computeNets()
         
@@ -186,7 +196,7 @@ class neuralmodule:
     #Returs array containing matches sorted from best to worst
     def identify(self,imatrix):
 
-        match_threshold = 0.6
+        match_threshold = 0.7
         match = False
 
         rec = self.prepareImage(imatrix)
@@ -203,7 +213,6 @@ class neuralmodule:
             result.append(r)
             if(r[1] > match_threshold):
                 match = True
-            print r[1]
         
         my = dict(result)
         sy = sorted(my,key=my.__getitem__)

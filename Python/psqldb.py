@@ -8,11 +8,11 @@ class psqldb:
 	#Constructor
 	#db: 	Database to be used
 	#xml: 	XML-file containig SQL queries
-	def __init__(self,db,user,xml):
+	def __init__(self,db,user):
 		self.dbname = db
 		self.user = user
 		self.connect = "dbname=" + db + " user=" + user
-		self.xmldb =  xml
+		self.xmldb = 'dbqueries.xml'
 		self.parseXML(xml)
 		print "DB Initialized."	
 	

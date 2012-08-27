@@ -5,10 +5,13 @@ from werkzeug import secure_filename
 import json
 import psqldb
 import neuralmodule
+import ConfigParser as cparser
+import os
+
 
 app = Flask(__name__)
 
-dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
+dbm = psqldb.psqldb('naamakanta','sam')
 cvm = neuralmodule.neuralmodule()
 savefile = "testdat5a.pkl"
 
@@ -16,6 +19,14 @@ if os.path.exists(savefile):
     cvm.loadData(savefile)
 
 stationlist = {"Station1":dbm}
+
+def init():
+    
+    conf = cparser.ConfigParser()
+    config.readfp(open('server.cfg'))
+
+
+
 
 def resp_ok(**kwargs):
     ans = {}
