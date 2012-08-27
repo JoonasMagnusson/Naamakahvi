@@ -200,12 +200,10 @@ but it is optional.\\
 multiple pictures are taken of their face. The user is told who was recognized. \\
 \textbf{Component interaction:} 
 \begin{enumerate} 
-\item{Pictures are taken.}
-\item{The user interface passes the images to the client.}
-\item{The client sends the images to the server.}
-\item{The server identifies the user in the images and makes a sorted list of the matching users. See~\ref{sec:recognition}.}
-\item{The server sends the list of matching usernames to the client.}
-\item{The client returns the list to the user interface.}
+\item{The user interface takes a picture with the camera and extracts a face from it.}
+\item{The user interface passes the image of the face on to the client.}
+\item{The client uploads the image to the server.}
+\item{The server identifies the user in the images. See~\ref{sec:recognition}.}
 \end{enumerate}
 
 \subsubsection{Authentication Using Username}
@@ -260,7 +258,7 @@ The pictures will overwrite the user's old user pictures.\\
 \textbf{Type:} Use case\\
 \textbf{Description:} The user selects the location of the frontend. Different locations
 have different account balances.\\
-\textbf{Component interaction:}\\
+\textbf{Component interaction:}
 \begin{enumerate}
 \item{The UI requests a list of stations from the client.}
 \item{The client requests a list of stations from the server.}
@@ -271,11 +269,12 @@ have different account balances.\\
 the server.}
 \end{enumerate}
 
-\subsubsection{Saving Images And Training the Neural Network}
+\subsubsection{Saving an Image And Training the Neural Network}
 \label{sec:add-train}
 \textbf{Type:} System operation\\
-\textbf{Description:}\\
-\textbf{Component interaction:}\\
+\textbf{Description:} A new image is saved to the database and the neural network
+used in recognition is trained.\\
+\textbf{Component interaction:}
 \begin{enumerate}
 \item{Server recieves image and username from the client}
 \item{Server transfers recieved image to face recognition module (FRM)}
@@ -288,12 +287,9 @@ the server.}
 \subsubsection{Face Recognition}
 \label{sec:recognition}
 \textbf{Type:} System operation\\
-\textbf{Description:} The user uses face recognition to identify.
+\textbf{Description:} The system recognizes the user from an image.\\
 \textbf{Component interaction:}
 \begin{enumerate}
-\item{The UI takes a picture with the camera and extracts a face from it.}
-\item{The UI passes the image of the face on to the client.}
-\item{The client uploads the image to the server.}
 \item{Server transfers image to face recognition module (FRM)}
 \item{FRM queries all saved neural networks for match. If there's no match, null is returned.}
 \item{FRM reports best match to server}
