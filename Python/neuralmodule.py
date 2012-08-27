@@ -16,7 +16,7 @@ class userNet:
         self.name = None
         self.net = None
         self.params = dict(bp_dw_scale = 0.1,train_method = cv2.ANN_MLP_TRAIN_PARAMS_BACKPROP)
-        self.hidden = 10
+        self.hidden = 10 #Neurons in the hidden layer, modify if needed. Currently optimal for 40 users with 6 trained faces
         
     def getName(self):
         
@@ -180,7 +180,7 @@ class neuralmodule:
                 verk.train(self.ANN_names[m], self.projection, g[:,m], self.SAMPLES)
                 pnets.append(verk)
             
-            self.pnets = pnets
+            self.pnets = pnets 
                 
     #Tries to identify person based on input image.
     #Returs array containing matches sorted from best to worst
@@ -198,8 +198,12 @@ class neuralmodule:
         result = []
         
         for a,b in enumerate(self.pnets):
-            result.append(b.identify(pre2))
-
+            
+            r = b.identify(pre2)
+            result.append(r)
+            if(r[1] > match_threshold):
+                match = True
+            print r[1]
         
         my = dict(result)
         sy = sorted(my,key=my.__getitem__)
