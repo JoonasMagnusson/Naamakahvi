@@ -37,10 +37,15 @@ public class Client {
 
 	/**
 	 * Using the specified host name and port number, sends a HTTP request to
-	 * server to get all station names. Method: Get Path: /list_stations/
+	 * server to get all station names. 
+         * Method: Get 
+         * Path: /list_stations/
 	 * 
-	 * Example server response: { "status":"ok", "stations":["station1",
-	 * "station2"] }
+	 * Example server response: 
+         * { 
+         *  "status":"ok", 
+         *  "stations":["station1","station2"] 
+         * }
 	 * 
 	 * 
 	 * @param host
@@ -219,11 +224,16 @@ public class Client {
 	}
 
 	/**
-	 * Gets all usernames from the server. Method: Get Path: /list_usernames/
+	 * Gets all usernames from the server. 
+         * Method: Get 
+         * Path: /list_usernames/
 	 * Parameters: station_name
 	 * 
-	 * Example server response: { "status":"ok"
-	 * "usernames":["example1","example2"] }
+	 * Example server response: 
+         * { 
+         *  "status":"ok"
+	 *  "usernames":["example1","example2"] 
+         * }
 	 * 
 	 * @return list of all usernames
 	 */
@@ -233,10 +243,17 @@ public class Client {
 	}
 
 	/**
-	 * Sends new user's user data to the server. Method: Post Path: /register/
-	 * Parameters: username given family
+	 * Sends new user's user data to the server. 
+         * Method: Post 
+         * Path: /register/
+	 * Parameters: username 
+         *             given 
+         *             family
 	 * 
-	 * Example server response: { "status":"ok" }
+	 * Example server response: 
+         * { 
+         *  "status":"ok" 
+         * }
 	 * 
 	 * @param username
 	 *            the new user's username
@@ -260,10 +277,16 @@ public class Client {
 	}
 
 	/**
-	 * Sends an image of a user to the server. Method: Post Path: /upload/
-	 * Parameters: file username
+	 * Sends an image of a user to the server. 
+         * Method: Post 
+         * Path: /upload/
+	 * Parameters: file 
+         *             username
 	 * 
-	 * Example server response: { "status":"ok" }
+	 * Example server response: 
+         * { 
+         *  "status":"ok" 
+         * }
 	 * 
 	 * @param username
 	 *            username
@@ -293,15 +316,36 @@ public class Client {
 
 	/**
 	 * Gets user data related to the specified username from the server and
-	 * creates a User instance. Method: Post Path: /get_user/ Parameters:
-	 * username station_name
+	 * creates a User instance. 
+         * Method: Post 
+         * Path: /get_user/ 
+         * Parameters: username 
+         *             station_name
 	 * 
 	 * Example server response:
 	 * 
-	 * { "status":"ok", "data": { "username":"example",
-	 * "given":"example given name", "family":"example family name", "balance":
-	 * [ { "groupName":"example group", "group_id":1, "saldo": 11.1 }, {
-	 * "groupName":"example group 2", "group_id":2, "saldo": 22.2 } ] } }
+	 * { 
+         *  "status":"ok", 
+         *  "data": 
+         *      { 
+         *          "username":"example",
+         *          "given":"example given name", 
+         *          "family":"example family name", 
+         *          "balance":
+         *              [ 
+         *                  { 
+         *                      "groupName":"example group", 
+         *                      "group_id":1, 
+         *                      "saldo": 11.1 
+         *                  }, 
+         *                  {
+	 *                      "groupName":"example group 2", 
+         *                      "group_id":2, 
+         *                      "saldo": 22.2 
+         *                  } 
+         *              ] 
+         *      } 
+         * }
 	 * 
 	 * @param username
 	 *            username
@@ -349,13 +393,30 @@ public class Client {
 
 	/**
 	 * Gets all buyable products from the server and makes a list of IProduct
-	 * objects Method: Get Path: /list_buyable_products/ Parameters:
-	 * station_name
+	 * objects 
+         * Method: Get 
+         * Path: /list_buyable_products/ 
+         * Parameters: station_name
 	 * 
-	 * Example server response: { "status":"ok", "buyable_products": [ {
-	 * "product_name":"coffee", "product_price":1, "product_id":1, "group_id":2
-	 * }, { "product_name":"espresso", "product_price":1, "product_id":2,
-	 * "group_id":1 } ] }
+	 * Example server response: 
+         * { 
+         *  "status":"ok",
+         *  "buyable_products": 
+         *   [ 
+         *      {
+	 *          "product_name":"coffee", 
+         *          "product_price":1, 
+         *          "product_id":1, 
+         *          "group_id":2
+	 *      }, 
+         *      { 
+         *          "product_name":"espresso", 
+         *          "product_price":1, 
+         *          "product_id":2,
+	 *          "group_id":1 
+         *      } 
+         *   ] 
+         * }
 	 * 
 	 * @return list of all buyable products
 	 */
@@ -367,10 +428,18 @@ public class Client {
 	}
 
 	/**
-	 * Sends information about a user's purchase to the server. Method: Post
-	 * Path: /buy_product/ Parameters: product_id amount station_name username
+	 * Sends information about a user's purchase to the server. 
+         * Method: Post
+	 * Path: /buy_product/ 
+         * Parameters: product_id 
+         *             amount 
+         *             station_name 
+         *             username
 	 * 
-	 * Example server response: { "status":"ok" }
+	 * Example server response: 
+         * { 
+         *  "status":"ok" 
+         * }
 	 * 
 	 * @param user
 	 *            the buying user
@@ -389,11 +458,28 @@ public class Client {
 
 	/**
 	 * Gets all raw products from the server and makes a list of IProduct
-	 * objects Method: Get Path: /list_raw_products/ Example server response: {
-	 * "status":"ok", "raw_products": [ { "product_name":"coffee beans",
-	 * "product_price":1, "product_id":3, "group_id":2 }, {
-	 * "product_name":"filter", "product_price":1, "product_id":4, "group_id":1
-	 * } ] }
+	 * objects 
+         * Method: Get 
+         * Path: /list_raw_products/ 
+         * 
+         * Example server response: 
+         * {
+	 *  "status":"ok", 
+         *  "raw_products": 
+         *      [ 
+         *          { 
+         *              "product_name":"coffee beans",
+	 *              "product_price":1, 
+         *              "product_id":3, 
+         *              "group_id":2 }, 
+         *          {
+	 *              "product_name":"filter", 
+         *              "product_price":1, 
+         *              "product_id":4, 
+         *              "group_id":1
+	 *          } 
+         *      ] 
+         * }
 	 * 
 	 * @return list of raw product objects
 	 */
@@ -405,10 +491,19 @@ public class Client {
 
 	/**
 	 * Sends the server information about a user bringing some product as a
-	 * payment. Method: Post Path: /bring_product/ Parameters: product_name
-	 * station_name amount username size_id
+	 * payment. 
+         * Method: Post 
+         * Path: /bring_product/ 
+         * Parameters: product_name
+	 *             station_name 
+         *             amount 
+         *             username 
+         *             size_id
 	 * 
-	 * Example server response: { "status":"ok" }
+	 * Example server response: 
+         * { 
+         *  "status":"ok" 
+         * }
 	 * 
 	 * @param user
 	 *            the user bringing the product
@@ -430,8 +525,15 @@ public class Client {
 	 * Sends an image of a user to the server to get an username of the user
 	 * that matches the best, or null if no user is a sufficiently good match
 	 * for the image.
+         * Method: Post
+         * Path: /identify/
+         * Parameters: file
 	 * 
-	 * Example server response: { "status":"ok", "username": "veijo" }
+	 * Example server response: 
+         * { 
+         *  "status":"ok", 
+         *  "username": "veijo" 
+         * }
 	 * 
 	 * @param imagedata
 	 *            the image
@@ -463,12 +565,16 @@ public class Client {
 	}
 
 	/**
-	 * Gets all product group names from the server. Method: Get Path:
-	 * /list_product_groups/
+	 * Gets all product group names from the server. 
+         * Method: Get 
+         * Path: /list_product_groups/
 	 * 
 	 * Example server response:
 	 * 
-	 * { "status":"ok", "product_groups":["group1","group2","group3"] }
+	 * { 
+         *  "status":"ok", 
+         *  "product_groups":["group1","group2","group3"] 
+         * }
 	 * 
 	 * @return the list of the product group names
 	 * @throws ClientException
