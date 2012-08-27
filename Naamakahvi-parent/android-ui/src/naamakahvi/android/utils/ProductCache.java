@@ -19,55 +19,17 @@ public class ProductCache {
 	private static boolean mRawReady = false;
 
 	/**
-	 * Load buyable items into the product cache
+	 * Get product information from the cache.
 	 * 
-	 * @param products
-	 *            List of products to cache
+	 * @param name
+	 *            The toString of the product
+	 * @return Product data for the given product name
 	 */
-	public static void loadBuyableItems(List<IProduct> products) {
-		mBuyableList = new ArrayList<IProduct>();
-		for (IProduct p : products) {
-			mNameCache.put(p.toString(), p);
-			mBuyableList.add(p);
+	public static IProduct getProduct(final String name) {
+		if (!isReady()) {
+			throw new IllegalStateException();
 		}
-		mBuyableReady = true;
-	}
-
-	/**
-	 * Load raw products into the product cache
-	 * 
-	 * @param products
-	 *            List of products to cache
-	 */
-	public static void loadRawItems(List<IProduct> products) {
-		mRawList = new ArrayList<IProduct>();
-		for (IProduct p : products) {
-			mNameCache.put(p.toString(), p);
-			mRawList.add(p);
-		}
-		mRawReady = true;
-	}
-
-	/**
-	 * Returns a list of buyable items
-	 * 
-	 * @return List of buyable items
-	 */
-	public static List<IProduct> listBuyableItems() {
-		if (!mBuyableReady)
-			throw new IllegalStateException("Buyable items not loaded");
-		return mBuyableList;
-	}
-
-	/**
-	 * Returns a list of raw products
-	 * 
-	 * @return List of raw products
-	 */
-	public static List<IProduct> listRawItems() {
-		if (!mRawReady)
-			throw new IllegalStateException("Raw products not loaded");
-		return mRawList;
+		return mNameCache.get(name);
 	}
 
 	/**
@@ -80,16 +42,57 @@ public class ProductCache {
 	}
 
 	/**
-	 * Get product information from the cache.
+	 * Returns a list of buyable items
 	 * 
-	 * @param name
-	 *            The toString of the product
-	 * @return Product data for the given product name
+	 * @return List of buyable items
 	 */
-	public static IProduct getProduct(String name) {
-		if (!isReady())
-			throw new IllegalStateException();
-		return mNameCache.get(name);
+	public static List<IProduct> listBuyableItems() {
+		if (!mBuyableReady) {
+			throw new IllegalStateException("Buyable items not loaded");
+		}
+		return mBuyableList;
+	}
+
+	/**
+	 * Returns a list of raw products
+	 * 
+	 * @return List of raw products
+	 */
+	public static List<IProduct> listRawItems() {
+		if (!mRawReady) {
+			throw new IllegalStateException("Raw products not loaded");
+		}
+		return mRawList;
+	}
+
+	/**
+	 * Load buyable items into the product cache
+	 * 
+	 * @param products
+	 *            List of products to cache
+	 */
+	public static void loadBuyableItems(final List<IProduct> products) {
+		mBuyableList = new ArrayList<IProduct>();
+		for (final IProduct p : products) {
+			mNameCache.put(p.toString(), p);
+			mBuyableList.add(p);
+		}
+		mBuyableReady = true;
+	}
+
+	/**
+	 * Load raw products into the product cache
+	 * 
+	 * @param products
+	 *            List of products to cache
+	 */
+	public static void loadRawItems(final List<IProduct> products) {
+		mRawList = new ArrayList<IProduct>();
+		for (final IProduct p : products) {
+			mNameCache.put(p.toString(), p);
+			mRawList.add(p);
+		}
+		mRawReady = true;
 	}
 
 }
