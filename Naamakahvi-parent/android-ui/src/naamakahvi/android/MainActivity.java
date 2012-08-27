@@ -30,20 +30,25 @@ import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
-
-	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0;
+	/**
+	 * Activity result codes
+	 */
+	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0, REQUEST_IDENTIFY = 2;
 	public static final boolean MODE_BUY = true, MODE_BRING = false;
+	
 	public static final String TAG = "MainActivity";
 	private LayoutInflater mInflater;
+	
 	private boolean mActionStarted = false;
 
 	private boolean mModeBuying = true;
 
 	private SharedPreferences mPreferences;
 
-	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQtyO, R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
+	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
 
 	/** Called when the activity is first created. */
 	@Override
@@ -229,6 +234,7 @@ public class MainActivity extends Activity {
 		final Handler hand = new Handler(getMainLooper());
 
 		final Context con = this;
+		final Activity act = this;
 
 		new Thread(new Runnable() {
 
@@ -250,7 +256,7 @@ public class MainActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage()).show();
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage(),act).show();
 						}
 					});
 				}
@@ -332,9 +338,9 @@ public class MainActivity extends Activity {
 
 		final Context c = this;
 
-		for (int i = 1; i < PRODUCT_QTY_BUTTONS.length; ++i) {
+		for (int i = 0; i < PRODUCT_QTY_BUTTONS.length; ++i) {
 			Button b = (Button) t.findViewById(PRODUCT_QTY_BUTTONS[i]);
-			final int qty = i;
+			final int qty = i +1;
 
 			b.setOnClickListener(new View.OnClickListener() {
 
@@ -345,7 +351,7 @@ public class MainActivity extends Activity {
 						Basket b = new Basket();
 						b.addProduct(product, qty);
 						in.putExtra(ExtraNames.PRODUCTS, b);
-						startActivityForResult(in, REQUEST_LOGIN);
+						startActivityForResult(in, REQUEST_IDENTIFY);
 					}
 				}
 			});
@@ -397,21 +403,43 @@ public class MainActivity extends Activity {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
 				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				startActivity(i);
 				break;
 			case RESULT_CANCELED:
 				break;
 			}
-
+		}
+		
+		if (requestCode == REQUEST_IDENTIFY) {
+			switch (resultCode) {
+			case RESULT_OK:
+				
+				if (data.getStringExtra(ExtraNames.USERS) == null){ // user was not identified correctly
+					DialogHelper.makeToast(getApplicationContext(), R.string.errorIdentify).show();
+					mActionStarted = true;
+					Intent in = new Intent(this, LoginwithusernameActivity.class);
+					in.putExtra(ExtraNames.PRODUCTS, data.getParcelableExtra(ExtraNames.PRODUCTS));
+					startActivityForResult(in, REQUEST_LOGIN);
+					return;
+				}
+				
+				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
+				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
+				startActivity(i);
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
 		}
 
 		if (requestCode == REQUEST_USER_SETTINGS) {
 			switch (resultCode) {
 			case RESULT_OK:
 				Intent i = new Intent(this, UserSettingsActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
 				startActivity(i);
 				break;
 			case RESULT_CANCELED:

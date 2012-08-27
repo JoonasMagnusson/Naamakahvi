@@ -45,9 +45,9 @@ public class ConfirmPurchaseActivity extends Activity {
 		intent = getIntent();
 		handler = new Handler();
 		setCountdown();
-		String[] listOfPossibleUsers = intent
-				.getStringArrayExtra(ExtraNames.USERS);
-		configureUserView(listOfPossibleUsers[0]);
+		String listOfPossibleUsers = intent
+				.getStringExtra(ExtraNames.USERS);
+		configureUserView(listOfPossibleUsers);
 		setWhatYouAreBuyingText();
 	}
 
@@ -189,7 +189,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		}
 		if (requestCode == REQUEST_USERNAME_CHANGE){
 			
-			configureUserView(data.getStringArrayExtra(ExtraNames.USERS)[0]);
+			configureUserView(data.getStringExtra(ExtraNames.USERS));
 			
 		}
 	}

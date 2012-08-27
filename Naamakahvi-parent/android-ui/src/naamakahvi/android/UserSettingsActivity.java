@@ -77,7 +77,7 @@ public class UserSettingsActivity extends Activity {
 					public void run() {
 						try {
 							Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-							final IUser user = c.getUser(i.getExtras().getStringArray(ExtraNames.USERS)[0]);
+							final IUser user = c.getUser(i.getExtras().getString(ExtraNames.USERS));
 
 							hand.post(new Runnable() {
 								public void run() {

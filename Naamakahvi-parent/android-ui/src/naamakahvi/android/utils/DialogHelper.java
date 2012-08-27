@@ -1,9 +1,13 @@
 package naamakahvi.android.utils;
 
+import naamakahvi.android.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class DialogHelper {
 	/**
@@ -56,4 +60,12 @@ public class DialogHelper {
 		return builder;
 	}
 
+	public static Toast makeToast(Context con, int resId) {
+		LayoutInflater i = LayoutInflater.from(con);
+		TextView txt = (TextView) i.inflate(R.layout.new_list_bigger_text, null);
+		txt.setText(con.getString(resId));
+		Toast t = Toast.makeText(con, "", Toast.LENGTH_LONG);
+		t.setView(txt);
+		return t;
+	}
 }
