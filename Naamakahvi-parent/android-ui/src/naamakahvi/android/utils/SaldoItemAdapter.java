@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
+/**
+ * Adapter used to provide user balances to a listview
+ */
 public class SaldoItemAdapter extends BaseAdapter {
 	private final List<SaldoItem> items;
 	private final LayoutInflater inflater;

@@ -118,11 +118,6 @@ be identified using their username.
    %   -  operations
    %   - constraints on the order of operation
 
-\subsubsection*{Android User Interface}
-% android-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
-
-The user interface for Android is written in Java, and uses the client
-library to facilitate communications with the server.
 
 \subsubsection*{Swing User Interface}
 % swing-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
@@ -139,6 +134,14 @@ It also uses the third-party OpenCV and JavaCV libraries to detect faces
 from a camera feed. The faces are sent to the server in order to identify
 users, allowing them to sign in to the system without entering their
 usernames or other information.
+
+\subsubsection*{Android User Interface}
+% android-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
+
+The user interface for Android is written in Java, and uses the client
+library to facilitate communications with the server. It also uses the OpenCV library for face detection.
+
+The Android user interface was designed for a 10.1" screen in landscape mode, but should be transferrable to other types of screens with little effort. A physical (Bluetooth) keyboard is recommended for inputting user details, although the Android virtual keyboard can also be used.
 
 \subsubsection*{Client/Frontend}
 The client is implemented as a Java library and its responsibility is
@@ -176,7 +179,7 @@ but it is optional.\\
 \item{The client sends the user data to the server.}
 \item{Provided that the username does not already exist and it is valid, the server creates a new user in the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
-\item{6 pictures are taken. See~\ref{sec:pic}.}
+\item{6 pictures are taken.}
 \item{The user interface passes the images to the client.}
 \item{The client sends the images to the server.}
 \item{The server saves the new images to the database and trains the neural network. See~\ref{sec:add-train}.}
@@ -188,7 +191,7 @@ but it is optional.\\
 multiple pictures are taken of their face. The user is told who was recognized. \\
 \textbf{Component interaction:} 
 \begin{enumerate} 
-\item{Pictures are taken. See~\ref{sec:pic}.}
+\item{Pictures are taken.}
 \item{The user interface passes the images to the client.}
 \item{The client sends the images to the server.}
 \item{The server identifies the user in the images and makes a sorted list of the matching users. See~\ref{sec:recognition}.}
@@ -238,7 +241,7 @@ The user's balance is shown and the user has to confirm the action.\\
 The pictures will overwrite the user's old user pictures.\\
 \textbf{Component interaction:}
 \begin{enumerate} 
-\item{New pictures are taken. See~\ref{sec:pic}}
+\item{New pictures are taken. 
 \item{The user interface passes the images to the client.}
 \item{The client sends the images to the server.}
 \item{The server saves the images and trains the neural network. See~\ref{sec:add-train}}
@@ -259,12 +262,6 @@ have different account balances.\\
 the server.}
 \end{enumerate}
 
-\subsubsection{Taking a Picture}
-\label{sec:pic}
-\textbf{Type:} System operation\\
-\textbf{Description:} \\
-\textbf{Component interaction:}\\
-
 \subsubsection{Saving Images And Training the Neural Network}
 \label{sec:add-train}
 \textbf{Type:} System operation\\
@@ -274,8 +271,18 @@ the server.}
 \subsubsection{Face Recognition}
 \label{sec:recognition}
 \textbf{Type:} System operation\\
-\textbf{Description:}\\
-\textbf{Component interaction:}\\
+\textbf{Description:} The user uses face recognition to identify.
+\textbf{Component interaction:}
+\begin{enumerate}
+\item{The UI takes a picture with the camera and extracts a face from it.}
+\item{The UI passes the image of the face on to the client.}
+\item{The client uploads the image to the server.}
+\item{??????}
+\item{Profit}
+\item{The client receives the username for the best match (or null) from the server.}
+\item{The UI receives the username and recognizes the user, or receives null and asks the user to select their username from a list.}
+the server.}
+\end{enumerate}
 
 \section{Other Views}
 
