@@ -45,7 +45,8 @@ Both of them provide an espresso machine and the other syndicate also has
 a drip coffee maker. The members pay for their coffee by bringing products 
 to be used in the machine, e.g. espresso beans or filters. The Facecafe 
 software keeps track of each member’s balance, using face recognition to 
-identify users. The Facecafe software is supposed to replace earlier 
+identify users. The Facecafe software can be used on an Android tablet
+or a desktop computer and it is supposed to replace earlier 
 methods for track keeping.
 
 Registration is required to use the system. Upon registration, pictures are
@@ -248,7 +249,7 @@ The user's balance is shown and the user has to confirm the action.\\
 The pictures will overwrite the user's old user pictures.\\
 \textbf{Component interaction:}
 \begin{enumerate} 
-\item{New pictures are taken. 
+\item{New pictures are taken.}
 \item{The user interface passes the images to the client.}
 \item{The client sends the images to the server.}
 \item{The server saves the images and trains the neural network. See~\ref{sec:add-train}}
@@ -287,8 +288,7 @@ the server.}
 \item{??????}
 \item{Profit}
 \item{The client receives the username for the best match (or null) from the server.}
-\item{The UI receives the username and recognizes the user, or receives null and asks the user to select their username from a list.}
-the server.}
+\item{The UI receives the username and recognizes the user, or receives null and asks the user to select their username from a list the server.}
 \end{enumerate}
 
 \section{Other Views}
