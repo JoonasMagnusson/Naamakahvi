@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package naamakahvi.naamakahviclient;
 
 import java.io.BufferedReader;
@@ -9,16 +6,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-/**
- *
- * @author jronkone
- */
 public final class Util {
     private Util() {
     }
 
-    public static String readStream(InputStream is) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    /**
+     * Reads an input stream to a string.
+     * 
+     * @param stream input stream to read 
+     * @return the input stream content as a string 
+     */
+    public static String readStream(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String ans = new String();
         String tmp;
         while (null != (tmp = reader.readLine())) {

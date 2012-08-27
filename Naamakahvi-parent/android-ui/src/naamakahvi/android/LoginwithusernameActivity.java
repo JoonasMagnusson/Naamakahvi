@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
+import naamakahvi.android.utils.DialogHelper;
 import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
@@ -36,32 +37,29 @@ import android.widget.AdapterView.OnItemClickListener;
 public class LoginwithusernameActivity extends Activity {
 
 	public static final String TAG = "LoginwithUsernameActivity";
-	private Resources mRes;
-	private LayoutInflater mInflater;
 	private Basket mOrder;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loading_screen);
-		mRes = getResources();
 
-		mInflater = getLayoutInflater();
 		if (getIntent().hasExtra(ExtraNames.PRODUCTS)) {
 			mOrder = getIntent().getExtras().getParcelable(ExtraNames.PRODUCTS);
 		} else {
 			mOrder = null;
 		}
+
 		final Handler hand = new Handler(getMainLooper());
 
 		final Context con = this;
+		final Activity act = this;
 
 		new Thread(new Runnable() {
 
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL,
-							Config.SERVER_PORT, Config.STATION);
+					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 					final String[] users = c.listUsernames();
 
 					hand.post(new Runnable() {
@@ -76,21 +74,10 @@ public class LoginwithusernameActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(
-									con);
-							builder.setCancelable(false);
-							builder.setMessage("Fetching data from server failed. Reason: "
-									+ ex.getMessage());
-							builder.setPositiveButton("OK",
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											dialog.dismiss();
-											finish();
-										}
-									});
-							builder.show();
+
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage(), act)
+									.show();
+
 						}
 					});
 				}
@@ -100,22 +87,23 @@ public class LoginwithusernameActivity extends Activity {
 
 	}
 
+	/**
+	 * Called after fetching data from server
+	 * 
+	 * @param users
+	 *            List of usernames from the server
+	 */
 	public void loaded(String[] users) {
 		setContentView(R.layout.loginwithusername);
 		ListView userlistView = (ListView) findViewById(R.id.userListView);
-		// t�h�n string-taulukkoon importataan clientist�
-		// k�ytt�j�lista
-		// Varautuminen: ei k�ytt�ji� / ei yhteytt�
 
-		AlphabeticalStringArrayAdapter adapter = new AlphabeticalStringArrayAdapter(
-				this, users);
+		AlphabeticalStringArrayAdapter adapter = new AlphabeticalStringArrayAdapter(this, users);
 		userlistView.setAdapter(adapter);
 		userlistView.setFastScrollEnabled(true);
 		userlistView.setFastScrollAlwaysVisible(true);
 
 		userlistView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				String item = (String) parent.getAdapter().getItem(position);
 				if (item == null)
 					return;
@@ -129,8 +117,11 @@ public class LoginwithusernameActivity extends Activity {
 
 	}
 
-	private static class AlphabeticalStringArrayAdapter extends BaseAdapter
-			implements SectionIndexer {
+	/**
+	 * Adapter that sorts a string array alphabetically and splits it into
+	 * sections
+	 */
+	private static class AlphabeticalStringArrayAdapter extends BaseAdapter implements SectionIndexer {
 
 		public static final int TYPE_HEADER = 0, TYPE_USERNAME = 1;
 
@@ -144,9 +135,9 @@ public class LoginwithusernameActivity extends Activity {
 
 			inflater = LayoutInflater.from(con);
 			this.data = new ArrayList<String>();
-			this.names = new ArrayList<String>();
-			this.indices = new ArrayList<Integer>();
-
+			this.names = new ArrayList<String>(); // keeps track of section names
+			this.indices = new ArrayList<Integer>(); // keeps track of section start points
+												     // section names[i] starts at index indices[i]
 			int numSections = 0;
 
 			for (int i = 0; i < data.length; ++i) { // initialize sections
@@ -155,19 +146,23 @@ public class LoginwithusernameActivity extends Activity {
 					s = "a";
 				char firstletter = s.toUpperCase().charAt(0);
 
-				if (isEmpty() || lastSectionName().charAt(0) != firstletter) { // new
-																				// section
-					this.data.add("-- HEADER -- SHOULD NOT BE VISIBLE --");
-					// add placeholder in data for easier indexing
-					this.addSection(Character.toString(firstletter), i
-							+ numSections);
-					++numSections; // keep track of index offset caused by
-									// section headers
+				if (isEmpty() || lastSectionName().charAt(0) != firstletter) { // new section
+					this.data.add("-- HEADER -- SHOULD NOT BE VISIBLE --"); // add placeholder in data for easier indexing
+					this.addSection(Character.toString(firstletter), i + numSections);
+					++numSections; // keep track of index offset caused by section headers
 				}
 				this.data.add(s);
 			}
 		}
 
+		/**
+		 * Adds a section
+		 * 
+		 * @param name
+		 *            Section name
+		 * @param index
+		 *            section index
+		 */
 		private void addSection(String name, int index) {
 			names.add(name);
 			indices.add(index);
@@ -218,8 +213,7 @@ public class LoginwithusernameActivity extends Activity {
 		}
 
 		public Object getItem(int position) {
-			if (position < 0 || position >= data.size()
-					|| (indices.indexOf(position) >= 0))
+			if (position < 0 || position >= data.size() || (indices.indexOf(position) >= 0))
 				return null;
 			return data.get(position);
 		}
@@ -234,8 +228,7 @@ public class LoginwithusernameActivity extends Activity {
 
 		@Override
 		public int getItemViewType(int position) {
-			return (indices.indexOf(position) >= 0) ? TYPE_HEADER
-					: TYPE_USERNAME;
+			return (indices.indexOf(position) >= 0) ? TYPE_HEADER : TYPE_USERNAME;
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
@@ -243,10 +236,11 @@ public class LoginwithusernameActivity extends Activity {
 				if (getItemViewType(position) == TYPE_HEADER)
 					convertView = inflater.inflate(R.layout.list_header, null);
 				else
-					convertView = inflater.inflate(R.layout.list_item_text,
-							null);
+					convertView = inflater.inflate(R.layout.list_item_text, null);
 			}
+
 			int headerIndex = indices.indexOf(position);
+
 			if (headerIndex >= 0) {
 				((TextView) convertView).setText(names.get(headerIndex));
 			} else {

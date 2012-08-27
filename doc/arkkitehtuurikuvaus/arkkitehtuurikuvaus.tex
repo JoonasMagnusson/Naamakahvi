@@ -40,10 +40,23 @@
 % \item Main functionalities described in natural language
 % \end{itemize}
 
-The staff of the Department of Computer Science has two coffee syndicates. Both of them provide an espresso machine and the other syndicate also has a drip coffee maker. The members pay for their coffee by bringing products to be used in the machine, e.g. espresso beans or filters. The Facecafe software keeps track of each member’s balance, using face recognition to identify users.
+The staff of the Department of Computer Science has two coffee syndicates. 
+Both of them provide an espresso machine and the other syndicate also has 
+a drip coffee maker. The members pay for their coffee by bringing products 
+to be used in the machine, e.g. espresso beans or filters. The Facecafe 
+software keeps track of each member’s balance, using face recognition to 
+identify users. The Facecafe software is supposed to replace earlier 
+methods for track keeping.
+
+Registration is required to use the system. Upon registration, pictures are
+taken of the user's face for later identification. If the user does not want
+to use face recognition, they can choose not to have any pictures taken. 
+Images can also be added after registration. Coffee can be bought or paid 
+for by first choosing a product to buy or bring and then taking a picture to 
+identify the user whose balance will be updated. Alternatively, the user can
+be identified using their username. 
 
 \section{System Purpose: Requirements}
-
 
 \subsection{Functional Requirements}
    % --> Bullet point list
@@ -66,17 +79,17 @@ The staff of the Department of Computer Science has two coffee syndicates. Both 
    % performance
 
 \begin{itemize}
-\item{The application can be used on an Android tablet or a desktop equipped with touch screen}
+\item{The application can be used on an Android tablet or a desktop equipped with a touch screen}
 \item{The software is simple to use and the core functionalities do not require many clicks}
-\item{The user does not have to wait for very long}  
+\item{The software works reasonably fast} 
+\item{Simplicity of use is more important than security (the coffee syndicate is based on trust)}
 \end{itemize}
 
 \section{Structure}
 
-\subsection{Overview: overall structure}
+\subsection{Overview: Overall Structure}
 % --> Diagram of all components and their collaboration with each other
 \includegraphics[scale=0.5]{components.pdf}
-
 
 \subsection{Components}
    % for each component:
@@ -105,7 +118,7 @@ The staff of the Department of Computer Science has two coffee syndicates. Both 
    %   -  operations
    %   - constraints on the order of operation
 
-\subsubsection{Client/frontend}
+\subsubsection{Client/Frontend}
 The client is implemented as a Java library and its responsibility is
 to offer an interface for UI-components, abstracting away the
 communication protocols used between the client and server. 
@@ -114,21 +127,21 @@ The client communicates with the server via HTTP, sending GET and POST
 requests, and receiving JSON-objects from the server. 
 
 
-\subsubsection{Backend/server}
+\subsubsection{Backend/Server}
 % redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
-% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ tietokannat ja serverin opencv-palikka)
+% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
 The server updates the database and gets data from it on client
 requests and tells the client whether or not the requested operation
 was successful. The server is an HTTP-server implemented in Python, and
-is connected to a PostgreSQL database.
+is connected to a PostgreSQL database. 
 
-\subsubsection{Android-UI}
+\subsubsection{Android User Interface}
 % android-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
 
 The user interface for Android is written in Java, and uses the client
 library to facilitate communications with the server.
 
-\subsubsection{Swing-UI}
+\subsubsection{Swing User Interface}
 % swing-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
      
 The Swing user interface is written in Java and provides an interface
@@ -152,26 +165,36 @@ usernames or other information.
 % - description of the scenario
 % - how scenario interacts with components
 
+% kuinka monta kuvaa?
 \subsubsection{Registration}
 \textbf{Type:} Use case\\
 \textbf{Description:} The user enters their name and username to register on the system. 
-The user can also have pictures taken of their face if they want to use face recognition but it is optional.\\
+The user can also optionally have taken of their face if they want to use face recognition.\\
 \textbf{Component interaction:} 
 \begin{enumerate} 
 \item{The user interface passes the submitted name and username to the client.}
 \item{The client sends the user data to the server.}
 \item{Provided that the username does not already exist and it is valid, the server creates a new user in the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
-\item{If pictures were taken they are sent to the server as described in section~\ref{sec:add-train}.}
+\item{6 pictures are taken. See~\ref{sec:pic}.}
+\item{The server saves the new images to the database and trains the neural network. See~\ref{sec:add-train}.}
 \end{enumerate}
 
-\subsubsection{Authentication using face recognition}
+% kuinka monta kuvaa?
+\subsubsection{Authentication Using Face Recognition}
 \textbf{Type:} Use case\\
 \textbf{Description:} When the user has chosen a product to buy or bring, 
-a picture is taken of their face. The user is then shown the best matching usernames...\\
-\textbf{Component interaction:} \\
-   
-\subsubsection{Authentication using username}
+multiple pictures are taken of their face. The user is told who was recognized. \\
+\textbf{Component interaction:} 
+\begin{enumerate} 
+\item{Pictures are taken. See~\ref{sec:pic}.}
+\item{The user interface }
+\item{The server identifies the user in the images and makes a sorted list of the matching users. See~\ref{sec:recognition}.}
+\item{The server sends the list of matching usernames to the client.}
+\item{The client returns the list to the user interface.}
+\end{enumerate}
+
+\subsubsection{Authentication Using Username}
 \textbf{Type:} Use case\\
 \textbf{Description:} The user chooses their username from a list and can then proceed to make a purchase or bring a product.\\
 \textbf{Component interaction:} 
@@ -183,51 +206,62 @@ a picture is taken of their face. The user is then shown the best matching usern
 \item{The client returns the user data to the user interface.}
 \end{enumerate}
 
-\subsubsection{Buying coffee}
+\subsubsection{Buying Coffee}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user chooses the product and the amount of it they want to buy. 
+\textbf{Description:} The user chooses a product and the amount of it they want to buy. 
 The user's balance is shown and the user has to confirm the purchase.\\
 \textbf{Component interaction:}
 \begin{enumerate} 
 \item{The user interface passes the buying user, the bought product and the amount of it to the client.}
 \item{The client sends its station name, the user's username, the product id and the amount to the server.}
-\item{The server calculates the user's new balance and saves it in the database.}
+\item{The server calculates the user's new balance and saves it to the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
-\subsubsection{Bringing a product (paying)}
+\subsubsection{Bringing a Product (paying)}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user chooses the amount of the product they are bringing. 
+\textbf{Description:} The user chooses a product and the amount they are bringing. 
 The user's balance is shown and the user has to confirm the action.\\
 \textbf{Component interaction:}
 \begin{enumerate} 
 \item{The user interface passes the user, the brought product and the amount of it to the client.}
 \item{The client sends its station name, the user's username, the product id, the amount of packages and the package size of the product to the server.}
-\item{The server calculates the user's new balance and saves it in the database.}
+\item{The server calculates the user's new balance and saves it to the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
-\subsubsection{Adding new photographs}
+\subsubsection{Adding New User Pictures}
 \textbf{Type:} Use case\\
-\textbf{Description:}\\
+\textbf{Description:} The user chooses their username from a list and takes pictures of their face. 
+The pictures will overwrite the user's old user pictures.\\
+\textbf{Component interaction:}
+\begin{enumerate} 
+\item{6 pictures are taken. See~\ref{sec:pic}}
+\item{The server saves the images and trains the neural network. See~\ref{sec:add-train}}
+\end{enumerate}
+
+\subsubsection{Selecting the Station}
+\textbf{Type:} Use case\\
+\textbf{Description:} \\
 \textbf{Component interaction:}\\
 
-\subsubsection{Adding and training user images}
+\subsubsection{Taking a Picture}
+\label{sec:pic}
+\textbf{Type:} System operation\\
+\textbf{Description:} \\
+\textbf{Component interaction:}\\
+
+\subsubsection{Saving Images And Training the Neural Network}
 \label{sec:add-train}
 \textbf{Type:} System operation\\
 \textbf{Description:}\\
 \textbf{Component interaction:}\\
 
-\subsubsection{Face recognition}
+\subsubsection{Face Recognition}
+\label{sec:recognition}
 \textbf{Type:} System operation\\
 \textbf{Description:}\\
 \textbf{Component interaction:}\\
-
-\subsubsection{Getting user information from the database}
-\textbf{Type:} System operation\\
-\textbf{Description:} \\
-\textbf{Component interaction:}\\
-
 
 \section{Other Views}
 
@@ -258,9 +292,9 @@ The components are located in the following directories in the codebase:
 
 \item Server: Naamakahvi/Python
 
-\item Android-UI: Naamakahvi/Naamakahvi-parent/android-ui
+\item Android UI: Naamakahvi/Naamakahvi-parent/android-ui
 
-\item Swing-UI: Naamakahvi/Naamakahvi-parent/swingui
+\item Swing UI: Naamakahvi/Naamakahvi-parent/swingui
 \end{itemize}
 
 
@@ -270,10 +304,30 @@ The components are located in the following directories in the codebase:
 % dependencies between components, e.g. ``KujeProcessor and WebApp must stay
 % on the same physical server because ...
 
+Since the frontend and the backend communicate using HTTP, they can be
+located on separate physical servers. %tietokannat?
+
 \subsection{Deployment}
 % Deployment: How components are deployed and possible constraints
 
+\subsubsection{Constraints}
+The accuracy of face recognition depends highly on the light in the 
+photographs. Poor lighting or changes in it can lead to inaccurate results.
+To achieve the best possible face recognition results, the camera should be 
+placed in a well lit environment.
+
 \section{Testing}
-asdf
+\subsection{Swing-UI}
+The Swing-UI component has unit tests written using the FEST-Swing (fest.easytesting.org)
+and JUnit (www.junit.org) testing APIs. The tests are included with the source code in the
+Naamakahvi-parent/swingui/src/test/ directory. 
+
+The tests for individual UI views use a dummy main-UI class (DummyCafeUI.java) to provide
+test data, while the tests for the main UI class use a dummy client (DummyClient.java).
+
+Notably, the methods relating to the face recognition functionality in the program were
+not tested, as this would have required emulating a camera feed and was therefore outside
+the scope of the project.
+
 
 \end{document}

@@ -289,7 +289,6 @@ public class ClientTest {
         server.register("/list_raw_products/*", listRawProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
         server.register("/bring_product/*", bringProductHandler);
-        // server.register("/upload/*", uploadHandler);
         server.register("/identify/*", identifyImageHandler);
         server.register("/list_user_saldos/*", listUserSaldosHandler);
         server.register("/list_product_groups/*", listGroupnamesHandler);
@@ -352,9 +351,40 @@ public class ClientTest {
     }
 
     @Test
+    public void registrationWithEmptyGivenNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", "", "Nieminen");
+    }
+
+    @Test
+    public void registrationWithEmptyFamilyNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", "Veikko", "");
+    }
+
+    @Test
+    public void registrationWithNullNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser(null, "Veikko", "Nieminen");
+    }
+
+    @Test
+    public void registrationWithNullGivenNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", null, "Nieminen");
+    }
+
+    @Test
+    public void registrationWithNullFamilyNameFails() throws RegistrationException {
+        thrown.expect(RegistrationException.class);
+        client.registerUser("Veikko", "Veikko", null);
+    }
+
+
+    @Test
     public void authenticationWithUnknownNameFails() throws AuthenticationException {
         thrown.expect(ClientException.class);
-        thrown.expectMessage("Authentication failed");
+        thrown.expectMessage("fail");
 
         client.getUser("Matti");
     }
