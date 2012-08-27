@@ -43,7 +43,7 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 	private int mAbsoluteFaceSize = 0;
 
 	private VideoCapture mCamera;
-	private SurfaceHolder mHolder;
+	private final SurfaceHolder mHolder;
 
 	private Mat mGrabFrame;
 	private int mNumFacesInGrabFrame = 0;
@@ -53,25 +53,25 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 
 	private CascadeClassifier mDetector;
 
-	public FaceDetectView(Context context, AttributeSet attrs) {
+	public FaceDetectView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
-		mHolder = getHolder();
-		mHolder.addCallback(this);
+		this.mHolder = getHolder();
+		this.mHolder.addCallback(this);
 
 		try {
 
 			// get the cascade file as a file object
 			// this is stupid
-			File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
+			final File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
 			if (CASCADEFILE == null) {
 				CASCADEFILE = new File(cascadeDir, "lbpcascade_frontalface.xml");
 
 				if (!CASCADEFILE.exists()) {
-					InputStream is = context.getResources().openRawResource(R.raw.lbpcascade_frontalface);
+					final InputStream is = context.getResources().openRawResource(R.raw.lbpcascade_frontalface);
 
-					FileOutputStream os = new FileOutputStream(CASCADEFILE);
+					final FileOutputStream os = new FileOutputStream(CASCADEFILE);
 
-					byte[] buffer = new byte[4096];
+					final byte[] buffer = new byte[4096];
 					int bytesRead;
 					while ((bytesRead = is.read(buffer)) != -1) {
 						os.write(buffer, 0, bytesRead);
@@ -81,17 +81,180 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 				}
 			}
 
-			mDetector = new CascadeClassifier(CASCADEFILE.getAbsolutePath());
-			if (mDetector.empty()) {
-				Log.e(TAG, "Failed to load cascade classifier");
-				mDetector = null;
-			} else
-				Log.i(TAG, "Loaded cascade classifier from " + CASCADEFILE.getAbsolutePath());
+			this.mDetector = new CascadeClassifier(CASCADEFILE.getAbsolutePath());
+			if (this.mDetector.empty()) {
+				Log.e(this.TAG, "Failed to load cascade classifier");
+				this.mDetector = null;
+			} else {
+				Log.i(this.TAG, "Loaded cascade classifier from " + CASCADEFILE.getAbsolutePath());
+			}
 			cascadeDir.delete();
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
-			Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
+			Log.e(this.TAG, "Failed to load cascade. Exception thrown: " + e);
+		}
+
+	}
+
+	public Bitmap grabFrame() throws Exception {
+		synchronized (this) {
+
+			if (this.mNumFacesInGrabFrame != 1) {
+				if (this.mNumFacesInGrabFrame < 1) {
+					throw new Exception("No faces detected");
+				} else {
+					throw new Exception("More than one face detected");
+				}
+			}
+
+			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE, GRAB_IMAGE_SIDE, Bitmap.Config.ARGB_8888);
+
+			try {
+				Utils.matToBitmap(this.mGrabFrame, bmp);
+			} catch (final Exception e) {
+				Log.d(this.TAG, "Couldn't map to bitmap: " + e.getMessage());
+				bmp.recycle();
+				bmp = null;
+			}
+			Log.d(this.TAG, "Captured bitmap");
+			return bmp;
+		}
+	}
+
+	/**
+	 * Open the camera for use
+	 */
+	public boolean openCamera() {
+		synchronized (this) {
+			releaseCamera(); // vapautetaan kamera varmuuden vuoksi
+			this.mCamera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
+			// +1 = etukamera, pit�isik� olla konffattavissa?
+			if (!this.mCamera.isOpened()) {
+				Log.d(this.TAG, "Could not open camera");
+				this.mCamera.release();
+				this.mCamera = null;
+				return false;
+			}
+			return true;
+		}
+	}
+
+	public Bitmap processFrame(final VideoCapture vc) {
+		vc.retrieve(this.mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+		vc.retrieve(this.mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
+
+		if (this.mAbsoluteFaceSize == 0) {
+			final int height = this.mGray.rows();
+			if (Math.round(height * this.RELATIVE_FACE_SIZE) > 0) {
+				this.mAbsoluteFaceSize = Math.round(height * this.RELATIVE_FACE_SIZE);
+			}
+		}
+
+		final MatOfRect faces = new MatOfRect();
+
+		if (this.mDetector != null) {
+			this.mDetector.detectMultiScale(this.mGray, faces, 1.1, 2, 2, new Size(this.mAbsoluteFaceSize,
+					this.mAbsoluteFaceSize), new Size());
+		}
+
+		final Rect[] facesArray = faces.toArray();
+
+		for (int i = 0; i < facesArray.length; i++) {
+			// tunnistetut naamat k�yd��n l�pi
+			Core.rectangle(this.mRgba, facesArray[i].tl(), facesArray[i].br(), this.FACE_RECT_COLOR, 3);
+		}
+
+		this.mNumFacesInGrabFrame = facesArray.length;
+
+		if (this.mNumFacesInGrabFrame == 1) {
+			this.mGray.copyTo(this.mGrabFrame);
+			final Rect face = facesArray[0];
+			final Size s = new Size(face.width, face.height);
+			final Point p = new Point(face.x + (face.width / 2), face.y + (face.height / 2));
+			Imgproc.getRectSubPix(this.mGrabFrame, s, p, this.mGrabFrame);
+
+			Core.flip(this.mGrabFrame, this.mGrabFrame, 1); // 1 = mirror the image
+			Imgproc.resize(this.mGrabFrame, this.mGrabFrame, new Size(200, 200)); // resize
+		}
+
+		Bitmap bmp = Bitmap.createBitmap(this.mRgba.cols(), this.mRgba.rows(), Bitmap.Config.ARGB_8888);
+
+		Core.flip(this.mRgba, this.mRgba, 1); // 1 = peilaus vaakatasossa
+		try {
+			Utils.matToBitmap(this.mRgba, bmp);
+		} catch (final Exception e) {
+			Log.d(this.TAG, "Couldn't map to bitmap: " + e.getMessage());
+			bmp.recycle();
+			bmp = null;
+		}
+		return bmp;
+
+	}
+
+	/***
+	 * Vapauttaa kameran
+	 */
+	public void releaseCamera() {
+		synchronized (this) {
+			if (this.mCamera != null) {
+				this.mCamera.release();
+				this.mCamera = null;
+			}
+		}
+
+	}
+
+	public void run() {
+		Log.d(this.TAG, "Thread running");
+		try {
+			Thread.sleep(500);
+		} catch (final InterruptedException e) {
+			e.printStackTrace();
+		}
+		while (true) {
+			Bitmap bmp = null;
+
+			synchronized (this) {
+				if (this.mCamera == null) {
+					break;
+				}
+
+				if (!this.mCamera.grab()) {
+					// ei saatu kuvaa
+					Log.d(this.TAG, "Couldn't grab frame");
+					break;
+				}
+
+				bmp = processFrame(this.mCamera);
+
+			}
+
+			if (bmp != null) {
+				final Canvas canvas = this.mHolder.lockCanvas();
+				if (canvas != null) {
+					canvas.drawBitmap(bmp, (canvas.getWidth() - bmp.getWidth()) / 2,
+							(canvas.getHeight() - bmp.getHeight()) / 2, null);
+					this.mHolder.unlockCanvasAndPost(canvas);
+				}
+				bmp.recycle();
+			}
+		}
+
+		synchronized (this) {
+			// Explicitly deallocate Mats
+			if (this.mRgba != null) {
+				this.mRgba.release();
+			}
+			if (this.mGray != null) {
+				this.mGray.release();
+			}
+			if (this.mGrabFrame != null) {
+				this.mGrabFrame.release();
+			}
+
+			this.mRgba = null;
+			this.mGray = null;
 		}
 
 	}
@@ -104,17 +267,17 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 	 * @param h
 	 *            Preferred height of preview
 	 */
-	public void setupCamera(int w, int h) {
+	public void setupCamera(final int w, final int h) {
 		synchronized (this) {
-			if (mCamera != null && mCamera.isOpened()) {
-				List<Size> sizelist = mCamera.getSupportedPreviewSizes();
+			if (this.mCamera != null && this.mCamera.isOpened()) {
+				final List<Size> sizelist = this.mCamera.getSupportedPreviewSizes();
 				int fWidth = w;
 				int fHeight = h;
 				double minDelta = Double.MAX_VALUE;
 
 				// use the available size closest to the preferred size
-				for (Size s : sizelist) {
-					double tmp = Math.abs(s.height - h);
+				for (final Size s : sizelist) {
+					final double tmp = Math.abs(s.height - h);
 					if (tmp < minDelta) {
 						fHeight = (int) s.height;
 						fWidth = (int) s.width;
@@ -122,183 +285,28 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 					}
 				}
 
-				mCamera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH, fWidth);
-				mCamera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT, fHeight);
+				this.mCamera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH, fWidth);
+				this.mCamera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT, fHeight);
 
 			}
 		}
 	}
 
-	/**
-	 * Open the camera for use
-	 */
-	public boolean openCamera() {
-		synchronized (this) {
-			releaseCamera(); // vapautetaan kamera varmuuden vuoksi
-			mCamera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
-			// +1 = etukamera, pit�isik� olla konffattavissa?
-			if (!mCamera.isOpened()) {
-				Log.d(TAG, "Could not open camera");
-				mCamera.release();
-				mCamera = null;
-				return false;
-			}
-			return true;
-		}
-	}
-
-	public Bitmap grabFrame() throws Exception {
-		synchronized (this) {
-
-			if (mNumFacesInGrabFrame != 1) {
-				if (mNumFacesInGrabFrame < 1) {
-					throw new Exception("No faces detected");
-				} else {
-					throw new Exception("More than one face detected");
-				}
-			}
-			
-			Bitmap bmp = Bitmap.createBitmap(GRAB_IMAGE_SIDE, GRAB_IMAGE_SIDE, Bitmap.Config.ARGB_8888);
-
-			try {
-				Utils.matToBitmap(mGrabFrame, bmp);
-			} catch (Exception e) {
-				Log.d(TAG, "Couldn't map to bitmap: " + e.getMessage());
-				bmp.recycle();
-				bmp = null;
-			}
-			Log.d(TAG, "Captured bitmap");
-			return bmp;
-		}
-	}
-
-	/***
-	 * Vapauttaa kameran
-	 */
-	public void releaseCamera() {
-		synchronized (this) {
-			if (mCamera != null) {
-				mCamera.release();
-				mCamera = null;
-			}
-		}
-
-	}
-
-	public Bitmap processFrame(VideoCapture vc) {
-		vc.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
-		vc.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
-
-		if (mAbsoluteFaceSize == 0) {
-			int height = mGray.rows();
-			if (Math.round(height * RELATIVE_FACE_SIZE) > 0) {
-				mAbsoluteFaceSize = Math.round(height * RELATIVE_FACE_SIZE);
-			}
-		}
-
-		MatOfRect faces = new MatOfRect();
-
-		if (mDetector != null)
-			mDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-
-		Rect[] facesArray = faces.toArray();
-
-		for (int i = 0; i < facesArray.length; i++)
-			// tunnistetut naamat k�yd��n l�pi
-			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-
-		mNumFacesInGrabFrame = facesArray.length;
-
-		if (mNumFacesInGrabFrame == 1) {
-			mGray.copyTo(mGrabFrame);
-			Rect face = facesArray[0];
-			Size s = new Size(face.width, face.height);
-			Point p = new Point(face.x + (face.width / 2), face.y + (face.height / 2));
-			Imgproc.getRectSubPix(mGrabFrame, s, p, mGrabFrame);
-
-			Core.flip(mGrabFrame, mGrabFrame, 1); // 1 = mirror the image
-			Imgproc.resize(mGrabFrame, mGrabFrame, new Size(200, 200)); // resize
-		}
-
-		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
-
-		Core.flip(mRgba, mRgba, 1); // 1 = peilaus vaakatasossa
-		try {
-			Utils.matToBitmap(mRgba, bmp);
-		} catch (Exception e) {
-			Log.d(TAG, "Couldn't map to bitmap: " + e.getMessage());
-			bmp.recycle();
-			bmp = null;
-		}
-		return bmp;
-
-	}
-
-	public void run() {
-		Log.d(TAG, "Thread running");
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		while (true) {
-			Bitmap bmp = null;
-
-			synchronized (this) {
-				if (mCamera == null)
-					break;
-
-				if (!mCamera.grab()) {
-					// ei saatu kuvaa
-					Log.d(TAG, "Couldn't grab frame");
-					break;
-				}
-
-				bmp = processFrame(mCamera);
-
-			}
-
-			if (bmp != null) {
-				Canvas canvas = mHolder.lockCanvas();
-				if (canvas != null) {
-					canvas.drawBitmap(bmp, (canvas.getWidth() - bmp.getWidth()) / 2,
-							(canvas.getHeight() - bmp.getHeight()) / 2, null);
-					mHolder.unlockCanvasAndPost(canvas);
-				}
-				bmp.recycle();
-			}
-		}
-
-		synchronized (this) {
-			// Explicitly deallocate Mats
-			if (mRgba != null)
-				mRgba.release();
-			if (mGray != null)
-				mGray.release();
-			if (mGrabFrame != null)
-				mGrabFrame.release();
-
-			mRgba = null;
-			mGray = null;
-		}
-
-	}
-
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		Log.d(TAG, "surface change width:" + width + " height:" + height);
+	public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
+		Log.d(this.TAG, "surface change width:" + width + " height:" + height);
 		setupCamera(width, height);
 	}
 
-	public void surfaceCreated(SurfaceHolder holder) {
+	public void surfaceCreated(final SurfaceHolder holder) {
 		synchronized (this) {
-			mRgba = new Mat();
-			mGray = new Mat();
-			mGrabFrame = new Mat();
+			this.mRgba = new Mat();
+			this.mGray = new Mat();
+			this.mGrabFrame = new Mat();
 		}
 		(new Thread(this)).start();
 	}
 
-	public void surfaceDestroyed(SurfaceHolder holder) {
+	public void surfaceDestroyed(final SurfaceHolder holder) {
 		releaseCamera();
 	}
 

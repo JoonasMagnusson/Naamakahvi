@@ -1,9 +1,7 @@
 package naamakahvi.android;
 
 import java.util.List;
-import java.util.prefs.Preferences;
 
-import naamakahvi.android.R;
 import naamakahvi.android.utils.Basket;
 import naamakahvi.android.utils.Config;
 import naamakahvi.android.utils.DialogHelper;
@@ -30,7 +28,6 @@ import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	/**
@@ -38,10 +35,24 @@ public class MainActivity extends Activity {
 	 */
 	public static final short REQUEST_LOGIN = 1, REQUEST_USER_SETTINGS = 0, REQUEST_IDENTIFY = 2;
 	public static final boolean MODE_BUY = true, MODE_BRING = false;
-	
+
 	public static final String TAG = "MainActivity";
+
+	public static void setViewGroupEnebled(final ViewGroup view, final boolean enabled) {
+		final int childern = view.getChildCount();
+
+		for (int i = 0; i < childern; i++) {
+			final View child = view.getChildAt(i);
+			if (child instanceof ViewGroup) {
+				setViewGroupEnebled((ViewGroup) child, enabled);
+			}
+			child.setEnabled(enabled);
+		}
+		view.setEnabled(enabled);
+	}
+
 	private LayoutInflater mInflater;
-	
+
 	private boolean mActionStarted = false;
 
 	private boolean mModeBuying = true;
@@ -49,93 +60,6 @@ public class MainActivity extends Activity {
 	private SharedPreferences mPreferences;
 
 	private static final int[] PRODUCT_QTY_BUTTONS = new int[] { R.id.bQty1, R.id.bQty2, R.id.bQty3, R.id.bQty4 };
-
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.loading_screen);
-
-		mInflater = getLayoutInflater();
-
-		mPreferences = getPreferences(MODE_PRIVATE);
-		// get saved config
-		String server = mPreferences.getString("server", null);
-		int port = mPreferences.getInt("port", -1);
-		String station = mPreferences.getString("station", null);
-
-		if (server == null || station == null || port < 1) { // no config saved or invalid config
-			showServerDialog();
-		} else {
-			Config.SERVER_URL = server;
-			Config.SERVER_PORT = port;
-			Config.STATION = station;
-			loadData();
-		}
-
-	}
-
-	/**
-	 * Shows the server picker dialog and continues the start configuration
-	 * process
-	 */
-	private void showServerDialog() {
-		final EditText servEdit = new EditText(this);
-		servEdit.setSingleLine();
-		final Handler hand = new Handler(getMainLooper());
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setCancelable(false);
-		builder.setTitle("Server address");
-		builder.setView(servEdit);
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				Config.SERVER_URL = servEdit.getText().toString();
-				dialog.dismiss();
-				hand.post(new Runnable() {
-
-					public void run() {
-						showPortDialog();
-					}
-				});
-			}
-		});
-		builder.show();
-	}
-
-	/**
-	 * Shows the port picker dialog and continues the start configuration
-	 * process
-	 */
-	private void showPortDialog() {
-
-		final EditText portEdit = new EditText(this);
-		portEdit.setSingleLine();
-		final Handler hand = new Handler(getMainLooper());
-		final Context con = this;
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setCancelable(false);
-		builder.setTitle("Port");
-		builder.setView(portEdit);
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				int port;
-				try {
-					port = Integer.parseInt(portEdit.getText().toString());
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
-				}
-				Config.SERVER_PORT = port;
-				dialog.dismiss();
-
-				fetchStations(con, hand);
-
-			}
-		});
-		builder.show();
-	}
 
 	/**
 	 * Fetches the station list from the server and show the station picker
@@ -154,7 +78,7 @@ public class MainActivity extends Activity {
 				String[] stations = null;
 				try {
 
-					Object[] st = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT).toArray();
+					final Object[] st = Client.listStations(Config.SERVER_URL, Config.SERVER_PORT).toArray();
 					stations = new String[st.length];
 					for (int i = 0; i < st.length; ++i) {
 						stations[i] = (String) st[i];
@@ -165,7 +89,8 @@ public class MainActivity extends Activity {
 
 						public void run() {
 
-							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + e.getMessage(), act).show();
+							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + e.getMessage(), act)
+									.show();
 						}
 					});
 					return;
@@ -184,49 +109,6 @@ public class MainActivity extends Activity {
 
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mActionStarted = false; // enable buttons
-	}
-
-	/**
-	 * Shows the station picker dialog
-	 * 
-	 * @param stations
-	 *            list of stations to pick from
-	 */
-	private void showStationDialog(final String[] stations) {
-
-		final Handler hand = new Handler(getMainLooper());
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setCancelable(false);
-		builder.setTitle("Station");
-		builder.setItems(stations, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-
-				dialog.dismiss();
-
-				Config.STATION = stations[which];
-
-				Editor e = mPreferences.edit();
-				e.putString("server", Config.SERVER_URL);
-				e.putInt("port", Config.SERVER_PORT);
-				e.putString("station", Config.STATION);
-				e.commit();
-
-				hand.post(new Runnable() {
-
-					public void run() {
-						loadData();
-					}
-				});
-			}
-		});
-		builder.show();
-	}
-
 	/**
 	 * Fetches product data from the server
 	 */
@@ -240,7 +122,7 @@ public class MainActivity extends Activity {
 
 			public void run() {
 				try {
-					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+					final Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 
 					ProductCache.loadBuyableItems(c.listBuyableProducts());
 					ProductCache.loadRawItems(c.listRawProducts());
@@ -256,21 +138,15 @@ public class MainActivity extends Activity {
 					hand.post(new Runnable() {
 
 						public void run() {
-							DialogHelper.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage(),act).show();
+							DialogHelper
+									.errorDialog(con, con.getString(R.string.errorFetchData) + ex.getMessage(), act)
+									.show();
 						}
 					});
 				}
 			}
 		}).start();
 
-	}
-
-	public void onUserSettingsClick(View v) {
-		if (!mActionStarted) {
-			mActionStarted = true;
-			Intent i = new Intent(getApplicationContext(), LoginwithusernameActivity.class);
-			startActivityForResult(i, REQUEST_USER_SETTINGS);
-		}
 	}
 
 	/**
@@ -281,19 +157,178 @@ public class MainActivity extends Activity {
 		setMode(MODE_BUY);
 	}
 
-	public void onModeButtonClick(View v) {
-		setMode(!mModeBuying);
+	private TableRow makeProductRow(final IProduct product, TableRow t) {
+
+		if (t == null) {
+			t = (TableRow) this.mInflater.inflate(R.layout.product_table_row, null);
+		}
+
+		final TextView name = (TextView) t.findViewById(R.id.product_name);
+		name.setText(product.getName());
+
+		final Context c = this;
+
+		for (int i = 0; i < PRODUCT_QTY_BUTTONS.length; ++i) {
+			final Button b = (Button) t.findViewById(PRODUCT_QTY_BUTTONS[i]);
+			final int qty = i + 1;
+
+			b.setOnClickListener(new View.OnClickListener() {
+
+				public void onClick(final View v) {
+					if (!MainActivity.this.mActionStarted) {
+						MainActivity.this.mActionStarted = true;
+						final Intent in = new Intent(c, RecogActivity.class);
+						final Basket b = new Basket();
+						b.addProduct(product, qty);
+						in.putExtra(ExtraNames.PRODUCTS, b);
+						startActivityForResult(in, REQUEST_IDENTIFY);
+					}
+				}
+			});
+
+			b.setOnLongClickListener(new View.OnLongClickListener() {
+
+				public boolean onLongClick(final View v) {
+					if (!MainActivity.this.mActionStarted) {
+						MainActivity.this.mActionStarted = true;
+						final Intent in = new Intent(c, LoginwithusernameActivity.class);
+						final Basket b = new Basket();
+						b.addProduct(product, qty);
+						in.putExtra(ExtraNames.PRODUCTS, b);
+						startActivityForResult(in, REQUEST_LOGIN);
+						return true;
+					}
+					return false;
+				}
+			});
+		}
+
+		return t;
 	}
 
-	private void setMode(boolean mode) {
-		mModeBuying = mode;
+	@Override
+	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		if (requestCode == REQUEST_LOGIN) {
+			switch (resultCode) {
+			case RESULT_OK:
+				final Intent i = new Intent(this, ConfirmPurchaseActivity.class);
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
+				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
+				startActivity(i);
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
+		}
+
+		if (requestCode == REQUEST_IDENTIFY) {
+			switch (resultCode) {
+			case RESULT_OK:
+
+				if (data.getStringExtra(ExtraNames.USERS) == null) { // user was not identified correctly
+					DialogHelper.makeToast(getApplicationContext(), R.string.errorIdentify).show();
+					this.mActionStarted = true;
+					final Intent in = new Intent(this, LoginwithusernameActivity.class);
+					in.putExtra(ExtraNames.PRODUCTS, data.getParcelableExtra(ExtraNames.PRODUCTS));
+					startActivityForResult(in, REQUEST_LOGIN);
+					return;
+				}
+
+				final Intent i = new Intent(this, ConfirmPurchaseActivity.class);
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
+				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
+				startActivity(i);
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
+		}
+
+		if (requestCode == REQUEST_USER_SETTINGS) {
+			switch (resultCode) {
+			case RESULT_OK:
+				final Intent i = new Intent(this, UserSettingsActivity.class);
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
+				startActivity(i);
+				break;
+			case RESULT_CANCELED:
+				break;
+			}
+
+		}
+
+	}
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.loading_screen);
+
+		this.mInflater = getLayoutInflater();
+
+		this.mPreferences = getPreferences(MODE_PRIVATE);
+		// get saved config
+		final String server = this.mPreferences.getString("server", null);
+		final int port = this.mPreferences.getInt("port", -1);
+		final String station = this.mPreferences.getString("station", null);
+
+		if (server == null || station == null || port < 1) { // no config saved or invalid config
+			showServerDialog();
+		} else {
+			Config.SERVER_URL = server;
+			Config.SERVER_PORT = port;
+			Config.STATION = station;
+			loadData();
+		}
+
+	}
+
+	public void onModeButtonClick(final View v) {
+		setMode(!this.mModeBuying);
+	}
+
+	public void onRegButtonClick(final View v) {
+		if (!this.mActionStarted) {
+			this.mActionStarted = true;
+			final Intent i = new Intent(this, NewUserActivity.class);
+			startActivityForResult(i, 0);
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		this.mActionStarted = false; // enable buttons
+	}
+
+	/**
+	 * onClick handler for Update user photos button
+	 */
+	public void onUserSettingsClick(final View v) {
+		if (!this.mActionStarted) {
+			this.mActionStarted = true;
+			final Intent i = new Intent(getApplicationContext(), LoginwithusernameActivity.class);
+			startActivityForResult(i, REQUEST_USER_SETTINGS);
+		}
+	}
+
+	/**
+	 * Sets the operation mode
+	 * 
+	 * @param mode
+	 *            true for buy mode, false for pay mode
+	 */
+	private void setMode(final boolean mode) {
+		this.mModeBuying = mode;
 
 		setModeText();
 
-		List<IProduct> products = (mModeBuying) ? ProductCache.listBuyableItems() : ProductCache.listRawItems();
+		final List<IProduct> products = (this.mModeBuying) ? ProductCache.listBuyableItems() : ProductCache
+				.listRawItems();
 
-		TableLayout t = (TableLayout) findViewById(R.id.productTable);
-		TableRow[] children = new TableRow[t.getChildCount()];
+		final TableLayout t = (TableLayout) findViewById(R.id.productTable);
+		final TableRow[] children = new TableRow[t.getChildCount()];
 
 		for (int i = children.length - 1; i > 0; --i) {
 			children[i] = (TableRow) t.getChildAt(i);
@@ -315,10 +350,10 @@ public class MainActivity extends Activity {
 	 * Sets the appropriate labels for the current mode (buy/bring products)
 	 */
 	private void setModeText() {
-		TextView mode = (TextView) findViewById(R.id.modeText);
-		Button modeButton = (Button) findViewById(R.id.mode_button);
+		final TextView mode = (TextView) findViewById(R.id.modeText);
+		final Button modeButton = (Button) findViewById(R.id.mode_button);
 
-		if (mModeBuying) {
+		if (this.mModeBuying) {
 			mode.setText(getString(R.string.buy_products));
 			modeButton.setText(getString(R.string.bring_products));
 		} else {
@@ -327,126 +362,102 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private TableRow makeProductRow(final IProduct product, TableRow t) {
+	/**
+	 * Shows the port picker dialog and continues the start configuration
+	 * process
+	 */
+	private void showPortDialog() {
 
-		if (t == null) {
-			t = (TableRow) mInflater.inflate(R.layout.product_table_row, null);
-		}
+		final EditText portEdit = new EditText(this);
+		portEdit.setSingleLine();
+		final Handler hand = new Handler(getMainLooper());
+		final Context con = this;
 
-		TextView name = (TextView) t.findViewById(R.id.product_name);
-		name.setText(product.getName());
-
-		final Context c = this;
-
-		for (int i = 0; i < PRODUCT_QTY_BUTTONS.length; ++i) {
-			Button b = (Button) t.findViewById(PRODUCT_QTY_BUTTONS[i]);
-			final int qty = i +1;
-
-			b.setOnClickListener(new View.OnClickListener() {
-
-				public void onClick(View v) {
-					if (!mActionStarted) {
-						mActionStarted = true;
-						Intent in = new Intent(c, RecogActivity.class);
-						Basket b = new Basket();
-						b.addProduct(product, qty);
-						in.putExtra(ExtraNames.PRODUCTS, b);
-						startActivityForResult(in, REQUEST_IDENTIFY);
-					}
-				}
-			});
-
-			b.setOnLongClickListener(new View.OnLongClickListener() {
-
-				public boolean onLongClick(View v) {
-					if (!mActionStarted) {
-						mActionStarted = true;
-						Intent in = new Intent(c, LoginwithusernameActivity.class);
-						Basket b = new Basket();
-						b.addProduct(product, qty);
-						in.putExtra(ExtraNames.PRODUCTS, b);
-						startActivityForResult(in, REQUEST_LOGIN);
-						return true;
-					}
-					return false;
-				}
-			});
-		}
-
-		return t;
-	}
-
-	public void onRegButtonClick(View v) {
-		if (!mActionStarted) {
-			mActionStarted = true;
-			Intent i = new Intent(this, NewUserActivity.class);
-			startActivityForResult(i, 0);
-		}
-	}
-
-	public static void setViewGroupEnebled(ViewGroup view, boolean enabled) {
-		int childern = view.getChildCount();
-
-		for (int i = 0; i < childern; i++) {
-			View child = view.getChildAt(i);
-			if (child instanceof ViewGroup) {
-				setViewGroupEnebled((ViewGroup) child, enabled);
-			}
-			child.setEnabled(enabled);
-		}
-		view.setEnabled(enabled);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == REQUEST_LOGIN) {
-			switch (resultCode) {
-			case RESULT_OK:
-				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
-				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
-				startActivity(i);
-				break;
-			case RESULT_CANCELED:
-				break;
-			}
-		}
-		
-		if (requestCode == REQUEST_IDENTIFY) {
-			switch (resultCode) {
-			case RESULT_OK:
-				
-				if (data.getStringExtra(ExtraNames.USERS) == null){ // user was not identified correctly
-					DialogHelper.makeToast(getApplicationContext(), R.string.errorIdentify).show();
-					mActionStarted = true;
-					Intent in = new Intent(this, LoginwithusernameActivity.class);
-					in.putExtra(ExtraNames.PRODUCTS, data.getParcelableExtra(ExtraNames.PRODUCTS));
-					startActivityForResult(in, REQUEST_LOGIN);
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setCancelable(false);
+		builder.setTitle("Port");
+		builder.setView(portEdit);
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int which) {
+				int port;
+				try {
+					port = Integer.parseInt(portEdit.getText().toString());
+				} catch (final Exception e) {
+					e.printStackTrace();
 					return;
 				}
-				
-				Intent i = new Intent(this, ConfirmPurchaseActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
-				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
-				startActivity(i);
-				break;
-			case RESULT_CANCELED:
-				break;
+				Config.SERVER_PORT = port;
+				dialog.dismiss();
+
+				fetchStations(con, hand);
+
 			}
-		}
+		});
+		builder.show();
+	}
 
-		if (requestCode == REQUEST_USER_SETTINGS) {
-			switch (resultCode) {
-			case RESULT_OK:
-				Intent i = new Intent(this, UserSettingsActivity.class);
-				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
-				startActivity(i);
-				break;
-			case RESULT_CANCELED:
-				break;
+	/**
+	 * Shows the server picker dialog and continues the start configuration
+	 * process
+	 */
+	private void showServerDialog() {
+		final EditText servEdit = new EditText(this);
+		servEdit.setSingleLine();
+		final Handler hand = new Handler(getMainLooper());
+
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setCancelable(false);
+		builder.setTitle("Server address");
+		builder.setView(servEdit);
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int which) {
+				Config.SERVER_URL = servEdit.getText().toString();
+				dialog.dismiss();
+				hand.post(new Runnable() {
+
+					public void run() {
+						showPortDialog();
+					}
+				});
 			}
+		});
+		builder.show();
+	}
 
-		}
+	/**
+	 * Shows the station picker dialog
+	 * 
+	 * @param stations
+	 *            list of stations to pick from
+	 */
+	private void showStationDialog(final String[] stations) {
 
+		final Handler hand = new Handler(getMainLooper());
+
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setCancelable(false);
+		builder.setTitle("Station");
+		builder.setItems(stations, new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int which) {
+
+				dialog.dismiss();
+
+				Config.STATION = stations[which];
+
+				final Editor e = MainActivity.this.mPreferences.edit();
+				e.putString("server", Config.SERVER_URL);
+				e.putInt("port", Config.SERVER_PORT);
+				e.putString("station", Config.STATION);
+				e.commit();
+
+				hand.post(new Runnable() {
+
+					public void run() {
+						loadData();
+					}
+				});
+			}
+		});
+		builder.show();
 	}
 }
