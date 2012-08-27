@@ -16,7 +16,7 @@
   University of Helsinki}
 
 \author{Antti Hietasaari
-  \and Joonas Magnusson
+  \and Joonas Magnússon
   \and Irina Mäkipaja
   \and Samir Puuska
   \and Janne Ronkonen
@@ -158,10 +158,11 @@ For a more detailed description, see the client Javadoc.
 \subsubsection*{Backend/Server}
 % redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
 % ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
-The server updates the database and gets data from it on client
-requests and tells the client whether or not the requested operation
-was successful. The server is an HTTP-server implemented in Python, and
-is connected to a PostgreSQL database. 
+The server consists of a server module, several databases along with their own database modules and a module for open-cv. 
+The server module uses the database modules, that update and read the databases, and communicates with clients via HTTP.
+Databases are PostgreSQL and their modules use the psycopg library. SQL statements are stored in an XML document and are
+parsed by the database modules. There is one database for every coffee station, because
+products and balances vary. Facial recognition is done by the open-cv module. 
 
 \section{Dynamic Behavior}
 \subsection{Scenarios}
@@ -295,7 +296,7 @@ the server.}
 \subsubsection*{Backend}
 There should generally only be one backend server that is used by any
 client, since one server can handle multiple stations by using
-different database for each station.
+different databases and respective handler moduler for each station.
 
 \subsubsection*{Frontend}
 Any number of frontends can be used simultaneously with the same
@@ -325,7 +326,8 @@ The components are located in the following directories in the codebase:
 % on the same physical server because ...
 
 Since the frontend and the backend communicate using HTTP, they can be
-located on separate physical servers. %tietokannat?
+located on separate physical servers. The databases may be stored on separate
+machines from the server.%tietokannat?
 
 \subsection{Constraints}
 The accuracy of face recognition depends highly on the light in the 
@@ -357,5 +359,6 @@ The client has JUnit tests for its methods. They are located in Naamakahvi-paren
 directory. The tests use Apache LocalTestServer as a test server.
 
 \subsection{Server}
+The server has tests for all the major database transactions and facial recognition.
 
 \end{document}

@@ -5,20 +5,54 @@ from werkzeug import secure_filename
 import json
 import psqldb
 import neuralmodule
-import ConfigParser as cparser
-import os
+import ConfigParser as cp
+import os,sys
 
 
 app = Flask(__name__)
 
-dbm = psqldb.psqldb('naamakanta','sam')
-cvm = neuralmodule.neuralmodule()
-savefile = "testdat5a.pkl"
+debug = True
+
+try:
+    cvm = neuralmodule.neuralmodule()
+except:
+    sys.exit("Failed to create neural module")
+    
+conf = cp.RawConfigParser()
+try:
+    conf.readfp(open('server.conf'))
+except:
+    sys.exit("Failed to read server.conf")
+
+sections = conf.sections()
+dbdict = {}
+
+if(conf.has_option('PickleFile', 'file')):
+    savefile = conf.get('PickleFile', 'file')
+    sections.remove('PickleFile')
+    try:
+        for x,y in enumerate(sections):
+            l = []
+            l = [conf.get(y,'dbname'), conf.get(y,'user')]
+            if(conf.has_option(y, 'passwd')):
+               l.append(conf.get(y, 'passwd'))
+            else:
+                l.append('')
+            dbdict[y] = l
+    except:
+        print "Failed to parse (some) config data."
+else:
+    sys.exit("Missing pickle file parameter in server.conf")
+
+stationlist = {}
+for key in dbdict.iterkeys():
+    stationlist[key] = psqldb.psqldb(dbdict[key][0],dbdict[key][1],dbdict[key][2])
+
+
 
 if os.path.exists(savefile):
     cvm.loadData(savefile)
 
-stationlist = {"Station1":dbm}
 
 def init():
     
@@ -295,6 +329,6 @@ def getBalance(user,station):
     
 
 if __name__ == '__main__':
-    app.debug = True
 
+    app.debug = debug
     app.run(host='0.0.0.0')
