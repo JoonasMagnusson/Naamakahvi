@@ -1,5 +1,8 @@
 package naamakahvi.naamakahviclient;
 
+/**
+ * A class that represents one user's balance of one product group.
+ */
 public class SaldoItem {
     private String groupName;
     private int groupId;

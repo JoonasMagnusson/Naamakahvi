@@ -70,6 +70,20 @@ public class Client {
         this.station = station;
     }
 
+    private void checkEmptyNames(String username, String givenName, String familyName) throws RegistrationException {
+        if (username == null || username.equals("")) {
+            throw new RegistrationException("Username must be non-empty");
+        }
+
+        if (givenName == null || givenName.equals("")) {
+            throw new RegistrationException("Given name must be non-empty");
+        }
+
+        if (familyName == null || familyName.equals("")) {
+            throw new RegistrationException("Family name must be non-empty");
+        }
+    }
+ 
     private void checkStatusCode(final HttpResponse resp) throws GeneralClientException {
         final int status = resp.getStatusLine().getStatusCode();
         
@@ -84,7 +98,13 @@ public class Client {
         if (!status.equalsIgnoreCase("ok")) {
             throw new GeneralClientException(status);
         }
-    }    
+    }   
+    
+     private void checkOddParameters(String[] params) throws IllegalArgumentException {
+        if ((params.length % 2) != 0) {
+            throw new IllegalArgumentException("Odd number of parameters");
+        }
+    }
 
     private String[] jsonArrayToStringArray(JsonArray jsonArray) {
         String[] ans = new String[jsonArray.size()];
@@ -105,6 +125,18 @@ public class Client {
 
         return ans;
     }
+    
+    private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
+        List<SaldoItem> ans = new ArrayList();
+        for (JsonElement e : ar) {
+            JsonObject saldoitem = e.getAsJsonObject();
+            String groupName = saldoitem.get("groupName").getAsString();
+            int groupId = saldoitem.get("group_id").getAsInt();
+            double saldo = saldoitem.get("saldo").getAsDouble();
+            ans.add(new SaldoItem(groupName, groupId, saldo));
+        }
+        return ans;
+    }
 
     private static JsonParser parser = new JsonParser();
     
@@ -121,9 +153,7 @@ public class Client {
 
     private JsonObject doPost(String path, String... params) throws ClientException {
         try{
-            if ((params.length % 2) != 0) {
-                throw new IllegalArgumentException("Odd number of parameters");
-            }
+            checkOddParameters(params);
             
             final URI uri = buildURI(path);
             final HttpClient c = new DefaultHttpClient();
@@ -150,9 +180,7 @@ public class Client {
 
     private JsonObject doGet(String path, String... params) throws ClientException {
         try {
-            if ((params.length % 2) != 0) {
-                throw new IllegalArgumentException("Odd number of parameters");
-            }
+            checkOddParameters(params);
 
             final HttpClient c = new DefaultHttpClient();
 
@@ -215,18 +243,7 @@ public class Client {
      */
     public void registerUser(String username, String givenName,
             String familyName) throws RegistrationException {
-
-        if (username == null || username.equals("")) {
-            throw new RegistrationException("username must be non-null and non-empty");
-        }
-
-        if (givenName == null || givenName.equals("")) {
-            throw new RegistrationException("givenName must be non-null and non-empty");
-        }
-
-        if (familyName == null || familyName.equals("")) {
-            throw new RegistrationException("familyName must be non-null and non-empty");
-        }
+        checkEmptyNames(username, givenName, familyName);
 
         try {
             JsonObject obj = doPost("/register/",
@@ -316,19 +333,12 @@ public class Client {
             String family = data.get("family").getAsString();
             List<SaldoItem> balance = jsonToSaldoList(data.get("balance").getAsJsonArray());
             
-            return new User(uname, given, family, balance);
-        } catch (ClientException e) {
-            throw new AuthenticationException("Authentication failed");
+            return new User(uname, given, family, balance);        
         } catch (Exception e) {
-            throw new AuthenticationException(e.toString());
+            throw new AuthenticationException(e.getMessage());
         }
     }
 
-    static class GeneralClientException extends ClientException {
-        public GeneralClientException(String s) {
-            super(s);
-        }
-    }
 
     private List<IProduct> jsonToProductList(JsonArray ar, boolean buyable) {
         List<IProduct> ans = new ArrayList<IProduct>();
@@ -504,17 +514,7 @@ public class Client {
         }
     }
 
-    private List<SaldoItem> jsonToSaldoList(JsonArray ar) {
-        List<SaldoItem> ans = new ArrayList();
-        for (JsonElement e : ar) {
-            JsonObject saldoitem = e.getAsJsonObject();
-            String groupName = saldoitem.get("groupName").getAsString();
-            int groupId = saldoitem.get("group_id").getAsInt();
-            double saldo = saldoitem.get("saldo").getAsDouble();
-            ans.add(new SaldoItem(groupName, groupId, saldo));
-        }
-        return ans;
-    }
+
 
     /**
      * Gets all product group names from the server.
@@ -534,10 +534,4 @@ public class Client {
     public List<String> listProductGroups() throws ClientException {
         return jsonArrayToStringList(doGet("/list_product_groups/").get("product_groups").getAsJsonArray());
     }
-
-//    public static void main(String[] args) throws AuthenticationException, GeneralClientException, RegistrationException, ClientException {
-//        Client c = new Client("naama.zerg.fi", 5001, new Station("aasd"));
-//        c.listRawProducts();
-//        c.listBuyableProducts();
-//    }
 } 

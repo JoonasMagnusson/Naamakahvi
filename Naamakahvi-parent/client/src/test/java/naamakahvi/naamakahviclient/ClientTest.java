@@ -289,7 +289,6 @@ public class ClientTest {
         server.register("/list_raw_products/*", listRawProductsHandler);
         server.register("/list_stations/*", listStationsHandler);
         server.register("/bring_product/*", bringProductHandler);
-        // server.register("/upload/*", uploadHandler);
         server.register("/identify/*", identifyImageHandler);
         server.register("/list_user_saldos/*", listUserSaldosHandler);
         server.register("/list_product_groups/*", listGroupnamesHandler);
@@ -385,7 +384,7 @@ public class ClientTest {
     @Test
     public void authenticationWithUnknownNameFails() throws AuthenticationException {
         thrown.expect(ClientException.class);
-        thrown.expectMessage("Authentication failed");
+        thrown.expectMessage("fail");
 
         client.getUser("Matti");
     }

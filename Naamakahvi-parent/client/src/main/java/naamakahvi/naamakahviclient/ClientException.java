@@ -29,8 +29,7 @@ class RegistrationException extends ClientException {
 }
 
 class GeneralClientException extends ClientException {
-        public GeneralClientException(String s) {
-            super(s);
-        }
-        
+    public GeneralClientException(String s) {
+        super(s);
+    }
 }
