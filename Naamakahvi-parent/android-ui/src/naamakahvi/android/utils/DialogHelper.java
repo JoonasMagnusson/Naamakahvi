@@ -19,14 +19,14 @@ public class DialogHelper {
 	 *            Message to show
 	 * @return Dialog builder
 	 */
-	public static AlertDialog.Builder errorDialog(Context con, String message) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(con);
+	public static AlertDialog.Builder errorDialog(final Context con, final String message) {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		builder.setCancelable(false);
 		builder.setMessage(message);
 		builder.setTitle("Error");
 
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(final DialogInterface dialog, final int which) {
 				dialog.dismiss();
 			}
 		});
@@ -45,14 +45,14 @@ public class DialogHelper {
 	 *            Activity to finish
 	 * @return Dialog builder
 	 */
-	public static AlertDialog.Builder errorDialog(Context con, String message, final Activity finishThis) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(con);
+	public static AlertDialog.Builder errorDialog(final Context con, final String message, final Activity finishThis) {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(con);
 		builder.setCancelable(false);
 		builder.setMessage(message);
 		builder.setTitle("Error");
 
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(final DialogInterface dialog, final int which) {
 				dialog.dismiss();
 				finishThis.finish();
 			}
@@ -60,11 +60,38 @@ public class DialogHelper {
 		return builder;
 	}
 
-	public static Toast makeToast(Context con, int resId) {
-		LayoutInflater i = LayoutInflater.from(con);
-		TextView txt = (TextView) i.inflate(R.layout.new_list_bigger_text, null);
+	/**
+	 * Returns a toast
+	 * 
+	 * @param con
+	 *            context for the toast
+	 * @param resId
+	 *            Resource Id of stirng to display
+	 * @return toast object
+	 */
+	public static Toast makeToast(final Context con, final int resId) {
+		final LayoutInflater i = LayoutInflater.from(con);
+		final TextView txt = (TextView) i.inflate(R.layout.toast_bigtext, null);
 		txt.setText(con.getString(resId));
-		Toast t = Toast.makeText(con, "", Toast.LENGTH_LONG);
+		final Toast t = Toast.makeText(con, "", Toast.LENGTH_LONG);
+		t.setView(txt);
+		return t;
+	}
+
+	/**
+	 * Returns a toast
+	 * 
+	 * @param con
+	 *            context for the toast
+	 * @param s
+	 *            Message to show
+	 * @return toast object
+	 */
+	public static Toast makeToast(final Context con, final String s) {
+		final LayoutInflater i = LayoutInflater.from(con);
+		final TextView txt = (TextView) i.inflate(R.layout.toast_bigtext, null);
+		txt.setText(s);
+		final Toast t = Toast.makeText(con, "", Toast.LENGTH_LONG);
 		t.setView(txt);
 		return t;
 	}

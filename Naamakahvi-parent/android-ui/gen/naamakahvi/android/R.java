@@ -17,6 +17,7 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
         public static final int list_header_gradient=0x7f020001;
         public static final int thumb_img_bg=0x7f020002;
+        public static final int toast_bg=0x7f020003;
     }
     public static final class id {
         public static final int bQty1=0x7f080021;
@@ -73,6 +74,7 @@ public final class R {
         public static final int product_table_row=0x7f030008;
         public static final int recog_user=0x7f030009;
         public static final int thumb_layout=0x7f03000a;
+        public static final int toast_bigtext=0x7f03000b;
     }
     public static final class raw {
         public static final int _lbpcascade_frontalface=0x7f040000;

@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="5dp" >
-
+
     <TextView
         android:id="@+id/product_name"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="10dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:gravity="center_vertical"
         android:text="Medium Text"
         android:textSize="30dp" />

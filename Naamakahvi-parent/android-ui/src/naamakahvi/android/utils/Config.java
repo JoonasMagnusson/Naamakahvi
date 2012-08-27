@@ -1,4 +1,5 @@
 package naamakahvi.android.utils;
+
 /**
  * Library class containing configuration values. Initialized on program start.
  */
