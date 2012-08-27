@@ -1,15 +1,8 @@
 package naamakahvi.android;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import naamakahvi.android.components.FaceDetectView;
 import naamakahvi.android.utils.Basket;
@@ -18,29 +11,21 @@ import naamakahvi.android.utils.ExtraNames;
 import naamakahvi.naamakahviclient.Client;
 import naamakahvi.naamakahviclient.ClientException;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 
 public class RecogActivity extends Activity {
-	public static final short SELECT_USERNAME = 0;
-	private Basket mOrder;
-	private ShotTimer mShotTimer;
-
-	public static final String TAG = "RecogActivity";
-
 	/**
 	 * Timer for periodically taking photos
 	 */
 	class ShotTimer extends Thread {
-		private Handler hand;
+		private final Handler hand;
 		private boolean canceled = false;
 
-		public ShotTimer(Handler hand) {
+		public ShotTimer(final Handler hand) {
 			this.hand = hand;
 		}
 
@@ -57,60 +42,63 @@ public class RecogActivity extends Activity {
 		 * @return True if canceled, false if still running
 		 */
 		synchronized public boolean isCanceled() {
-			return canceled;
+			return this.canceled;
 		}
 
 		@Override
 		public void run() {
-			FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
+			final FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
 
 			try {
 				Thread.sleep(1000); // wait for camera to initialize & auto
 									// white balance etc.
-			} catch (InterruptedException e2) {
+			} catch (final InterruptedException e2) {
 				e2.printStackTrace();
 			}
 
-			final String[][] namearrays = new String[5][];
+			final String[] namearray = new String[5];
 			int identifycount = 0;
 			while (!isCanceled()) {
 				try {
 					Log.d(TAG, "canceled thread: " + isCanceled());
 
-					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+					final Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 
-					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					face.grabFrame().compress(CompressFormat.PNG, 0, bos);
-					byte[] bitmapdata = bos.toByteArray();
+					final byte[] bitmapdata = bos.toByteArray();
 
-					final String[] users = client.identifyImage(bitmapdata);
+					final String user = client.identifyImage(bitmapdata);
 
-					namearrays[identifycount] = users;
+					namearray[identifycount] = user;
+					Log.d(TAG, "" + user);
 					identifycount++;
 
-					if (identifycount == 5) {
-						this.cancel();
+					if (identifycount == NUM_PHOTOS) {
+						cancel();
+						final String recoguser = rankNames(namearray);
 
-						hand.post(new Runnable() {
+						this.hand.post(new Runnable() {
 							public void run() {
-								Intent i = new Intent();
-								i.putExtra(ExtraNames.USERS, rankNames(namearrays));
-								i.putExtra(ExtraNames.PRODUCTS, mOrder);
+								final Intent i = new Intent();
+								i.putExtra(ExtraNames.USERS, recoguser);
+								i.putExtra(ExtraNames.PRODUCTS, RecogActivity.this.mOrder);
 								setResult(RESULT_OK, i);
 								finish();
 							}
 						});
+
 					}
 
-				} catch (ClientException e) {
+				} catch (final ClientException e) {
 					//Connection problem
-					//TODO show error
-				} catch (Exception e) {
+					e.printStackTrace();
+				} catch (final Exception e) {
 					// Zero or too many faces detected (or catastrophic failure)
 					e.printStackTrace();
 					try {
 						Thread.sleep(100);
-					} catch (InterruptedException e1) {
+					} catch (final InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
@@ -120,98 +108,29 @@ public class RecogActivity extends Activity {
 
 	}
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.recog_user);
+	public static final short SELECT_USERNAME = 0;
+	/**
+	 * Number of photos to take while identifying user
+	 */
+	public static final int NUM_PHOTOS = 5;
 
-		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
-		face.openCamera();
-		
-		mOrder = getIntent().getParcelableExtra(ExtraNames.PRODUCTS);
-	}
+	/**
+	 * Number of times user has to be recognized correctly
+	 */
+	public static final int NUM_RECOG = 3;
+	private Basket mOrder;
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mShotTimer.cancel();
-		Log.d(TAG, "canceled: " + mShotTimer.isCanceled());
-		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
-		face.releaseCamera();
+	private ShotTimer mShotTimer;
 
-	}
+	public static final String TAG = "RecogActivity";
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
-		face.openCamera();
-		final Handler hand = new Handler(getMainLooper());
-		mShotTimer = new ShotTimer(hand);
-		mShotTimer.start();
-	}
-
-	private class ValueComparator implements Comparator<String> {
-		private Map<String, Double> m;
-
-		public ValueComparator(Map<String, Double> m) {
-			this.m = m;
-		}
-
-		public int compare(String a, String b) {
-			if (a == null && b != null)
-				return 1;
-			if (a != null && b == null)
-				return -1;
-			if (a == null && b == null)
-				return 0;
-
-			if (m.get(a) < m.get(b)) {
-				return 1;
-			} else if (m.get(a) == m.get(b)) {
-				return 0;
-			} else {
-				return -1;
-			}
-
-		}
-
-	}
-
-	private String[] rankNames(String[][] params) {
-		if (params.length < 1)
-			return null;
-		else if (params.length == 1)
-			return params[0];
-
-		HashMap<String, Double> namePoints = new HashMap<String, Double>();
-
-		for (String[] names : params) {
-			double score = 1.0;
-			for (String s : names) {
-				Double d = namePoints.get(s);
-				if (d == null) {
-					namePoints.put(s, score);
-				} else {
-					namePoints.put(s, d + score);
-				}
-				score /= 2;
-			}
-		}
-		Comparator<String> comp = new ValueComparator(namePoints);
-		TreeMap<String, Double> sortedNames = new TreeMap<String, Double>(comp);
-		sortedNames.putAll(namePoints);
-		Object[] nameList = sortedNames.keySet().toArray();
-		return Arrays.copyOf(nameList, nameList.length, String[].class);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 		if (requestCode == SELECT_USERNAME) {
 			switch (resultCode) {
 			case RESULT_OK:
-				Intent i = new Intent();
-				i.putExtra(ExtraNames.USERS, data.getExtras().getStringArray(ExtraNames.USERS));
+				final Intent i = new Intent();
+				i.putExtra(ExtraNames.USERS, data.getExtras().getString(ExtraNames.USERS));
 				i.putExtra(ExtraNames.PRODUCTS, data.getExtras().getParcelable(ExtraNames.PRODUCTS));
 				setResult(RESULT_OK, i);
 				finish();
@@ -221,6 +140,70 @@ public class RecogActivity extends Activity {
 			}
 
 		}
+	}
+
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.recog_user);
+
+		final FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
+		face.openCamera();
+
+		this.mOrder = getIntent().getParcelableExtra(ExtraNames.PRODUCTS);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		this.mShotTimer.cancel();
+		Log.d(TAG, "canceled: " + this.mShotTimer.isCanceled());
+		final FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
+		face.releaseCamera();
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		final FaceDetectView face = (FaceDetectView) findViewById(R.id.faceDetectView1);
+		face.openCamera();
+		final Handler hand = new Handler(getMainLooper());
+		this.mShotTimer = new ShotTimer(hand);
+		this.mShotTimer.start();
+	}
+
+	private String rankNames(final String[] params) {
+		if (params.length < 1) {
+			return null;
+		} else if (params.length == 1) {
+			return params[0];
+		}
+
+		final HashMap<String, Integer> namePoints = new HashMap<String, Integer>();
+
+		for (final String name : params) {
+
+			final Integer d = namePoints.get(name);
+			if (d == null) {
+				namePoints.put(name, 1);
+			} else {
+				namePoints.put(name, d + 1);
+			}
+
+		}
+		Map.Entry<String, Integer> max = null;
+		for (final Map.Entry<String, Integer> e : namePoints.entrySet()) {
+			if (max == null) {
+				max = e;
+				continue;
+			}
+			if (e.getValue() > max.getValue()) {
+				max = e;
+			}
+		}
+
+		return (max.getValue() >= NUM_RECOG) ? (String) max.getKey() : null;
 	}
 
 }

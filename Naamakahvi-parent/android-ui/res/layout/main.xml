@@ -74,7 +74,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_margin="5dp"
-                            android:layout_span="5"
+                            android:layout_span="4"
                             android:layout_weight="0.06"
                             android:text="@string/qty"
                             android:textAppearance="?android:attr/textAppearanceLarge" />

@@ -16,7 +16,7 @@
   University of Helsinki}
 
 \author{Antti Hietasaari
-  \and Joonas Magnusson
+  \and Joonas Magnússon
   \and Irina Mäkipaja
   \and Samir Puuska
   \and Janne Ronkonen
@@ -152,10 +152,11 @@ For a more detailed description, see the client Javadoc.
 \subsubsection*{Backend/Server}
 % redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
 % ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
-The server updates the database and gets data from it on client
-requests and tells the client whether or not the requested operation
-was successful. The server is an HTTP-server implemented in Python, and
-is connected to a PostgreSQL database. 
+The server consists of a server module, several databases along with their own database modules and a module for open-cv. 
+The server module uses the database modules, that update and read the databases, and communicates with clients via HTTP.
+Databases are PostgreSQL and their modules use the psycopg library. SQL statements are stored in an XML document and are
+parsed by the database modules. There is one database for every coffee station, because
+products and balances vary. Facial recognition is done by the open-cv module. 
 
 \section{Dynamic Behavior}
 \subsection{Scenarios}
@@ -289,7 +290,7 @@ the server.}
 \subsubsection*{Backend}
 There should generally only be one backend server that is used by any
 client, since one server can handle multiple stations by using
-different database for each station.
+different databases and respective handler moduler for each station.
 
 \subsubsection*{Frontend}
 Any number of frontends can be used simultaneously with the same
@@ -330,6 +331,9 @@ placed in a well lit environment.
 \section{Testing}
 
 \subsection{Android UI}
+The Android UI component has mainly been tested by using it. Some unit tests have been made
+with Robotium test tool (http://code.google.com/p/robotium/). They are located in their own
+test project folder Naamakahvi-parent/androiduiTester-test
 
 \subsection{Swing UI}
 The Swing-UI component has unit tests written using the FEST-Swing (fest.easytesting.org)

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import naamakahvi.naamakahviclient.IProduct;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -15,14 +14,31 @@ import android.os.Parcelable;
  * 
  */
 public class Basket implements Parcelable {
-	private Map<IProduct, Integer> items;
+	private final Map<IProduct, Integer> items;
+
+	public static final Parcelable.Creator<Basket> CREATOR = new Parcelable.Creator<Basket>() {
+		public Basket createFromParcel(final Parcel in) {
+			return new Basket(in);
+		}
+
+		public Basket[] newArray(final int size) {
+			return new Basket[size];
+		}
+	};
 
 	public Basket() {
-		items = new HashMap<IProduct, Integer>();
+		this.items = new HashMap<IProduct, Integer>();
 	}
 
-	public Map<IProduct, Integer> getItems() {
-		return items;
+	public Basket(final Parcel in) {
+		this();
+		while (in.dataAvail() != 0) {
+			final String name = in.readString();
+
+			final IProduct i = ProductCache.getProduct(name);
+
+			this.items.put(i, in.readInt());
+		}
 	}
 
 	/**
@@ -31,7 +47,7 @@ public class Basket implements Parcelable {
 	 * @param product
 	 *            Product to be added
 	 */
-	public void addProduct(IProduct product) {
+	public void addProduct(final IProduct product) {
 		addProduct(product, 1);
 	}
 
@@ -43,11 +59,28 @@ public class Basket implements Parcelable {
 	 * @param amount
 	 *            Number of units
 	 */
-	public void addProduct(IProduct product, int amount) {
-		Integer n = items.get(product);
-		if (n == null)
+	public void addProduct(final IProduct product, final int amount) {
+		Integer n = this.items.get(product);
+		if (n == null) {
 			n = 0;
-		items.put(product, n + amount);
+		}
+		this.items.put(product, n + amount);
+	}
+
+	public int describeContents() {
+		return 0;
+	}
+
+	public int getCount(final IProduct product) {
+		final Integer n = this.items.get(product);
+		if (n == null) {
+			return 0;
+		}
+		return n;
+	}
+
+	public Map<IProduct, Integer> getItems() {
+		return this.items;
 	}
 
 	/**
@@ -56,8 +89,8 @@ public class Basket implements Parcelable {
 	 * @param product
 	 *            Product to be removed
 	 */
-	public void removeProduct(IProduct product) {
-		items.remove(product);
+	public void removeProduct(final IProduct product) {
+		this.items.remove(product);
 	}
 
 	/**
@@ -68,58 +101,32 @@ public class Basket implements Parcelable {
 	 * @param amount
 	 *            Number of units
 	 */
-	public void removeProduct(IProduct product, int amount) {
-		Integer n = items.get(product);
-		if (n == null)
+	public void removeProduct(final IProduct product, final int amount) {
+		final Integer n = this.items.get(product);
+		if (n == null) {
 			return;
+		}
 		if (n - amount < 1) {
 			removeProduct(product);
 			return;
 		}
-		items.put(product, n - amount);
+		this.items.put(product, n - amount);
 	}
 
-	public Basket(Parcel in) {
-		this();
-		while (in.dataAvail() != 0) {
-			final String name = in.readString();
-
-			IProduct i = ProductCache.getProduct(name);
-
-			items.put(i, in.readInt());
-		}
-	}
-
-	public int describeContents() {
-		return 0;
-	}
-
-	public int getCount(IProduct product) {
-		Integer n = items.get(product);
-		if (n == null)
-			return 0;
-		return n;
-	}
-
-	public void writeToParcel(Parcel dest, int flags) {
-		for (IProduct i : items.keySet()) {
-			dest.writeString(i.toString());
-			dest.writeInt(items.get(i));
-		}
-	}
-
-	public static final Parcelable.Creator<Basket> CREATOR = new Parcelable.Creator<Basket>() {
-		public Basket createFromParcel(Parcel in) {
-			return new Basket(in);
-		}
-
-		public Basket[] newArray(int size) {
-			return new Basket[size];
-		}
-	};
-
+	/**
+	 * Returns the numer of items in the basket
+	 * 
+	 * @return the numer of items in the basket
+	 */
 	public int size() {
-		return items.size();
+		return this.items.size();
+	}
+
+	public void writeToParcel(final Parcel dest, final int flags) {
+		for (final IProduct i : this.items.keySet()) {
+			dest.writeString(i.toString());
+			dest.writeInt(this.items.get(i));
+		}
 	}
 
 }

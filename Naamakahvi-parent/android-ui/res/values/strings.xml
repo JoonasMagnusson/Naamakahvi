@@ -19,7 +19,7 @@
     <string name="confirm">Confirm</string>
     <string name="user_settings">Update user photos</string>
     <string name="buy_products">Buy Products</string>
-    <string name="bring_products">Bring Products</string>
+    <string name="bring_products">Pay</string>
     <string name="saldo_item">Your %1$s saldo is:</string>
     <string name="recog_instruction">Move your head until a green square appears around your face.</string>
     <string name="pleaseUsername">Please enter an username.</string>
@@ -28,5 +28,6 @@
     <string name="errorCantRegister">Unable to register: </string>
     <string name="successRegistration">Successfully registered as: </string>
     <string name="errorFetchData">Fetching data from server failed: </string>
+     <string name="errorIdentify">Could not identify you, please choose your username from the list. </string>
 
 </resources>

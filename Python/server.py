@@ -156,8 +156,9 @@ def register():
                     groupIDs = db.getGroupIDs()
                     
                     for i in groupIDs:
+                    	print "group_id"
                     	print i
-                    	db.insertUserBalances(user, i, 0)
+                    	db.updateUserBalances(0, i, user)
                     
                     
                 else:
