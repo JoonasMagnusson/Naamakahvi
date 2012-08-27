@@ -10,12 +10,12 @@ app = Flask(__name__)
 
 dbm = psqldb.psqldb('naamakanta','sam','dbqueries.xml')
 cvm = neuralmodule.neuralmodule()
-savefile = "testdat2a.pkl"
+savefile = "testdat5a.pkl"
 
 if os.path.exists(savefile):
     cvm.loadData(savefile)
 
-stations = {"Station1":dbm}
+stationlist = {"Station1":dbm}
 
 def resp_ok(**kwargs):
     ans = {}
@@ -31,15 +31,6 @@ def resp_failure(status_msg, **kwargs):
         ans[k] = v
     return json.dumps(ans)
 
-#@app.before_request
-#def before_request(station):
-#    stations[station].dbconnect()
-    
-@app.teardown_request
-def teardown_request(exception,station):
-    stations[station].dbclose()
-
-#Returns available products and other useful stuff. (not yet implemented,obviously)
 @app.route('/')
 def mainpage():
     return 'Naamakahvi server v. 666'
@@ -111,8 +102,8 @@ def register():
         given = request.form['given']
         family = request.form['family']
         
-        for db in stations:
-            if(not stations[db].login(user)):
+        for db in stationlist:
+            if(not stationlist[db].login(user)):
                 if r:
                     return resp_ok(username=user)
             	else:
@@ -129,22 +120,26 @@ def login():
     if request.method == 'POST':
         user = request.form['username']
         station = request.form['station_name']
-        stations[station].dbconnect()
-        if(stations[station].login(user)):
-            resp = {}
+
+        with stationlist[station] as db:
             
-            udata = stations[station].selectUserData(user)
-            print "############"
-            print udata
-            bal = getBalance(user,station)
-            resp["username"] = user
-            resp["given"] = udata[1]
-            resp["family"] = udata[2]
-            resp["balance"] = bal
-            
-            return resp_ok(data=resp)
-        else:
-            return resp_failure('NoSuchUserError')
+            if(db.login(user)):
+                resp = {}
+                
+                udata = db.selectUserData(user)
+                print "############"
+                print udata
+                bal = getBalance(user,station)
+                resp["username"] = user
+                resp["given"] = udata[1]
+                resp["family"] = udata[2]
+                resp["balance"] = bal
+                
+
+                return resp_ok(data=resp)
+            else:
+
+                return resp_failure('NoSuchUserError')
     else:
         return resp_failure('Error')
 
@@ -152,14 +147,14 @@ def login():
 def buyableProducts():
 
     station = request.args["station_name"]
-    stations[station].dbconnect()
-    ret = []
-    rslt = stations[station].selectFinProductNames()
-    for x,y in enumerate(rslt):
-        ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[4],"product_price":y[5]}))
-
-    print ret
-    return resp_ok(buyable_products=ret)
+    with stationlist[station] as db:
+    
+        ret = []
+        rslt = db.selectFinProductNames()
+        for x,y in enumerate(rslt):
+            ret.append(({"product_name":y[2],"product_id":y[0],"group_id":y[4],"product_price":y[5]}))
+    
+        return resp_ok(buyable_products=ret)
 
 
 #Lists raw products
@@ -167,17 +162,17 @@ def buyableProducts():
 def rawsizes():
     
     station = request.args["station_name"]
-    stations[station].dbconnect()
-    ret = []
-    rslt = stations[station].selectProductsizes()
-    print rslt
-    for x,y in enumerate(rslt):
-        z = y[1]*y[8]
-        n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
-        ret.append(({"product_name":n,"size_id":y[0],"product_id":y[3],"group_id":y[6],"product_price":z}))
-
+    with stationlist[station] as db:
     
-    return resp_ok(raw_products=ret)
+        ret = []
+        rslt = db.selectProductsizes()
+    
+        for x,y in enumerate(rslt):
+            z = y[1]*y[8]
+            n = str(y[2]) +" "+ str(y[10]) + " " + y[12]
+            ret.append(({"product_name":n,"size_id":y[0],"product_id":y[3],"group_id":y[6],"product_price":z}))
+    
+        return resp_ok(raw_products=ret)
 
 
 
@@ -186,22 +181,26 @@ def rawsizes():
 def listUsernames():
 	
     station = request.args["station_name"]
-    stations[station].dbconnect()
-    ret= []    
-    rslt = stations[station].listUsernames()
 
-    for x,y in enumerate(rslt):
-	ret.append(y[0]) 
+    with stationlist[station] as db:
 
-    return resp_ok(usernames=ret)
+        ret= []    
+        rslt = sdb.listUsernames()
+    
+        for x,y in enumerate(rslt):
+           ret.append(y[0]) 
+
+        return resp_ok(usernames=ret)
 
 
 @app.route('/list_product_prices/',methods=['POST','GET'])
 def productPrices():
     station = request.args["station_name"]
-    stations[station].dbconnect()
-    rslt = stations[station].getFinalproducts()
-    return resp_ok(product_prices=rslt)
+    
+    with stationlist[station] as db:
+    
+        rslt = db.getFinalproducts()
+        return resp_ok(product_prices=rslt)
 
 
 
@@ -214,15 +213,16 @@ def buy():
         user = request.form['username']
         amount = request.form['amount']
         station = request.form['station_name']
-        stations[station].dbconnect()
-        
-        r = stations[station].buy(product,amount,user)
-        #print product,amount,user
-        
-        if r:
-            return resp_ok()
-        else:
-            return resp_failure('Error')
+        with stationlist[station] as db:
+    
+            
+            r = db.buy(product,amount,user)
+
+            if r:
+                
+                return resp_ok()
+            else:
+                return resp_failure('Error')
         
     else:
         return json.dumps({'status':'Error'})
@@ -239,36 +239,38 @@ def bring():
         amount = request.form['amount']
         user = request.form['username']
         station = request.form['station_name']
-        stations[station].dbconnect()
+        with stationlist[station] as db:
+
         
-        r = stations[station].bring(sizeid,rawproductid,amount,user)
-        
-        if r:
-            return resp_ok()
-        else:
-            return resp_failure('Error')
+            r = db.bring(sizeid,rawproductid,amount,user)
+
+            if r:
+                return resp_ok()
+            else:
+                return resp_failure('Error')
 
 @app.route('/list_stations/',methods=['POST','GET'])
-def stations():
-    #stations = ["Station1","Station2"]
-    return resp_ok(stations=stations)
+def station():
+    #stationlist = ["Station1","Station2"]
+    return resp_ok(stations=stationlist.keys())
 
 def getBalance(user,station):
 
-    stations[station].dbconnect()
-    
-    rslt = stations[station].selectUserBalances(user)
-    ret = []
-    print "Saldos"
-    print rslt
-    for x,y in enumerate(rslt):
-        retz = {}
-        retz['group_id'] = y[0]
-        retz['saldo'] = y[4]
-        retz['groupName'] = y[2]
-        ret.append(retz)
+    with stationlist[station] as db:
+
         
-    return ret
+        rslt = db.selectUserBalances(user)
+        ret = []
+        print "Saldos"
+        print rslt
+        for x,y in enumerate(rslt):
+            retz = {}
+            retz['group_id'] = y[0]
+            retz['saldo'] = y[4]
+            retz['groupName'] = y[2]
+            ret.append(retz)
+    
+        return ret
     
 
 if __name__ == '__main__':

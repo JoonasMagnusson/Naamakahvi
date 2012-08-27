@@ -16,6 +16,15 @@ class psqldb:
 		self.parseXML(xml)
 		print "DB Initialized."	
 	
+	
+	def __enter__(self):
+		self.dbconnect()
+		return self
+	
+	def __exit__(self,*args):
+		self.dbclose()
+		
+	
 	def parseXML(self,xmlfile):
 		file = open(xmlfile,'r')
 		data = file.read()
@@ -31,6 +40,7 @@ class psqldb:
 		
 	def dbclose(self):
 		self.cur.close()
+		self.con.close()
 		
 
 	def getQuery(self,qname):
