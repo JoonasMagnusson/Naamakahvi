@@ -8,6 +8,9 @@
 	<!-- Used by reportBean -->
 
 	<!-- date_trunc function used below is proprietary for postgresql -->
+	<entry key="getGroupIDs">
+		SELECT gd_groupdataid FROM groupdata
+	</entry>
 	<entry key="selectOutTable">
 		SELECT out_username, out_finalproductid,
 		date_trunc('second',out_acttime) AS out_acttime, out_value,
