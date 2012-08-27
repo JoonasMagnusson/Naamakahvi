@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -53,7 +54,7 @@ public class UserSettingsActivity extends Activity {
 
 		thumbs.setAdapter(new ThumbAdapter(this, mPics));
 
-		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() { //set thumbnail onlcick listener
+		thumbs.setOnItemClickListener(new AdapterView.OnItemClickListener() { // set thumbnail onlcick listener
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ThumbAdapter a = (ThumbAdapter) parent.getAdapter();
 				if (a.getItem(position) != null) {
@@ -73,28 +74,29 @@ public class UserSettingsActivity extends Activity {
 
 		new Thread(new Runnable() { // fetch user data
 
-			public void run() {
-				try {
-					Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-					final IUser user = c.getUser(i.getExtras().getStringArray(ExtraNames.USERS)[0]);
+					public void run() {
+						try {
+							Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+							final IUser user = c.getUser(i.getExtras().getStringArray(ExtraNames.USERS)[0]);
 
-					hand.post(new Runnable() {
-						public void run() {
-							loaded(user);
+							hand.post(new Runnable() {
+								public void run() {
+									loaded(user);
+								}
+							});
+						} catch (final ClientException e) {
+							hand.post(new Runnable() {
+
+								public void run() {
+									DialogHelper.errorDialog(con, "Unable to fetch user data : " + e.getMessage(), act)
+											.show();
+								}
+							});
+
+							e.printStackTrace();
 						}
-					});
-				} catch (final ClientException e) {
-					hand.post(new Runnable() {
-
-						public void run() {
-							DialogHelper.errorDialog(con, "Unable to fetch user data : " + e.getMessage(), act).show();
-						}
-					});
-
-					e.printStackTrace();
-				}
-			}
-		}).start();
+					}
+				}).start();
 
 	}
 
@@ -149,59 +151,60 @@ public class UserSettingsActivity extends Activity {
 
 		new Thread(new Runnable() { // update user photos
 
-			public void run() {
-				try {
-
-					hand.post(new Runnable() {
-						public void run() {
-							pd.show();
-						}
-					});
-
-					Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
-
-					final String username = ((EditText) findViewById(R.id.editTextUsername)).getText().toString();
-
-					for (Bitmap b : mPics) {
-						ByteArrayOutputStream bos = new ByteArrayOutputStream();
-						b.compress(CompressFormat.PNG, 0, bos);
-						byte[] bitmapdata = bos.toByteArray();
-						client.addImage(username, bitmapdata);
-					}
-
-					hand.post(new Runnable() {
-
-						public void run() {
-							Toast.makeText(getApplicationContext(), "Updated photos for " + username, Toast.LENGTH_LONG)
-									.show();
-						}
-					});
-					finish();
-
-				} catch (final Exception ex) {
-					hand.post(new Runnable() {
-						public void run() {
-							pd.dismiss();
-						}
-					});
-					Log.d(TAG, ex.getMessage());
-					ex.printStackTrace();
-					hand.post(new Runnable() {
-
-						public void run() {
-							DialogHelper.errorDialog(con, "Unable to update photos: " + ex.getMessage()).show();
-						}
-					});
-				}
-
-				hand.post(new Runnable() {
 					public void run() {
-						pd.dismiss();
-					}
-				});
+						try {
 
-			}
-		}).start();
+							hand.post(new Runnable() {
+								public void run() {
+									pd.show();
+								}
+							});
+
+							Client client = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
+
+							final String username = ((EditText) findViewById(R.id.editTextUsername)).getText()
+									.toString();
+
+							for (Bitmap b : mPics) {
+								ByteArrayOutputStream bos = new ByteArrayOutputStream();
+								b.compress(CompressFormat.PNG, 0, bos);
+								byte[] bitmapdata = bos.toByteArray();
+								client.addImage(username, bitmapdata);
+							}
+
+							hand.post(new Runnable() {
+
+								public void run() {
+									Toast.makeText(getApplicationContext(), "Updated photos for " + username,
+											Toast.LENGTH_LONG).show();
+								}
+							});
+							finish();
+
+						} catch (final Exception ex) {
+							hand.post(new Runnable() {
+								public void run() {
+									pd.dismiss();
+								}
+							});
+							Log.d(TAG, ex.getMessage());
+							ex.printStackTrace();
+							hand.post(new Runnable() {
+
+								public void run() {
+									DialogHelper.errorDialog(con, "Unable to update photos: " + ex.getMessage()).show();
+								}
+							});
+						}
+
+						hand.post(new Runnable() {
+							public void run() {
+								pd.dismiss();
+							}
+						});
+
+					}
+				}).start();
 
 	}
 
@@ -227,6 +230,9 @@ public class UserSettingsActivity extends Activity {
 			GridView g = (GridView) findViewById(R.id.thumbGrid);
 			((BaseAdapter) g.getAdapter()).notifyDataSetChanged();
 		}
+
+		((Button) findViewById(R.id.clientRegisterButton)).setEnabled(mPics.size() == 6);
+
 	}
 
 }

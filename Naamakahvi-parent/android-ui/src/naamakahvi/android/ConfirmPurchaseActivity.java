@@ -29,6 +29,8 @@ import naamakahvi.naamakahviclient.SaldoItem;
 
 public class ConfirmPurchaseActivity extends Activity {
 
+	public static final int REQUEST_USERNAME_CHANGE = 1;
+	
 	final short COUNTDOWN_LENGTH = 10;
 	private CountDownTimer cd;
 	private Intent intent;
@@ -88,7 +90,7 @@ public class ConfirmPurchaseActivity extends Activity {
 		TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
 		IProduct product = (IProduct) productAndAmountPair.getKey();
 		whatYouAreBuying.setText("You are buying "
-				+ productAndAmountPair.getValue() + " " + product.getName()
+				+ productAndAmountPair.getValue() + " x " + product.getName()
 				+ "(s)");
 	}
 
@@ -179,9 +181,22 @@ public class ConfirmPurchaseActivity extends Activity {
 		finish();
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		setCountdown();
+		if (resultCode == RESULT_CANCELED){
+			return;
+		}
+		if (requestCode == REQUEST_USERNAME_CHANGE){
+			
+			configureUserView(data.getStringArrayExtra(ExtraNames.USERS)[0]);
+			
+		}
+	}
+
 	public void onUserListClick(View v) {
 		Intent i = new Intent(this, LoginwithusernameActivity.class);
 		cd.cancel();
-		startActivity(i);
+		startActivityForResult(i, REQUEST_USERNAME_CHANGE);
 	}
 }

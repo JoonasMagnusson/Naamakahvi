@@ -1,58 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
+
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="20dp"
-        android:layout_gravity="center">
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp" >
 
-            <TextView
-                android:id="@+id/cp_nametext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="You were recognized as:"
-                android:textSize="40dp"
-                android:layout_gravity="center"/>
-               
+        <TextView
+            android:id="@+id/cp_nametext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="You were recognized as:"
+            android:textSize="40dp" />
 
-            <TextView
-            	android:id="@+id/whatYouBought"
-            	android:layout_width="wrap_content"
-            	android:layout_height="wrap_content"
-            	android:text="This would show what you bought but theres been an error"
-            	android:textSize="40dp"
-            	android:layout_gravity="center"/>
-            
-           <ListView
-               android:id="@+id/coffeeSaldos"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_marginLeft="250dp"
-               android:layout_gravity="center" >
+        <TextView
+            android:id="@+id/whatYouBought"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="This would show what you bought but theres been an error"
+            android:textSize="40dp" />
 
-    		</ListView>
-    		
-
-            
-        </LinearLayout>
-        
+        <ListView
+            android:id="@+id/coffeeSaldos"
+            android:layout_width="800dp"
+            android:layout_height="192dp"
+            android:layout_gravity="center"
+            tools:listitem="@layout/new_list_bigger_text" 
+            android:clickable="false">
+        </ListView>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="435dp"
+        android:layout_gravity="center"
         android:layout_marginTop="25dp" >
 
         <Button
@@ -70,28 +59,29 @@
             android:onClick="onCPOkClick"
             android:text="@string/confirm" />
     </LinearLayout>
-    
-        <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="150dp">
 
-           <TextView
-            	android:id="@+id/notYou"
-            	android:layout_width="wrap_content"
-            	android:layout_height="wrap_content"
-            	android:text="Is this user not you? Go to userlist"
-            	android:textSize="35dp"
-            	android:layout_gravity="center"/>
-           
-            <Button
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/notYou"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Is this user not you? Go to userlist"
+            android:textSize="35dp" />
+
+        <Button
             android:id="@+id/userlistButton"
             android:layout_width="200dp"
             android:layout_height="100dp"
+            android:layout_gravity="center"
             android:onClick="onUserListClick"
-            android:text="Userlist"
-            android:layout_gravity="center" />
+            android:text="@string/user_list" />
     </LinearLayout>
 
-</LinearLayout> 
+</LinearLayout>

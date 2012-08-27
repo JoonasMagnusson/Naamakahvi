@@ -207,13 +207,7 @@ public class ClientTest {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
-            JsonArray ar = new JsonArray();
-
-            for (String s : new String[]{"user1", "user2", "user3", "user4"}) {
-                ar.add(new JsonPrimitive(s));
-            }
-
-            ans.add("idlist", ar);
+            ans.add("username", new JsonPrimitive("veijo"));
             stringResponse(response, ans.toString());
         }
     };
@@ -408,11 +402,11 @@ public class ClientTest {
     @Test
     public void correctBuyableProductsListed() throws ClientException {
         List<IProduct> ps = client.listBuyableProducts();
-        assertTrue(ps.get(0).getName().equals("kahvi")
-                && ps.get(1).getName().equals("espresso")
-                && ps.get(2).getName().equals("tuplaespresso")
-                && ps.get(3).getName().equals("megaespresso")
-                && ps.get(4).getName().equals("joku harvinainen tuote"));
+        assertTrue(ps.get(0).getName().equals("Kahvi")
+                && ps.get(1).getName().equals("Espresso")
+                && ps.get(2).getName().equals("Tuplaespresso")
+                && ps.get(3).getName().equals("Megaespresso")
+                && ps.get(4).getName().equals("Joku harvinainen tuote"));
     }
 
     @Test
@@ -435,11 +429,11 @@ public class ClientTest {
     public void correctRawProductsListed() throws ClientException {
         List<IProduct> ps = client.listRawProducts();
 
-        assertTrue(ps.get(0).getName().equals("suodatinkahvi")
-                && ps.get(1).getName().equals("espressopavut")
-                && ps.get(2).getName().equals("kahvisuodatin")
-                && ps.get(3).getName().equals("sokeri")
-                && ps.get(4).getName().equals("puhdistuspilleri"));
+        assertTrue(ps.get(0).getName().equals("Suodatinkahvi")
+                && ps.get(1).getName().equals("Espressopavut")
+                && ps.get(2).getName().equals("Kahvisuodatin")
+                && ps.get(3).getName().equals("Sokeri")
+                && ps.get(4).getName().equals("Puhdistuspilleri"));
     }
 
     @Test
@@ -475,14 +469,11 @@ public class ClientTest {
     }
 
     @Test
-    public void imageAuthenticationListsCorrectUsers() throws ClientException {
+    public void imageAuthenticationReturnsCorrectUser() throws ClientException {
         byte[] bytes = new byte[2];
-        String[] usernames = client.identifyImage(bytes);
+        String username = client.identifyImage(bytes);
 
-        assertTrue(usernames[0].equals("user1")
-                && usernames[1].equals("user2")
-                && usernames[2].equals("user3")
-                && usernames[3].equals("user4"));
+        assertTrue(username.equals("veijo"));
     }
 
     @Test

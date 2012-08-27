@@ -59,19 +59,19 @@ public class SaldoItemAdapter extends BaseAdapter {
 
 		if (delta != 0) {
 			colorListView.setText(Html.fromHtml(saldoString
-					+ "<font color='"
-					+ ((saldo < 0) ? "red" : "green")
+					+ " <font color='"
+					+ ((saldo < 0) ? "red" : "lime")
 					+ "'>"
 					+ saldo
 					+ "</font>"
 					+ ((delta < 0) ? " " : " +") + delta
 					+ (" = " + "<font color='"
-							+ ((resultSaldo < 0) ? "red" : "green") + "'>"
+							+ ((resultSaldo < 0) ? "red" : "lime") + "'>"
 							+ resultSaldo + "</font>")));
 		} else {
 			colorListView.setText(Html.fromHtml(saldoString 
-					+ "<font color='"
-					+ ((saldo < 0) ? "red" : "green") + 
+					+ " <font color='"
+					+ ((saldo < 0) ? "red" : "lightgreen") + 
 					"'>"
 					+ saldo
 					+ "</font>"));
