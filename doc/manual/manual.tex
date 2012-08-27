@@ -37,7 +37,7 @@
 \section{Android}
 \subsection{Building the program}
 \subsubsection*{Requirements and dependencies}
-To build the Android client, you will need to have Maven 2 installed. Maven takes care of most dependecies, except the OpenCV library, and the Android SDK. A script (\texttt{install-opencv-local.sh}) has been provided to install OpenCV 2.4.1 into your local maven repository. You will have to download the Android SDK and android platform 4.0.3 or greater and set the ANDROID_HOME environment variable to point to the install location of the SDK.
+To build the Android client, you will need to have Maven 2 installed. Maven takes care of most dependecies, except the OpenCV library, and the Android SDK. A script (\texttt{install-opencv-local.sh}) has been provided to install OpenCV 2.4.1 into your local maven repository. You will have to download the Android SDK and android platform 4.0.3 or greater and set the ANDROID\_HOME environment variable to point to the install location of the SDK.
 \subsubsection*{Building the client}
 The android project can be built by running the command \texttt{mvn clean install -Dandroid} in the Naamakahvi-Parent directory. This will also build the client library and run its tests. After this the binary file \texttt{android-ui.apk} can be found in the Naamakahvi-parent/android-ui/target directory. The .apk file can then be installed like any other .apk onto an Android device.
 \subsection{Getting started}
