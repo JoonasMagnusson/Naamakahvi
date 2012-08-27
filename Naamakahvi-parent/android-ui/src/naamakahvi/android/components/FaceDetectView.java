@@ -97,6 +97,13 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 
 	}
 
+	/**
+	 * get the current frame as a bitmap
+	 * 
+	 * @return current frame as bitmap
+	 * @throws Exception
+	 *             no faces, or too many faces
+	 */
 	public Bitmap grabFrame() throws Exception {
 		synchronized (this) {
 
@@ -139,7 +146,11 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 			return true;
 		}
 	}
-
+	/**
+	 * Process a frame from the camera
+	 * @param vc VideoCapture object associated with the camera
+	 * @return processed frame as a bitmap
+	 */
 	public Bitmap processFrame(final VideoCapture vc) {
 		vc.retrieve(this.mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		vc.retrieve(this.mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
@@ -193,7 +204,7 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 	}
 
 	/***
-	 * Vapauttaa kameran
+	 * Releases the camera
 	 */
 	public void releaseCamera() {
 		synchronized (this) {
@@ -204,7 +215,9 @@ public class FaceDetectView extends SurfaceView implements SurfaceHolder.Callbac
 		}
 
 	}
-
+	/**
+	 * Runs the camera
+	 */
 	public void run() {
 		Log.d(this.TAG, "Thread running");
 		try {
