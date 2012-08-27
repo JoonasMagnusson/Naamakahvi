@@ -54,6 +54,11 @@ public class AddPicturePage extends JPanel implements ActionListener, CloseableV
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		setLayout(layout);
 		
+		JLabel header = new JLabel("Add Images to Account", SwingConstants.CENTER);
+		header.setFont(master.UI_FONT_BIG);
+		layout.setConstraints(header, constraints);
+		add(header);
+		
 		helptext = new JLabel(DEFAULT_HELP);
 		helptext.setFont(master.UI_FONT_SMALL);
 		layout.setConstraints(helptext, constraints);
