@@ -16,7 +16,7 @@
   University of Helsinki}
 
 \author{Antti Hietasaari
-  \and Joonas Magnusson
+  \and Joonas Magnússon
   \and Irina Mäkipaja
   \and Samir Puuska
   \and Janne Ronkonen
@@ -51,11 +51,13 @@ methods for track keeping.
 Registration is required to use the system. Upon registration, pictures are
 taken of the user's face for later identification. If the user does not want
 to use face recognition, they can choose not to have any pictures taken. 
-Images can also be added after registration. Coffee can be bought or paid 
-for by first choosing a product to buy or bring and then taking a picture to 
-identify the user whose balance will be updated. Alternatively, the user can
-be identified using their username. 
+Images can also be added after registration. Coffee can be bought or paid for 
+by first choosing a product to buy or bring and then taking a picture to identify
+the user whose balance will be updated. Alternatively, the user can be identified 
+using their username. 
 
+In this document, coffee syndicates that are connected to the same server are 
+referred to as stations.
 \section{System Purpose: Requirements}
 
 \subsection{Functional Requirements}
@@ -89,7 +91,11 @@ be identified using their username.
 
 \subsection{Overview: Overall Structure}
 % --> Diagram of all components and their collaboration with each other
-\includegraphics[scale=0.5]{components.pdf}
+\includegraphics[scale=0.5]{components.pdf}\\
+The software is divided into a frontend and a backend. The frontend consists of a user interface,
+a face capturing component (which is a part of the user interface) and a client. The backend has
+a server, a component for face recognition and two kinds of databases, one for images of the users'
+faces and the other for information related to a specific station.
 
 \subsection{Components}
    % for each component:
@@ -155,10 +161,11 @@ For a more detailed description, see the client Javadoc.
 \subsubsection*{Backend/Server}
 % redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
 % ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
-The server updates the database and gets data from it on client
-requests and tells the client whether or not the requested operation
-was successful. The server is an HTTP-server implemented in Python, and
-is connected to a PostgreSQL database. 
+The server consists of a server module, several databases along with their own database modules and a module for open-cv. 
+The server module uses the database modules, that update and read the databases, and communicates with clients via HTTP.
+Databases are PostgreSQL and their modules use the psycopg library. SQL statements are stored in an XML document and are
+parsed by the database modules. There is one database for every coffee station, because
+products and balances vary. Facial recognition is done by the open-cv module. 
 
 \section{Dynamic Behavior}
 \subsection{Scenarios}
@@ -296,12 +303,12 @@ the server.}
 \subsubsection*{Backend}
 There should generally only be one backend server that is used by any
 client, since one server can handle multiple stations by using
-different database for each station.
+different databases and respective handler moduler for each station.
 
 \subsubsection*{Frontend}
 Any number of frontends can be used simultaneously with the same
 server, provided that each of them uses a different station. It has
-not been tested what would happen if multiple frontends try to use the
+not been tested what would happen if multiple frontends tried to use the
 same station simultaneously.
 
 \subsection{Development}
@@ -326,7 +333,8 @@ The components are located in the following directories in the codebase:
 % on the same physical server because ...
 
 Since the frontend and the backend communicate using HTTP, they can be
-located on separate physical servers. %tietokannat?
+located on separate physical servers. The databases may be stored on separate
+machines from the server.%tietokannat?
 
 \subsection{Constraints}
 The accuracy of face recognition depends highly on the light in the 
@@ -354,9 +362,10 @@ not tested, as this would have required emulating a camera feed and was therefor
 the scope of the project.
 
 \subsection{Client}
-The client has JUnit tests for its methods. The tests use Apache LocalTestServer as a test
-server.
+The client has JUnit tests for its methods. They are located in Naamakahvi-parent/client/src/test/
+directory. The tests use Apache LocalTestServer as a test server.
 
 \subsection{Server}
+The server has tests for all the major database transactions and facial recognition.
 
 \end{document}

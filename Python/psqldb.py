@@ -8,13 +8,19 @@ class psqldb:
 	#Constructor
 	#db: 	Database to be used
 	#xml: 	XML-file containig SQL queries
-	def __init__(self,db,user):
+	def __init__(self,db,user,passwd,host,port):
 		self.dbname = db
 		self.user = user
 		self.connect = "dbname=" + db + " user=" + user
+		if(passwd != None):
+			self.connect += " password=" + passwd
+		if(host != None):
+			self.connect += " host=" + host
+		if(port != None):
+			self.connect += " port=" + str(port)
 		self.xmldb = 'dbqueries.xml'
 		self.parseXML(self.xmldb)
-		print "DB Initialized."	
+		print "DB Initialized: ", self.connect	
 	
 	
 	def __enter__(self):
@@ -180,7 +186,7 @@ class psqldb:
 	
 	def selectRawProductNames(self):
 		
-		q = self.getQuery("selectIProductNames")		
+		q = self.getQuery("selectIProductNames")
 
 		try:
 			self.cur.execute(q)		
@@ -196,12 +202,12 @@ class psqldb:
 	def selectProductsizes(self):
 		
 		
-		q = self.getQuery("selectProductsizes")		
+		q = self.getQuery("selectProductsizes")
 
 		try:
-			self.cur.execute(q)		
+			self.cur.execute(q)
 		except  Exception ,e:
-			self.con.rollback()			
+			self.con.rollback()
 			print e
 			
 		result = self.cur.fetchall()
@@ -227,12 +233,12 @@ class psqldb:
 	
 	def getUserBalanceById(self,id,user):
 		
-		q = self.getQuery("getUserbalanceByIds")		
+		q = self.getQuery("getUserbalanceByIds")
 
 		try:
-			self.cur.execute(q,(id,user,))		
+			self.cur.execute(q,(id,user,))
 		except  Exception ,e:
-			self.con.rollback()			
+			self.con.rollback()
 			print e
 			
 		result = self.cur.fetchall()
