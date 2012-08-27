@@ -27,13 +27,17 @@ public class ConfirmPurchaseActivity extends Activity {
 
 	public static final int REQUEST_USERNAME_CHANGE = 1;
 
-	final short COUNTDOWN_LENGTH = 10;
+	final short COUNTDOWN_LENGTH = 60;
 	private CountDownTimer cd;
 	private Intent intent;
 	private String username;
 	private Handler handler;
 	public static final String TAG = "ConfirmPurchaseActivity";
 
+	/**
+	 * Buys or brings the products in the basket
+	 * @throws ClientException Network/server errors
+	 */
 	private void buyOrBringProducts() throws ClientException {
 		final Client c = new Client(Config.SERVER_URL, Config.SERVER_PORT, Config.STATION);
 		final IUser buyer = c.getUser(this.username);
@@ -51,7 +55,10 @@ public class ConfirmPurchaseActivity extends Activity {
 		this.username = name;
 		startGetIUserThread();
 	}
-
+	/**
+	 * Gets the first product from the basket passed in the intent
+	 * @return Map.Entry<IProduct, Integer> containing the product object and the amount purchased
+	 */
 	private Map.Entry convertBasketIntoProduct() {
 		final Basket b = this.intent.getParcelableExtra(ExtraNames.PRODUCTS);
 		final Map<IProduct, Integer> itemsBought = b.getItems();
@@ -71,12 +78,16 @@ public class ConfirmPurchaseActivity extends Activity {
 
 		}
 	}
-
+	/**
+	 * onClick handler for the cancel button
+	 */
 	public void onCPCancelClick(final View v) {
 		setResult(RESULT_CANCELED);
 		finish();
 	}
-
+	/**
+	 * onClick handler for the confirm button
+	 */
 	public void onCPOkClick(final View v) {
 		this.cd.cancel();
 		startBuyingThread();
@@ -96,15 +107,19 @@ public class ConfirmPurchaseActivity extends Activity {
 		configureUserView(listOfPossibleUsers);
 
 	}
-
+	/**
+	 * onClick handler for the user list button 
+	 */
 	public void onUserListClick(final View v) {
 		final Intent i = new Intent(this, LoginwithusernameActivity.class);
 		this.cd.cancel();
 		startActivityForResult(i, REQUEST_USERNAME_CHANGE);
 	}
-
+	/**
+	 * Sets the countdown timer that returns you to the main screen after one minute
+	 */
 	private void setCountdown() {
-		this.cd = new CountDownTimer(6000 * this.COUNTDOWN_LENGTH, 1000) {
+		this.cd = new CountDownTimer(1000 * this.COUNTDOWN_LENGTH, 1000) {
 
 			@Override
 			public void onFinish() {
@@ -118,14 +133,21 @@ public class ConfirmPurchaseActivity extends Activity {
 		};
 		this.cd.start();
 	}
-
+	
+	/**
+	 * Sets the label for the "recognised as" text view
+	 * @param buyer the user whose information to show
+	 */
 	private void setRecognizedText(final IUser buyer) {
 		final TextView recognized = (TextView) findViewById(R.id.cp_nametext);
 		final String newRecognizedText = "You were recognized as:\n" + buyer.getGivenName() + " "
 				+ buyer.getFamilyName() + " (" + this.username + ")";
 		recognized.setText(newRecognizedText);
 	}
-
+	/**
+	 * Populates the list of balances
+	 * @param buyer User whose balances to use
+	 */
 	private void setSaldos(final IUser buyer) {
 		final ListView coffeeSaldoView = (ListView) findViewById(R.id.coffeeSaldos);
 		final List<SaldoItem> userBalance = buyer.getBalance();
@@ -150,7 +172,9 @@ public class ConfirmPurchaseActivity extends Activity {
 		final SaldoItemAdapter adapter = new SaldoItemAdapter(this, userBalance, deltas);
 		coffeeSaldoView.setAdapter(adapter);
 	}
-
+	/**
+	 * Sets the label for the product text view
+	 */
 	private void setWhatYouAreBuyingText() {
 		final Map.Entry productAndAmountPair = convertBasketIntoProduct();
 		final TextView whatYouAreBuying = (TextView) findViewById(R.id.whatYouBought);
@@ -158,7 +182,10 @@ public class ConfirmPurchaseActivity extends Activity {
 		whatYouAreBuying.setText("You are buying " + productAndAmountPair.getValue() + " x " + product.getName()
 				+ "(s)");
 	}
-
+	
+	/**
+	 * Starts network communication thread to buy products
+	 */
 	private void startBuyingThread() {
 		new Thread(new Runnable() {
 			public void run() {
@@ -171,7 +198,9 @@ public class ConfirmPurchaseActivity extends Activity {
 			}
 		}).start();
 	}
-
+	/**
+	 * Starts thread to get user info from server
+	 */
 	private void startGetIUserThread() {
 		new Thread(new Runnable() {
 			public void run() {
