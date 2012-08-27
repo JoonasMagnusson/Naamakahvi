@@ -117,7 +117,13 @@ def register():
         for database in stationlist:
             with stationlist[database] as db:
                 if(not db.login(user)):
-                    db.register(user,given,family)   
+                    db.register(user,given,family) 
+                    
+                    groupIDs = db.getGroupIDs()
+                    for i in groupIDs:
+                    	db.insertUserBalances(user, i, 0)
+                    
+                    
                 else:
                 	return resp_failure('UserAlreadyExistsError')
         return resp_ok(username=user)

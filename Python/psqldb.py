@@ -501,6 +501,17 @@ class psqldb:
 			return e
 		self.con.commit()
 
+	def getGroupIDs(self):
+		q = self.getQuery("getGroupIDs")
+		self.cur.execute(q)
+		
+		result = self.cur.fetchall()
+		ret = []
+		for row in result:
+			ret.append(row[0])
+		
+		return ret
+		
 
 		
 		
