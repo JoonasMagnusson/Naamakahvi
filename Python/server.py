@@ -104,7 +104,7 @@ def register():
 
 
         for database in stationlist:
-            with database as db:
+            with stationlist[database] as db:
                 if(not db.login(user)):
                     db.register(user,given,family)   
                 else:
