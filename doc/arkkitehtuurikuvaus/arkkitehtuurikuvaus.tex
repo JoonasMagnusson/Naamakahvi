@@ -118,30 +118,13 @@ be identified using their username.
    %   -  operations
    %   - constraints on the order of operation
 
-\subsubsection{Client/Frontend}
-The client is implemented as a Java library and its responsibility is
-to offer an interface for UI-components, abstracting away the
-communication protocols used between the client and server. 
-
-The client communicates with the server via HTTP, sending GET and POST
-requests, and receiving JSON-objects from the server. 
-
-
-\subsubsection{Backend/Server}
-% redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
-% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
-The server updates the database and gets data from it on client
-requests and tells the client whether or not the requested operation
-was successful. The server is an HTTP-server implemented in Python, and
-is connected to a PostgreSQL database. 
-
-\subsubsection{Android User Interface}
+\subsubsection*{Android User Interface}
 % android-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
 
 The user interface for Android is written in Java, and uses the client
 library to facilitate communications with the server.
 
-\subsubsection{Swing User Interface}
+\subsubsection*{Swing User Interface}
 % swing-ui ihmiset voisivat kirjoittaa tästä enemmän (myös frontendin opencv-juduista)
      
 The Swing user interface is written in Java and provides an interface
@@ -157,6 +140,21 @@ from a camera feed. The faces are sent to the server in order to identify
 users, allowing them to sign in to the system without entering their
 usernames or other information.
 
+\subsubsection*{Client/Frontend}
+The client is implemented as a Java library and its responsibility is
+to offer an interface for UI-components, abstracting away the
+communication protocols used between the client and server. 
+
+The client communicates with the server via HTTP, sending GET and POST
+requests, and receiving JSON-objects from the server. 
+
+\subsubsection*{Backend/Server}
+% redox ja mahnu vois varmaan kirjoittaa tähän jotain tarkempaa, ja
+% ehkä jakaa tämän kohdan useampaan kohtaan jos siltä tuntuu. (+ naama- ja station-tietokannat ja serverin opencv-palikka)
+The server updates the database and gets data from it on client
+requests and tells the client whether or not the requested operation
+was successful. The server is an HTTP-server implemented in Python, and
+is connected to a PostgreSQL database. 
 
 \section{Dynamic Behavior}
 \subsection{Scenarios}
@@ -168,8 +166,9 @@ usernames or other information.
 % kuinka monta kuvaa?
 \subsubsection{Registration}
 \textbf{Type:} Use case\\
-\textbf{Description:} The user enters their name and username to register on the system. 
-The user can also optionally have a picture taken of their face if they want to use face recognition.\\
+\textbf{Description:} The user enters their name and username to register on the system.
+The user can also have pictures taken of their face if they want to use face recognition,
+but it is optional.\\
 \textbf{Component interaction:} 
 \begin{enumerate} 
 \item{The user interface passes the submitted name and username to the client.}
@@ -177,6 +176,8 @@ The user can also optionally have a picture taken of their face if they want to 
 \item{Provided that the username does not already exist and it is valid, the server creates a new user in the database.}
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \item{6 pictures are taken. See~\ref{sec:pic}.}
+\item{The user interface passes the images to the client.}
+\item{The client sends the images to the server.}
 \item{The server saves the new images to the database and trains the neural network. See~\ref{sec:add-train}.}
 \end{enumerate}
 
@@ -188,7 +189,8 @@ multiple pictures are taken of their face. The user is told who was recognized. 
 \textbf{Component interaction:} 
 \begin{enumerate} 
 \item{Pictures are taken. See~\ref{sec:pic}.}
-\item{The user interface }
+\item{The user interface passes the images to the client.}
+\item{The client sends the images to the server.}
 \item{The server identifies the user in the images and makes a sorted list of the matching users. See~\ref{sec:recognition}.}
 \item{The server sends the list of matching usernames to the client.}
 \item{The client returns the list to the user interface.}
@@ -218,7 +220,7 @@ The user's balance is shown and the user has to confirm the purchase.\\
 \item{The server sends a response to the client, reporting that the operation was successful.}
 \end{enumerate}
 
-\subsubsection{Bringing a Product (paying)}
+\subsubsection{Bringing a Product (Paying)}
 \textbf{Type:} Use case\\
 \textbf{Description:} The user chooses a product and the amount they are bringing. 
 The user's balance is shown and the user has to confirm the action.\\
@@ -272,12 +274,12 @@ The pictures will overwrite the user's old user pictures.\\
 % there be multiple instances of KujeServer?
 % --> Has multiple instances of KujeProcessor ever been tested? Has
 % multiple instances of KujeServer ever been tested?
-\subsubsection{Backend}
+\subsubsection*{Backend}
 There should generally only be one backend server that is used by any
 client, since one server can handle multiple stations by using
 different database for each station.
 
-\subsubsection{Frontend}
+\subsubsection*{Frontend}
 Any number of frontends can be used simultaneously with the same
 server, provided that each of them uses a different station. It has
 not been tested what would happen if multiple frontends try to use the
@@ -310,14 +312,17 @@ located on separate physical servers. %tietokannat?
 \subsection{Deployment}
 % Deployment: How components are deployed and possible constraints
 
-\subsubsection{Constraints}
+\subsubsection*{Constraints}
 The accuracy of face recognition depends highly on the light in the 
 photographs. Poor lighting or changes in it can lead to inaccurate results.
 To achieve the best possible face recognition results, the camera should be 
 placed in a well lit environment.
 
 \section{Testing}
-\subsection{Swing-UI}
+
+\subsection{Android UI}
+
+\subsection{Swing UI}
 The Swing-UI component has unit tests written using the FEST-Swing (fest.easytesting.org)
 and JUnit (www.junit.org) testing APIs. The tests are included with the source code in the
 Naamakahvi-parent/swingui/src/test/ directory. 
@@ -329,5 +334,8 @@ Notably, the methods relating to the face recognition functionality in the progr
 not tested, as this would have required emulating a camera feed and was therefore outside
 the scope of the project.
 
+\subsection{Client}
+
+\subsection{Server}
 
 \end{document}

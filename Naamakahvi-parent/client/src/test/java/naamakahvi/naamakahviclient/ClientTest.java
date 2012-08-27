@@ -207,13 +207,7 @@ public class ClientTest {
         public void handle(HttpRequest request, HttpResponse response, HttpContext hc) throws HttpException, IOException {
             JsonObject ans = new JsonObject();
             ans.add("status", new JsonPrimitive("ok"));
-            JsonArray ar = new JsonArray();
-
-            for (String s : new String[]{"user1", "user2", "user3", "user4"}) {
-                ar.add(new JsonPrimitive(s));
-            }
-
-            ans.add("idlist", ar);
+            ans.add("username", new JsonPrimitive("veijo"));
             stringResponse(response, ans.toString());
         }
     };
@@ -475,14 +469,11 @@ public class ClientTest {
     }
 
     @Test
-    public void imageAuthenticationListsCorrectUsers() throws ClientException {
+    public void imageAuthenticationReturnsCorrectUser() throws ClientException {
         byte[] bytes = new byte[2];
-        String[] usernames = client.identifyImage(bytes);
+        String username = client.identifyImage(bytes);
 
-        assertTrue(usernames[0].equals("user1")
-                && usernames[1].equals("user2")
-                && usernames[2].equals("user3")
-                && usernames[3].equals("user4"));
+        assertTrue(username.equals("veijo"));
     }
 
     @Test
