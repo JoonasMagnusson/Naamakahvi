@@ -320,7 +320,8 @@ The components are located in the following directories in the codebase:
 % on the same physical server because ...
 
 Since the frontend and the backend communicate using HTTP, they can be
-located on separate physical servers. %tietokannat?
+located on separate physical servers. The databases may be stored on separate
+machines from the server.%tietokannat?
 
 \subsection{Constraints}
 The accuracy of face recognition depends highly on the light in the 
@@ -352,5 +353,6 @@ The client has JUnit tests for its methods. The tests use Apache LocalTestServer
 server.
 
 \subsection{Server}
+The server has tests for all the major database transactions and facial recognition.
 
 \end{document}
