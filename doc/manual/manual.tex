@@ -7,7 +7,7 @@
 \usepackage{wrapfig}
 \usepackage{soul}
 \usepackage{amssymb}
-% \usepackage{hyperref}
+\usepackage{hyperref}
 
 
 \title{Manual\\
@@ -28,7 +28,7 @@
 
 \maketitle
 
-% \setcounter{tocdepth}{3}
+\setcounter{tocdepth}{2}
 \tableofcontents
 % \vspace*{1cm}
 
@@ -36,14 +36,48 @@
 
 \section{Android}
 \subsection{Getting started}
+\subsubsection*{Configuring program settings}
+First after launching a program it prompts you for a server address and port. After getting them it will give you a list of station. Pick the station that is your coffee room. You don’t have to give this information every time the program is started, only the first time. After that the program will automatically use the settings you defined the first time you used the program.
+
+\subsubsection*{Changing program settings}
+
+If you want to change the settings that were configured the first time, go to “Settings” in your android device, click on “Apps” and choose Facecafe client. You should get a small info page and in the middle of it should be a button labelled “Clear data”. Click the button and after that you should be able to give settings again when launching a program.
+
+
 \subsection{Registering into system}
+
+Once the first time in the main window you might want to register yourself into a system in order to buy coffee. Click the “New user” button that resides in the down right corner of the screen. The opening screen asks you for a username, first name and last name. Fill in the information, all fields are mandatory for a successful registration (though it does not matter whether you have forgot to fill in a field because the program will prompt you for missing information).
+
+If you want to register without face recognition click the OK button and you are done with registering. If you want to register with face recognition you must take 6 pictures of your face. On the right hand side of the screen there is a preview of camera. Adjust your face until there is a green box around it. The green box means the program has found your face. Once your face is detected touch the camera preview to take a picture. If you succeed the picture should be displayed in the center of the left hand side of the screen. If you think the picture wasn’t good enough you can delete it by clicking it and take another one. Once done with your pictures click the OK button.
+
 \subsection{Buying products}
+
+\subsubsection*{Buying with face recognition}
+On the main screen there is a list of buyable products on the left hand side of the screen. You choose what you want to buy and click on the quantity you want to by on the list (for example if you want 2 times espresso you click on the number two on the espresso row).
+
+When the face detecting screen appears, move your head slowly to find the position where a green box appears around your face. That means the camera has recognized your face as a face. If the recognizion is succesful you will get to your saldo page. Saldo page shows your saldo and what you bought. In order to complete your payment push the Confirm button. To cancel your purchase press Cancel. If the program has recognized you incorrectly push the userlist button to get to userlist where you can choose your correct name from the list.
+
+If you don’t do anything in the saldo screen for 30 seconds the purchase will be automatically cancelled and the screen goes back to main screen.
+
+\subsubsection*{Buying with face recognition}
+On the main screen there is a list of buyable products on the left hand side of the screen. You choose what you want to buy and click on the quantity you want to by on the list (for example if you want 2 times espresso you click on the number two on the espresso row).
+
+When the face detecting screen appears, move your head slowly to find the position where a green box appears around your face. That means the camera has recognized your face as a face. If the recognizion is succesful you will get to your saldo page. Saldo page shows your saldo and what you bought. In order to complete your payment push the Confirm button. To cancel your purchase press Cancel. If the program has recognized you incorrectly push the userlist button to get to userlist where you can choose your correct name from the list.
+
+If you don’t do anything in the saldo screen for 30 seconds the purchase will be automatically cancelled and the screen goes back to main scree
+
+\subsubsection*{Buying without face recognition}
+Buying without face recognition is otherwise the same than buying with face recognition but instead of pressing the amount of what you want to buy once normally you hold the amount button pressed. That should get you into a userlist where you should be able to pick your username. After this you get to saldo page and everything is the same than in buying with face recognition
+
 \subsection{Paying by bringing products}
+
+On the up right corner of the main screen is the Bring Products button. Press it and you get the same kind of list that you get when buying products. You can get back to buyable products list by pressing the Buy Products button on the up right corner of the screen. The Bring Products list is used exactly the same way than the Buy Products list is used (for further information see 1.3 Buying Products).
+
 \subsection{Adding or deleting photos after registering}
 
 \section{Swing}
 \subsection{Getting started}
-\subsubsection{Running the program}
+\subsubsection*{Running the program}
 \begin{enumerate}
 \item{Download and install OpenCV (www.opencv.org) and 
 Java (www.java.com)}
@@ -69,7 +103,7 @@ For example, the command 'java -jar swingui.jar font:26 cam:1
 ip:www.example.com port:4800 dofacedetect' will launch the program with a 
 font-size of 26, using the system's second camera and active face detection, 
 and attempt to connect to a Facecafe server at www.example.com:4800.
-\subsubsection{Building the program}
+\subsubsection*{Building the program}
 \begin{enumerate}
 \item{Download and install Java (www.java.com) and 
 Maven (maven.apache.org).}
@@ -98,7 +132,7 @@ the system by clicking "Manual Login" from the front page and choosing your user
 the list.}
 \end{enumerate}
 \subsection{Buying products}
-\subsubsection{Buying products using face recognition}
+\subsubsection*{Buying products using face recognition}
 \begin{enumerate}
 \item{Find the product you wish to buy from the front page. On its right, there are five buttons
 with numbers on them. Click the button with the amount you wish to buy. Ex.: if you wish to buy
@@ -111,7 +145,7 @@ on your username and the click the "OK" button.}
 \item{If you were recognized incorrectly and your name is not in the list, click the "User List"
 button, select your user name from the list and the click the "OK" button.}
 \end{enumerate}
-\subsubsection{Buying products without face recognition}
+\subsubsection*{Buying products without face recognition}
 \begin{enumerate}
 \item{On the front page, click the button labeled "Manual Login".}
 \item{Find your username from the list and click it.}
@@ -120,7 +154,7 @@ with numbers on them. Click the button with the amount you wish to buy. Ex.: if 
 3 espressos, click the button labeled "3" to the right of the word "Espresso".}
 \item{Click the "OK" button.}
 \end{enumerate}
-\subsubsection{Buying multiple products at once}
+\subsubsection*{Buying multiple products at once}
 \begin{enumerate}
 \item{Click the "Buy Multiple Products" button on the front page or in the user menu.}
 \item{If you are using face recognition, log in as explained above.}
